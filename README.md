@@ -1,6 +1,11 @@
+<div align="center">
+      👇</br>
+      <kbd><a href="../../new/main/?filename=toots/2023/<your-path>.toot">Create new toot</a></kbd>
+</div>
+
 # Galaxy Social
 
-This repository strives to democratises Galaxy's social media activity. The aim is to encourage collaboration, editing, peer-review of toots and much more.
+This repository strives to democratise Galaxy's social media activity. The aim is to encourage collaboration, editing, peer-review of toots and much more.
 In addition, we might add bots and support to automatise social media activity of awesome community contributions such as PRs, new tools, or events on the [Galaxy Hub](https://galaxyproject.org/).
 
 ## How to toot
