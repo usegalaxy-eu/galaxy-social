@@ -1,0 +1,32 @@
+type: object
+properties:
+  media:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+  images:
+    type: array
+    items:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        alt_text:
+          type: string
+    required: []
+  mentions:
+    type: object
+    additionalProperties:
+      type: array
+      items:
+        type: string
+    required: []
+  hashtags:
+    type: object
+    additionalProperties:
+      type: array
+      items:
+        type: string
+    required: []
