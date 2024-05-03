@@ -46,4 +46,4 @@ jobs:
           CHANGED_FILES: ${{ steps.get_changed_files.outputs.all_changed_files }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
-        run: python -u lib/galaxy-social.py preview
+        run: python -u github_run.py --preview

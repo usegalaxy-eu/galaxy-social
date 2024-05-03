@@ -121,7 +121,7 @@ class bluesky_client:
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, "html.parser")
             title_tag = soup.find("meta", attrs={"property": "og:title"})
-            title_tag_alt = soup.title.string
+            title_tag_alt = soup.title.string if soup.title else None
             description_tag = soup.find("meta", attrs={"property": "og:description"})
             description_tag_alt = soup.find("meta", attrs={"name": "description"})
             image_tag = soup.find("meta", attrs={"property": "og:image"})

@@ -38,6 +38,7 @@ class matrix_client:
                     filename=os.path.basename(filename),
                     filesize=file_stat.st_size,
                 )
+            os.remove(filename)
 
             if not isinstance(resp, UploadResponse):
                 continue

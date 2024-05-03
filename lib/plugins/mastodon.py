@@ -1,3 +1,4 @@
+import os
 import textwrap
 
 import requests
@@ -26,6 +27,7 @@ class mastodon_client:
                     description=image["alt_text"] if "alt_text" in image else None,
                 )
                 media_ids.append(media_uploaded["id"])
+                os.remove(filename)
 
         toot_id = None
         status = []
