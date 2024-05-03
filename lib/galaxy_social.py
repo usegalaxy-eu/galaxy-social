@@ -1,14 +1,14 @@
-from argparse import ArgumentParser
-from fnmatch import filter
-from importlib import import_module
 import json
 import os
 import sys
+from argparse import ArgumentParser
+from fnmatch import filter
+from importlib import import_module
 
+from bs4 import BeautifulSoup
 from jsonschema import validate
 from markdown import markdown
 from yaml import safe_load as yaml
-from bs4 import BeautifulSoup
 
 
 class galaxy_social:

@@ -3,6 +3,7 @@ import fnmatch
 import os
 
 import requests
+
 from lib.galaxy_social import galaxy_social
 
 
@@ -60,10 +61,11 @@ class github_run:
 
         return files_to_process
 
+
 if __name__ == "__main__":
     github = github_run()
     files_to_process = github.get_files()
-    
+
     parser = argparse.ArgumentParser(description="Process Markdown files.")
     parser.add_argument("--preview", action="store_true", help="Preview the post")
     args = parser.parse_args()
