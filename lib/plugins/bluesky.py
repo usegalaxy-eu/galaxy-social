@@ -150,12 +150,14 @@ class bluesky_client:
         return embed_external
 
     def create_post(
-        self, content, mentions, hashtags, images
+        self, content, mentions, hashtags, images, **kwargs
     ) -> Tuple[bool, Optional[str]]:
         embed_images = []
         for image in images[:4]:
             response = requests.get(image["url"])
-            if response.status_code == 200:
+            if response.status_code == 200 and response.headers.get(
+                "Content-Type", ""
+            ).startswith("image/"):
                 img_data = response.content
                 upload = self.blueskysocial.com.atproto.repo.upload_blob(img_data)
                 embed_images.append(

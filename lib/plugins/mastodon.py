@@ -1,4 +1,4 @@
-import os
+import tempfile
 import textwrap
 
 import requests
@@ -14,20 +14,21 @@ class mastodon_client:
         )
         self.max_content_length = kwargs.get("max_content_length", 500)
 
-    def create_post(self, content, mentions, hashtags, images):
+    def create_post(self, content, mentions, hashtags, images, **kwargs):
         media_ids = []
         for image in images[:4]:
             response = requests.get(image["url"])
-            filename = image["url"].split("/")[-1]
-            if response.status_code == 200:
-                with open(filename, "wb") as f:
-                    f.write(response.content)
-                media_uploaded = self.mastodon_handle.media_post(
-                    media_file=filename,
-                    description=image["alt_text"] if "alt_text" in image else None,
-                )
-                media_ids.append(media_uploaded["id"])
-                os.remove(filename)
+            if response.status_code == 200 and response.headers.get(
+                "Content-Type", ""
+            ).startswith("image/"):
+                with tempfile.NamedTemporaryFile() as temp:
+                    temp.write(response.content)
+                    temp.flush()
+                    media_uploaded = self.mastodon_handle.media_post(
+                        media_file=temp.name,
+                        description=image["alt_text"] if "alt_text" in image else None,
+                    )
+                    media_ids.append(media_uploaded["id"])
 
         toot_id = None
         status = []

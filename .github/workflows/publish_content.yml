@@ -55,7 +55,7 @@ jobs:
           CHANGED_FILES: ${{ steps.get_changed_files.outputs.all_changed_files }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
-        run: python -u github_run.py
+        run: python -u github_run.py --json-out processed_files.json
 
       - name: Commit changes
         if: steps.get_changed_files.outputs.any_changed == 'true'

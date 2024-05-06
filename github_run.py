@@ -14,7 +14,8 @@ class github_run:
         self.pr_number = os.getenv("PR_NUMBER")
 
     def comment(self, comment_text):
-        if not comment_text:
+        print(comment_text)
+        if not comment_text or not self.github_token or not self.repo or not self.pr_number:
             return
         headers = {
             "Accept": "application/vnd.github+json",
@@ -65,12 +66,20 @@ class github_run:
 if __name__ == "__main__":
     github = github_run()
     files_to_process = github.get_files()
+    if not files_to_process:
+        github.comment("No files to process.")
+        exit()
 
-    parser = argparse.ArgumentParser(description="Process Markdown files.")
+    parser = argparse.ArgumentParser(description="Galaxy Social.")
     parser.add_argument("--preview", action="store_true", help="Preview the post")
+    parser.add_argument(
+        "--json-out",
+        help="Output json file for processed files",
+        default="processed_files.json",
+    )
     args = parser.parse_args()
 
-    gs = galaxy_social(args.preview)
+    gs = galaxy_social(args.preview, args.json_out)
     try:
         message = gs.process_files(files_to_process)
     except Exception as e:
