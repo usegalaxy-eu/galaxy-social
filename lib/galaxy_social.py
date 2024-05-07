@@ -175,7 +175,7 @@ if __name__ == "__main__":
     if args.files:
         files_to_process = args.files
         files_not_exist = [
-            file for file in files_to_process if not os.path.exists(file)
+            file for file in files_to_process if not os.path.isfile(file)
         ]
         if files_not_exist:
             raise Exception(f"{', '.join(files_not_exist)} -> not exist.")
