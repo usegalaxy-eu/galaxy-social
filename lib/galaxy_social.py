@@ -139,9 +139,7 @@ class galaxy_social:
     def process_files(self, files_to_process):
         processed_files = {}
         messages = "---\n"
-        processed_files_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "..", self.json_out
-        )
+        processed_files_path = self.json_out
         if os.path.exists(processed_files_path):
             with open(processed_files_path, "r") as file:
                 processed_files = json.load(file)
