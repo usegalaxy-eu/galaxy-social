@@ -180,7 +180,7 @@ if __name__ == "__main__":
         if files_not_exist:
             raise Exception(f"{', '.join(files_not_exist)} -> not exist.")
     elif args.folder:
-        if not os.path.exists(args.folder):
+        if not os.path.isdir(args.folder):
             raise Exception(f"{args.folder} -> not exist.")
         files_to_process = [
             os.path.join(root, filename)
