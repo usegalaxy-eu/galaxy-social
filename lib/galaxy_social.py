@@ -42,9 +42,9 @@ class galaxy_social:
                     if plugin.get("config"):
                         for key, value in plugin["config"].items():
                             if isinstance(value, str) and value.startswith("$"):
-                                if os.environ.get(value[1:]):
-                                    config[key] = os.environ.get(value[1:])
-                                else:
+                               try:
+                                    config[key] = os.environ[value[1:]]
+                               except KeyError:
                                     raise Exception(
                                         f"Missing environment variable {value[1:]}."
                                     )
