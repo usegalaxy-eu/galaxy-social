@@ -189,7 +189,7 @@ if __name__ == "__main__":
         ]
     if not files_to_process:
         print("No files to process.")
-        exit()
+        sys.exit()
     print(f"Processing {len(files_to_process)} file(s): {files_to_process}\n")
     gs = galaxy_social(args.preview, args.json_out)
     message = gs.process_files(files_to_process)

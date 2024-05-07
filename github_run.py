@@ -1,6 +1,7 @@
 import argparse
 import fnmatch
 import os
+import sys
 
 import requests
 
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     files_to_process = github.get_files()
     if not files_to_process:
         github.comment("No files to process.")
-        exit()
+        sys.exit()
 
     parser = argparse.ArgumentParser(description="Galaxy Social.")
     parser.add_argument("--preview", action="store_true", help="Preview the post")
