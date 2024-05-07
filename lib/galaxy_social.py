@@ -37,23 +37,20 @@ class galaxy_social:
                         f"Error with plugin {module_name}.{class_name}.\n{e}"
                     )
 
-                try:
-                    config = {}
-                    if plugin.get("config"):
-                        for key, value in plugin["config"].items():
-                            if isinstance(value, str) and value.startswith("$"):
-                               try:
-                                    config[key] = os.environ[value[1:]]
-                               except KeyError:
-                                    raise Exception(
-                                        f"Missing environment variable {value[1:]}."
-                                    )
-                            else:
-                                config[key] = value
-                except Exception as e:
-                    raise Exception(
-                        f"Missing config for {module_name}.{class_name}.\n{e}"
-                    )
+                config = {}
+                if plugin.get("config"):
+                    for key, value in plugin["config"].items():
+                        if isinstance(value, str) and value.startswith("$"):
+                            try:
+                                config[key] = os.environ[value[1:]]
+                            except KeyError:
+                                raise Exception(
+                                    f"Missing environment variable {value[1:]}."
+                                )
+                        else:
+                            config[key] = value
+                else:
+                    raise Exception(f"Missing config for {module_name}.{class_name}.")
 
                 try:
                     self.plugins[plugin["name"].lower()] = plugin_class(**config)
