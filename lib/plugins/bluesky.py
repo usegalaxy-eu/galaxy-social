@@ -129,7 +129,7 @@ class bluesky_client:
             description = (
                 description_tag["content"]
                 if description_tag
-                else description_tag_alt["content"] if description_tag_alt else None
+                else description_tag_alt["content"] if description_tag_alt else ""
             )
             uri = url
             thumb = (
