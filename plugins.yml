@@ -1,0 +1,40 @@
+plugins:
+  - name: mastodon
+    class: mastodon.mastodon_client
+    enabled: true
+    config:
+      base_url: "https://mstdn.science"
+      access_token: $MASTODON_ACCESS_TOKEN
+      max_content_length: 500
+
+  - name: bluesky
+    class: bluesky.bluesky_client
+    enabled: true
+    config:
+      base_url: "https://bsky.social"
+      username: $BLUESKY_USERNAME
+      password: $BLUESKY_PASSWORD
+      max_content_length: 300
+
+  - name: matrix
+    class: matrix.matrix_client
+    enabled: true
+    config:
+      base_url: "https://matrix.org"
+      access_token: $MATRIX_ACCESS_TOKEN
+      room_id: $MATRIX_ROOM_ID
+      user_id: $MATRIX_USER_ID
+
+  - name: slack
+    class: slack.slack_client
+    enabled: true
+    config:
+      access_token: $SLACK_ACCESS_TOKEN
+      channel_id: $SLACK_CHANNEL_ID
+      max_content_length: 40000
+
+  - name: markdown
+    class: markdown.markdown_client
+    enabled: true
+    config:
+      save_path: "markdown_cache"

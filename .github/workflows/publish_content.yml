@@ -1,0 +1,65 @@
+name: Publish Content
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [closed]
+
+jobs:
+  publish:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Get changed files in posts folder
+        id: get_changed_files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: posts/**
+          json: "true"
+
+      - name: get published files cache
+        if: steps.get_changed_files.outputs.any_changed == 'true'
+        run: |
+          git fetch origin processed_files:processed_files
+          git checkout processed_files -- processed_files.json
+
+      - name: Set up Python
+        if: steps.get_changed_files.outputs.any_changed == 'true'
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        if: steps.get_changed_files.outputs.any_changed == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run script to publish contents
+        if: steps.get_changed_files.outputs.any_changed == 'true'
+        env:
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+          MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
+          MATRIX_ROOM_ID: ${{ secrets.MATRIX_ROOM_ID }}
+          MATRIX_USER_ID: ${{ secrets.MATRIX_USER_ID }}
+          SLACK_ACCESS_TOKEN: ${{ secrets.SLACK_ACCESS_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          CHANGED_FILES: ${{ steps.get_changed_files.outputs.all_changed_files }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.number }}
+        run: python -u github_run.py --json-out processed_files.json
+
+      - name: Commit changes
+        if: steps.get_changed_files.outputs.any_changed == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: "processed_files.json"
+          branch: "processed_files"
