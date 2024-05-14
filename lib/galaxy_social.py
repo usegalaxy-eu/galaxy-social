@@ -59,7 +59,7 @@ class galaxy_social:
                         f"Invalid config for {module_name}.{class_name}.\nChange configs in plugins.yml.\n{e}"
                     )
 
-    def parse_markdown_file(self, file_path):
+    def lint_markdown_file(self, file_path):
         with open(file_path, "r") as file:
             content = file.read()
         try:
@@ -71,8 +71,16 @@ class galaxy_social:
             with open(schema_path, "r") as f:
                 schema = yaml(f)
             validate(instance=metadata, schema=schema)
+            return [metadata, text], True
         except Exception as e:
-            raise Exception(f"Invalid metadata in {file_path}.\n{e}")
+            return e, False
+
+    def parse_markdown_file(self, file_path):
+        result, status = self.lint_markdown_file(file_path)
+        if not status:
+            raise Exception(f"Failed to parse {file_path}.\n{result}")
+        
+        metadata, text = result 
 
         metadata["media"] = [media.lower() for media in metadata["media"]]
 
