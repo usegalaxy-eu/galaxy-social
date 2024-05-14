@@ -1,7 +1,7 @@
 plugins:
   - name: mastodon
     class: mastodon.mastodon_client
-    enabled: true
+    enabled: false
     config:
       base_url: "https://mstdn.science"
       access_token: $MASTODON_ACCESS_TOKEN
@@ -9,12 +9,20 @@ plugins:
 
   - name: bluesky
     class: bluesky.bluesky_client
-    enabled: true
+    enabled: false
     config:
       base_url: "https://bsky.social"
       username: $BLUESKY_USERNAME
       password: $BLUESKY_PASSWORD
       max_content_length: 300
+
+  - name: mastodon-eu-freiburg
+    class: mastodon.mastodon_client
+    enabled: true
+    config:
+      base_url: "https://xn--baw-joa.social"
+      access_token: $MASTODON_EU_FR_TOKEN
+      max_content_length: 500
 
   - name: matrix-eu-announce
     class: matrix.matrix_client
@@ -26,7 +34,7 @@ plugins:
 
   - name: slack
     class: slack.slack_client
-    enabled: true
+    enabled: false
     config:
       access_token: $SLACK_ACCESS_TOKEN
       channel_id: $SLACK_CHANNEL_ID
