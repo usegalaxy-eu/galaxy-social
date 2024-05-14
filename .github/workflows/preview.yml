@@ -25,7 +25,7 @@ jobs:
       - name: Create processed_files if not exist
         if: steps.get_changed_files.outputs.any_changed == 'true'
         run: |
-          if ! git show-ref --verify --quiet refs/heads/processed_files; then
+          if ! git show-ref --verify --quiet refs/remotes/origin/processed_files; then
               git checkout --orphan processed_files
               echo "{}" > processed_files.json
               git config user.email "usegalaxy-eu@users.noreply.github.com"
