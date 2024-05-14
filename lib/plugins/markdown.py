@@ -12,12 +12,20 @@ class markdown_client:
 
     def create_post(self, content, mentions, hashtags, images, **kwargs):
         try:
-            _images = "\n".join(
-                [f'![{image.get("alt_text", "")}]({image["url"]})' for image in images]
+            _images = (
+                "\n"
+                + "\n".join(
+                    [
+                        f'![{image.get("alt_text", "")}]({image["url"]})'
+                        for image in images
+                    ]
+                )
+                if images
+                else ""
             )
-            mentions = " ".join([f"@{v}" for v in mentions])
-            hashtags = " ".join([f"#{v}" for v in hashtags])
-            text = f"{content}\n{mentions}\n{hashtags}\n{_images}"
+            mentions = "\n" + " ".join([f"@{v}" for v in mentions]) if mentions else ""
+            hashtags = "\n" + " ".join([f"#{v}" for v in hashtags]) if hashtags else ""
+            text = f"{content}{mentions}{hashtags}{_images}"
             if self.save_path:
                 os.makedirs(self.save_path, exist_ok=True)
                 prefix = (

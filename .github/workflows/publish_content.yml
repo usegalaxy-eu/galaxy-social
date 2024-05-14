@@ -28,7 +28,7 @@ jobs:
         run: |
           if ! git show-ref --verify --quiet refs/heads/processed_files; then
               git checkout --orphan processed_files
-              echo "" > processed_files.json
+              echo "{}" > processed_files.json
               git add processed_files.json
               git commit -m "Create processed_files"
               git push origin processed_files
