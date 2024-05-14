@@ -4,8 +4,8 @@ media:
 
 mentions:
   matrix:
-    - @anikaerxleben:matrix.org
-    - @bgruening:matrix.org
+    - "anikaerxleben:matrix.org"
+    - "bgruening:matrix.org"
 
 ---
 The Freiburg team of Galaxy Europe has an open Galaxy Admin position.
