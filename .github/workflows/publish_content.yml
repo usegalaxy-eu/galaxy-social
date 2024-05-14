@@ -49,7 +49,6 @@ jobs:
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
           MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           MATRIX_ROOM_ID: ${{ secrets.MATRIX_ROOM_ID }}
-          MATRIX_USER_ID: ${{ secrets.MATRIX_USER_ID }}
           SLACK_ACCESS_TOKEN: ${{ secrets.SLACK_ACCESS_TOKEN }}
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
           CHANGED_FILES: ${{ steps.get_changed_files.outputs.all_changed_files }}

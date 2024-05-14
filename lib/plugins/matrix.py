@@ -14,7 +14,6 @@ class matrix_client:
         self.base_url = kwargs.get("base_url", "https://matrix.org")
         self.client = AsyncClient(self.base_url)
         self.client.access_token = kwargs.get("access_token")
-        self.client.user_id = kwargs.get("user_id")
         self.client.device_id = kwargs.get("device_id")
         self.room_id = kwargs.get("room_id")
 

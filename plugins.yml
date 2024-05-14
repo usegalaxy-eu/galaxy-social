@@ -23,7 +23,6 @@ plugins:
       base_url: "https://matrix.org"
       access_token: $MATRIX_ACCESS_TOKEN
       room_id: $MATRIX_ROOM_ID
-      user_id: $MATRIX_USER_ID
 
   - name: slack
     class: slack.slack_client
