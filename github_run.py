@@ -2,6 +2,7 @@ import argparse
 import fnmatch
 import os
 import sys
+import traceback
 
 import requests
 
@@ -92,6 +93,7 @@ if __name__ == "__main__":
     gs = galaxy_social(args.preview, args.json_out)
     try:
         message = gs.process_files(files_to_process)
+        github.comment(message)
     except Exception as e:
-        message = e
-    github.comment(message)
+        github.comment(traceback.format_exc())
+        raise e

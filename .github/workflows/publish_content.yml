@@ -22,6 +22,17 @@ jobs:
         with:
           files: posts/**
           json: "true"
+      
+      - name: Create processed_files if not exist
+        if: steps.get_changed_files.outputs.any_changed == 'true'
+        run: |
+          if ! git show-ref --verify --quiet refs/heads/processed_files; then
+              git checkout --orphan processed_files
+              echo "" > processed_files.json
+              git add processed_files.json
+              git commit -m "Create processed_files"
+              git push origin processed_files
+          fi
 
       - name: get published files cache
         if: steps.get_changed_files.outputs.any_changed == 'true'
