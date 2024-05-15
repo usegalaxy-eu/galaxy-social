@@ -2,7 +2,7 @@
 
 <div align="center">
       👇</br>
-      <kbd><a href="../../new/main/?filename=posts/2024/<your-path>.md">Create new post</a></kbd>
+      <kbd><a href="../../new/main/?filename=posts/2024/<your-path>.md&value=---%0Amedia%3A%0A%20 - bluesky%0A%20 - mastodon%0A%20 - matrix%0A%20 - slack%0A%0Aimages%3A%0A%20 - url%3A https%3A%2F%2Fexample.com%2Fa.jpg%0A%20%20%20 alt_text%3A A%0A%20 - url%3A https%3A%2F%2Fexample.org%2Fb.png%0A%20%20%20 alt_text%3A B%0A%0Amentions%3A%0A%20 bluesky%3A%0A%20%20%20 - a.bsky.social%0A%20 mastodon%3A%0A%20%20%20 - a%0A%20 matrix%3A%0A%20%20%20 - a%3Amatrix.org%0A%0Ahashtags%3A%0A%20 bluesky%3A%0A%20%20%20 - a%0A%20%20%20 - b%0A%20 mastodon%3A%0A%20%20%20 - c%0A%20%20%20 - d%0A---%0AYour text content goes here.">Create new post</a></kbd>
 </div>
 
 ## How to Create a Post
