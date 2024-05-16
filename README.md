@@ -2,7 +2,7 @@
 
 <div align="center">
       👇</br>
-      <kbd><a href="../../new/main/?filename=posts/2024/<your-path>.md&value=---%0Amedia%3A%0A%20 - bluesky%0A%20 - mastodon%0A%20 - matrix%0A%20 - slack%0A%0Aimages%3A%0A%20 - url%3A https%3A%2F%2Fexample.com%2Fa.jpg%0A%20%20%20 alt_text%3A A%0A%20 - url%3A https%3A%2F%2Fexample.org%2Fb.png%0A%20%20%20 alt_text%3A B%0A%0Amentions%3A%0A%20 bluesky%3A%0A%20%20%20 - a.bsky.social%0A%20 mastodon%3A%0A%20%20%20 - a%0A%20 matrix%3A%0A%20%20%20 - a%3Amatrix.org%0A%0Ahashtags%3A%0A%20 bluesky%3A%0A%20%20%20 - a%0A%20%20%20 - b%0A%20 mastodon%3A%0A%20%20%20 - c%0A%20%20%20 - d%0A---%0AYour text content goes here.">Create new post</a></kbd>
+      <kbd><a href="../../new/main/?filename=posts/2024/<your-path>.md&value=---%0Amedia%3A%0A%20 - bluesky%0A%20 - mastodon%0A%20 - matrix%0A%20 - slack%0A%0Amentions%3A%0A%20 bluesky%3A%0A%20%20%20 - a.bsky.social%0A%20 mastodon%3A%0A%20%20%20 - a%0A%20 matrix%3A%0A%20%20%20 - a%3Amatrix.org%0A%0Ahashtags%3A%0A%20 bluesky%3A%0A%20%20%20 - a%0A%20%20%20 - b%0A%20 mastodon%3A%0A%20%20%20 - c%0A%20%20%20 - d%0A---%0AYour text content goes here.%0A%0A![A](https%3A%2F%2Fexample.com%2Fa.jpg)%0A![B](https%3A%2F%2Fexample.org%2Fb.png)">Create new post</a></kbd>
 </div>
 
 ## How to Create a Post
@@ -23,12 +23,6 @@ media:
   - matrix
   - slack
 
-images:
-  - url: https://example.com/a.jpg
-    alt_text: A
-  - url: https://example.org/b.png
-    alt_text: B
-
 mentions:
   bluesky:
     - a.bsky.social
@@ -47,17 +41,19 @@ hashtags:
 ---
 Your text content goes here.
 
+![A](https://example.com/a.jpg)
+![B](https://example.org/b.png)
 ```
 **Notes on the Template:**
 - Everything between the two `---` are metatags and should be in YAML format.
 
 - "media" (Required): Ensure the media name is implemented inside the `plugins.yml`.
 
-- "images" (Optional): Include links to desired images. The alt_text is optional but recommended.
-
 - "mentions" and "hashtags" (Optional): Follow the specified format as shown in the template.
 
-- "Your text content goes here." (Required): This is the content that will be posted to social media platforms. When the character limit is reached on a social media, it will be divided into several posts as a thread.
+- "Your text content goes here." (Required): This is the content that will be posted to social media platforms. When the character limit is reached on a social media, it will be divided into several posts as a thread. Note that some social media platforms do not support Markdown formatting, so use plain text only.
+
+- "images" (Optional): You can include images using Markdown format at the end of the file like this: `![Alternative text](Link to the image)`. Alternatively, you can simply drag and drop an image from your PC while adding your file.
 
 4. **Create a Pull Request:** Once your post is ready, [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request?tool=webui#creating-the-pull-request) to the main branch from another branch or [from your fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
 

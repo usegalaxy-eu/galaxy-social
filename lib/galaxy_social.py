@@ -1,13 +1,12 @@
 import json
 import os
+import re
 import sys
 from argparse import ArgumentParser
 from fnmatch import filter
 from importlib import import_module
 
-from bs4 import BeautifulSoup
 from jsonschema import validate
-from markdown import markdown
 from yaml import safe_load as yaml
 
 
@@ -79,8 +78,8 @@ class galaxy_social:
         result, status = self.lint_markdown_file(file_path)
         if not status:
             raise Exception(f"Failed to parse {file_path}.\n{result}")
-        
-        metadata, text = result 
+
+        metadata, text = result
 
         metadata["media"] = [media.lower() for media in metadata["media"]]
 
@@ -100,10 +99,15 @@ class galaxy_social:
             if metadata.get("hashtags")
             else {}
         )
-        markdown_content = markdown(text.strip())
-        plain_content = BeautifulSoup(markdown_content, "html.parser").get_text(
-            separator="\n"
-        )
+
+        image_pattern = re.compile(r"!\[(.*?)\]\((.*?)\)")
+        images = image_pattern.findall(text)
+        plain_content = re.sub(image_pattern, "", text).strip()
+
+        metadata["images"] = metadata.get("images", [])
+        for image in images:
+            metadata["images"].append({"url": image[1], "alt_text": image[0]})
+
         return plain_content, metadata
 
     def process_markdown_file(self, file_path, processed_files):
