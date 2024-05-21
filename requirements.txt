@@ -1,7 +1,6 @@
 aiofiles==23.2.1
 atproto==0.0.46
 beautifulsoup4==4.12.3
-Markdown==3.6
 Mastodon.py==1.8.1
 matrix-nio==0.24.0
 Pillow==10.3.0
