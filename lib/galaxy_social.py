@@ -104,9 +104,9 @@ class galaxy_social:
         images = image_pattern.findall(text)
         plain_content = re.sub(image_pattern, "", text).strip()
 
-        metadata["images"] = metadata.get("images", [])
-        for image in images:
-            metadata["images"].append({"url": image[1], "alt_text": image[0]})
+        metadata["images"] = [
+            {"url": image[1], "alt_text": image[0]} for image in images
+        ]
 
         return plain_content, metadata
 
