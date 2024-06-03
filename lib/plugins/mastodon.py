@@ -61,7 +61,6 @@ class mastodon_client:
         ):
             toot = self.mastodon_handle.status_post(
                 status=text,
-                visibility="private",
                 in_reply_to_id=toot_id,
                 media_ids=media_ids if (media_ids and toot_id is None) else None,
             )
