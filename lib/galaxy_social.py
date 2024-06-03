@@ -22,9 +22,6 @@ class galaxy_social:
 
         self.plugins = {}
         for plugin in self.plugins_config["plugins"]:
-            if preview and plugin["name"].lower() != "markdown":
-                continue
-
             if plugin["enabled"]:
                 module_name, class_name = plugin["class"].rsplit(".", 1)
                 try:
@@ -112,35 +109,41 @@ class galaxy_social:
 
     def process_markdown_file(self, file_path, processed_files):
         content, metadata = self.parse_markdown_file(file_path)
-        if self.preview:
+        formatting_results = {}
+        for media in metadata["media"]:
             try:
-                _, _, message = self.plugins["markdown"].create_post(
+                formatting_results[media] = self.plugins[media].format_content(
                     content=content,
-                    mentions=[],
-                    hashtags=[],
+                    mentions=metadata.get("mentions", {}).get(media, []),
+                    hashtags=metadata.get("hashtags", {}).get(media, []),
                     images=metadata.get("images", []),
-                    media=metadata["media"],
-                    preview=True,
-                    file_path=file_path,
                 )
-                return processed_files, message
             except Exception as e:
-                raise Exception(f"Failed to create preview for {file_path}.\n{e}")
+                raise Exception(f"Failed to format post for {file_path}.\n{e}")
+        if self.preview:
+            message = f"File: {file_path}"
+            for media in metadata["media"]:
+                formatted_content, preview, warning = formatting_results[media]
+                message += f"\n\nThis is a preview of what will be posted to {media}:\n\n"
+                message += preview
+                if warning:
+                    message += f"\nWARNING: {warning}"
+            return processed_files, message
+
         stats = {}
         url = {}
         if file_path in processed_files:
             stats = processed_files[file_path]
         for media in metadata["media"]:
-            if file_path in processed_files and media in processed_files[file_path]:
+            if stats.get(media):
+                print("Skipping previous post to", media)
                 continue
-            mentions = metadata.get("mentions", {}).get(media, [])
-            hashtags = metadata.get("hashtags", {}).get(media, [])
-            images = metadata.get("images", [])
+            formatted_content, _, _ = formatting_results[media]
             stats[media], url[media] = self.plugins[media].create_post(
-                content, mentions, hashtags, images, file_path=file_path
+                formatted_content, file_path=file_path
             )
         url_text = "\n".join(
-            [f"[{media}]({link})" for media, link in url.items() if link]
+            [f"- [{media}]({link})" if link else f"- {media}" for media, link in url.items() if stats[media]]
         )
         message = f"Posted to:\n\n{url_text}" if url_text else "No posts created."
 
@@ -159,7 +162,7 @@ class galaxy_social:
             processed_files, message = self.process_markdown_file(
                 file_path, processed_files
             )
-            messages += f"{message}\n\n---\n"
+            messages += f"{message}\n---\n"
             if not self.preview:
                 with open(processed_files_path, "w") as file:
                     json.dump(processed_files, file)
