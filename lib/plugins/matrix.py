@@ -49,19 +49,28 @@ class matrix_client:
                 # try to get the display name of the mentioned matrix user
                 response = await self.client.get_displayname(f"@{mention}")
                 mention_name = getattr(response, "displayname", mention)
-                mention_links.append(f"[{mention_name}](https://matrix.to/#/@{mention})")
+                mention_links.append(
+                    f"[{mention_name}](https://matrix.to/#/@{mention})"
+                )
                 message_content["m.mentions"]["user_ids"].append(f"@{mention}")
             mentions_string = " ".join(mention_links)
             content = f"{mentions_string}: {content}"
         if hashtags:
             content += "\n\n" + " ".join([f"\\#{h}" for h in hashtags])
         formatted_body = markdown(content)
-        body = BeautifulSoup(formatted_body, features="html.parser").get_text("\n", strip=True)
+        body = BeautifulSoup(formatted_body, features="html.parser").get_text(
+            "\n", strip=True
+        )
         message_content["body"] = body
         message_content["formatted_body"] = formatted_body
         formatted_content.append(message_content)
         warnings = ""
-        return formatted_content, preview + "\n" + message_content["formatted_body"], warnings
+        await self.client.close()
+        return (
+            formatted_content,
+            preview + "\n" + message_content["formatted_body"],
+            warnings,
+        )
 
     async def async_create_post(self, content):
         for msg in content:
@@ -113,9 +122,10 @@ class matrix_client:
         return True, event_link
 
     def format_content(self, *args, **kwargs):
-        return self.runner.run(self.async_format_content(*args, **kwargs))
+        result = self.runner.run(self.async_format_content(*args, **kwargs))
+        return result
 
     def create_post(self, content, **kwargs):
         # hashtags and alt_texts are not used in this function
-        return self.runner.run(self.async_create_post(content))
-
+        result = self.runner.run(self.async_create_post(content))
+        return result

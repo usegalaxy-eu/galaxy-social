@@ -12,10 +12,7 @@ class markdown_client:
 
     def format_content(self, content, mentions, hashtags, images, **kwargs):
         _images = "\n".join(
-            [
-                f'![{image.get("alt_text", "")}]({image["url"]})'
-                for image in images
-            ]
+            [f'![{image.get("alt_text", "")}]({image["url"]})' for image in images]
         )
         mentions = " ".join([f"@{v}" for v in mentions])
         hashtags = " ".join([f"#{v}" for v in hashtags])
@@ -29,13 +26,10 @@ class markdown_client:
             if self.save_path:
                 os.makedirs(self.save_path, exist_ok=True)
                 prefix = kwargs.get("file_path", "").replace(".md", "")
-                file_name = (
-                    f"{self.save_path}/{prefix.replace('/', '-')}_{time.strftime('%Y%m%d-%H%M%S')}.md"
-                )
+                file_name = f"{self.save_path}/{prefix.replace('/', '-')}_{time.strftime('%Y%m%d-%H%M%S')}.md"
                 with open(file_name, "w") as f:
                     f.write(formatted_content)
             return True, None
         except Exception as e:
-                print(e)
-                return False, None
-
+            print(e)
+            return False, None

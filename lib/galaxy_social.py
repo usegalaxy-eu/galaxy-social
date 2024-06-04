@@ -121,14 +121,14 @@ class galaxy_social:
             except Exception as e:
                 raise Exception(f"Failed to format post for {file_path}.\n{e}")
         if self.preview:
-            message = f"File: {file_path}"
+            message = f'Hi, I\'m your friendly social media assistant. In the following, you will see a preview of this post "{file_path}"'
             for media in metadata["media"]:
                 formatted_content, preview, warning = formatting_results[media]
-                message += f"\n\nThis is a preview of what will be posted to {media}:\n\n"
+                message += f"\n\n## {media}\n\n"
                 message += preview
                 if warning:
                     message += f"\nWARNING: {warning}"
-            return processed_files, message
+            return processed_files, message.strip()
 
         stats = {}
         url = {}
@@ -143,7 +143,11 @@ class galaxy_social:
                 formatted_content, file_path=file_path
             )
         url_text = "\n".join(
-            [f"- [{media}]({link})" if link else f"- {media}" for media, link in url.items() if stats[media]]
+            [
+                f"- [{media}]({link})" if link else f"- {media}"
+                for media, link in url.items()
+                if stats[media]
+            ]
         )
         message = f"Posted to:\n\n{url_text}" if url_text else "No posts created."
 
@@ -153,7 +157,7 @@ class galaxy_social:
 
     def process_files(self, files_to_process):
         processed_files = {}
-        messages = "---\n"
+        messages = ""
         processed_files_path = self.json_out
         if os.path.exists(processed_files_path):
             with open(processed_files_path, "r") as file:
@@ -162,7 +166,7 @@ class galaxy_social:
             processed_files, message = self.process_markdown_file(
                 file_path, processed_files
             )
-            messages += f"{message}\n---\n"
+            messages += f"{message}\n\n---\n"
             if not self.preview:
                 with open(processed_files_path, "w") as file:
                     json.dump(processed_files, file)

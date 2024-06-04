@@ -1,8 +1,8 @@
+import re
 import tempfile
 import textwrap
 
 import requests
-from bs4 import BeautifulSoup
 from mastodon import Mastodon
 
 
@@ -14,6 +14,26 @@ class mastodon_client:
         )
         self.max_content_length = kwargs.get("max_content_length", 500)
 
+    def wrap_text_with_index(self, content):
+        if len(content) <= self.max_content_length:
+            return [content]
+        urls = re.findall(r"https?://\S+", content)
+        placeholder_content = re.sub(
+            r"https?://\S+", lambda m: "~" * len(m.group()), content
+        )
+        wrapped_lines = textwrap.wrap(
+            placeholder_content, self.max_content_length - 8, replace_whitespace=False
+        )
+        final_lines = []
+        url_index = 0
+        for i, line in enumerate(wrapped_lines, 1):
+            while "~~~~~~~~~~" in line and url_index < len(urls):
+                placeholder = "~" * len(urls[url_index])
+                line = line.replace(placeholder, urls[url_index], 1)
+                url_index += 1
+            final_lines.append(f"{line} ({i}/{len(wrapped_lines)})")
+        return final_lines
+
     def format_content(self, content, mentions, hashtags, images, **kwargs):
         mentions = " ".join([f"@{v}" for v in mentions])
         hashtags = " ".join([f"#{v}" for v in hashtags])
@@ -22,16 +42,17 @@ class mastodon_client:
             images = images[:4]
         else:
             warnings = ""
+
+        chunks = self.wrap_text_with_index(f"{content}\n\n{mentions}\n{hashtags}")
+
         formatted_content = {
-            "body": f"{content}\n\n{mentions}\n{hashtags}",
+            "body": "\n\n".join(chunks),
             "images": images,
+            "chunks": chunks,
         }
         preview = formatted_content["body"]
         images_preview = "\n".join(
-            [
-                f'![{image.get("alt_text", "")}]({image["url"]})'
-                for image in images
-            ]
+            [f'![{image.get("alt_text", "")}]({image["url"]})' for image in images]
         )
         preview += "\n\n" + images_preview
         return formatted_content, preview, warnings
@@ -53,12 +74,7 @@ class mastodon_client:
                     media_ids.append(media_uploaded["id"])
 
         toot_id = link = None
-        status = []
-        for text in textwrap.wrap(
-            content["body"],
-            self.max_content_length,
-            replace_whitespace=False,
-        ):
+        for text in content["chunks"]:
             toot = self.mastodon_handle.status_post(
                 status=text,
                 in_reply_to_id=toot_id,

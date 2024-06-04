@@ -1,3 +1,4 @@
+import re
 import textwrap
 
 import requests
@@ -9,6 +10,42 @@ class slack_client:
         self.client = WebClient(token=kwargs.get("access_token"))
         self.channel_id = kwargs.get("channel_id")
         self.max_content_length = kwargs.get("max_content_length", 40000)
+
+    def wrap_text_with_index(self, content):
+        if len(content) <= self.max_content_length:
+            return [content]
+        urls = re.findall(r"https?://\S+", content)
+        placeholder_content = re.sub(
+            r"https?://\S+", lambda m: "~" * len(m.group()), content
+        )
+        wrapped_lines = textwrap.wrap(
+            placeholder_content, self.max_content_length - 8, replace_whitespace=False
+        )
+        final_lines = []
+        url_index = 0
+        for i, line in enumerate(wrapped_lines, 1):
+            while "~~~~~~~~~~" in line and url_index < len(urls):
+                placeholder = "~" * len(urls[url_index])
+                line = line.replace(placeholder, urls[url_index], 1)
+                url_index += 1
+            final_lines.append(f"{line} ({i}/{len(wrapped_lines)})")
+        return final_lines
+
+    def format_content(self, content, mentions, hashtags, images, **kwargs):
+        warnings = ""
+        chunks = self.wrap_text_with_index(content)
+
+        formatted_content = {
+            "body": "\n\n".join(chunks),
+            "images": images,
+            "chunks": chunks,
+        }
+        preview = formatted_content["body"]
+        images_preview = "\n".join(
+            [f'![{image.get("alt_text", "")}]({image["url"]})' for image in images]
+        )
+        preview += "\n\n" + images_preview
+        return formatted_content, preview, warnings
 
     def upload_images(self, images):
         uploaded_files = []
@@ -40,15 +77,10 @@ class slack_client:
         )
         return response
 
-    def create_post(self, text, mentions, hashtags, images, **kwargs):
-        status = []
+    def create_post(self, content, **kwargs):
         link = None
         parent_ts = None
-        for text in textwrap.wrap(
-            text,
-            self.max_content_length,
-            replace_whitespace=False,
-        ):
+        for text in content["chunks"]:
             response = self.client.chat_postMessage(
                 channel=self.channel_id,
                 text=text,
@@ -59,8 +91,10 @@ class slack_client:
                 link = self.client.chat_getPermalink(
                     channel=self.channel_id, message_ts=parent_ts
                 )["permalink"]
-            status.append(response["ok"])
-        if images:
-            response = self.upload_images(images)
-            status.append(response["ok"])
-        return all(status), link
+            if not response["ok"]:
+                return False, None
+        if content["images"]:
+            response = self.upload_images(content["images"])
+            if not response["ok"]:
+                return False, None
+        return True, link

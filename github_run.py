@@ -31,14 +31,14 @@ class github_run:
         url = (
             f"https://api.github.com/repos/{self.repo}/issues/{self.pr_number}/comments"
         )
-        data = {"body": str(comment_text)}
-        response = requests.post(url, headers=headers, json=data)
-        if response.status_code == 201:
-            return True
-        else:
-            raise Exception(
-                f"Failed to create github comment!, {response.json().get('message')}"
-            )
+        for comment_body in comment_text.split("\n\n---\n"):
+            data = {"body": str(comment_body)}
+            response = requests.post(url, headers=headers, json=data)
+            if response.status_code != 201:
+                raise Exception(
+                    f"Failed to create github comment!, {response.json().get('message')}"
+                )
+        return True
 
     def get_files(self):
         url = f"https://api.github.com/repos/{self.repo}/pulls/{self.pr_number}/files"
