@@ -149,11 +149,52 @@ class bluesky_client:
             )
         return embed_external
 
-    def create_post(
-        self, content, mentions, hashtags, images, **kwargs
-    ) -> Tuple[bool, Optional[str]]:
+    def wrap_text_with_index(self, content):
+        if len(content) <= self.max_content_length:
+            return [content]
+        urls = re.findall(r"https?://\S+", content)
+        placeholder_content = re.sub(
+            r"https?://\S+", lambda m: "~" * len(m.group()), content
+        )
+        wrapped_lines = textwrap.wrap(
+            placeholder_content, self.max_content_length - 8, replace_whitespace=False
+        )
+        final_lines = []
+        url_index = 0
+        for i, line in enumerate(wrapped_lines, 1):
+            while "~~~~~~~~~~" in line and url_index < len(urls):
+                placeholder = "~" * len(urls[url_index])
+                line = line.replace(placeholder, urls[url_index], 1)
+                url_index += 1
+            final_lines.append(f"{line} ({i}/{len(wrapped_lines)})")
+        return final_lines
+
+    def format_content(self, content, mentions, hashtags, images, **kwargs):
+        mentions = " ".join([f"@{v}" for v in mentions])
+        hashtags = " ".join([f"#{v}" for v in hashtags])
+        if len(images) > 4:
+            warnings = f"A maximum of four images, not {len(images)}, can be included in a single bluesky post."
+            images = images[:4]
+        else:
+            warnings = ""
+
+        chunks = self.wrap_text_with_index(f"{content}\n\n{mentions}\n{hashtags}")
+
+        formatted_content = {
+            "body": "\n\n".join(chunks),
+            "images": images,
+            "chunks": chunks,
+        }
+        preview = formatted_content["body"]
+        images_preview = "\n".join(
+            [f'![{image.get("alt_text", "")}]({image["url"]})' for image in images]
+        )
+        preview += "\n\n" + images_preview
+        return formatted_content, preview, warnings
+
+    def create_post(self, content, **kwargs) -> Tuple[bool, Optional[str]]:
         embed_images = []
-        for image in images[:4]:
+        for image in content["images"][:4]:
             response = requests.get(image["url"])
             if response.status_code == 200 and response.headers.get(
                 "Content-Type", ""
@@ -172,17 +213,11 @@ class bluesky_client:
             else None
         )
 
-        status = []
         reply_to = None
-        mentions = " ".join([f"@{v}" for v in mentions])
-        hashtags = " ".join([f"#{v}" for v in hashtags])
-        for text in textwrap.wrap(
-            content + "\n" + mentions + "\n" + hashtags,
-            self.max_content_length,
-            replace_whitespace=False,
-        ):
+
+        for text in content["chunks"]:
             facets, last_url = self.parse_facets(text)
-            if not images or reply_to:
+            if not content["images"] or reply_to:
                 embed = self.handle_url_card(cast(str, last_url))
 
             post = self.blueskysocial.send_post(
@@ -192,8 +227,9 @@ class bluesky_client:
             for _ in range(5):
                 data = self.blueskysocial.get_posts([post.uri]).posts
                 if data:
-                    status.append(data[0].record.text == text)
                     break
+            else:
+                return False, None
 
             if reply_to is None:
                 link = f"https://bsky.app/profile/{self.blueskysocial.me.handle}/post/{post.uri.split('/')[-1]}"
@@ -201,4 +237,4 @@ class bluesky_client:
             parent = atproto.models.create_strong_ref(post)
             reply_to = atproto.models.AppBskyFeedPost.ReplyRef(parent=parent, root=root)
 
-        return all(status), link
+        return True, link

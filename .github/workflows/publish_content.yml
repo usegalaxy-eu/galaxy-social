@@ -14,7 +14,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get changed files in posts folder
         id: get_changed_files
@@ -31,9 +31,9 @@ jobs:
 
       - name: Set up Python
         if: steps.get_changed_files.outputs.any_changed == 'true'
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: '3.12'
 
       - name: Install dependencies
         if: steps.get_changed_files.outputs.any_changed == 'true'
