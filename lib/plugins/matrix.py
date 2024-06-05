@@ -96,7 +96,6 @@ class matrix_client:
                     )
 
                 if not isinstance(resp, UploadResponse):
-                    print("hello:", resp)
                     continue
 
                 # add info about the image to the message
