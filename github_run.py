@@ -15,6 +15,24 @@ class github_run:
         self.pr_number = os.getenv("PR_NUMBER")
 
     def comment(self, comment_text):
+        # Enclose mentions and hashtags in backticks before commenting
+        # so that they stand out for the reviewer and to prevent accidental
+        # mentioning of github users.
+        # When replacing mentions we explicitly handle mastodon-style ones
+        # (i.e. @user@server patterns).
+        # We deliberately leave "#"s and "@"s alone if they are following a "/"
+        # to avoid destroying links.
+        # by accident.
+        comment_text = re.sub(
+            r"([^a-zA-Z0-9_/])((?:[@][\w-]+)(?:[@][\w.-]+)?)",
+            lambda m: f"{m.group(1)}`{m.group(2)}`",
+            comment_text
+        )
+        comment_text = re.sub(
+            r"([^a-zA-Z0-9_/])([#][\w]+)",
+            lambda m: f"{m.group(1)}`{m.group(2)}`",
+            comment_text
+        )
         print(comment_text)
         if (
             not comment_text
