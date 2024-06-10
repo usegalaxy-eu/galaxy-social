@@ -55,7 +55,7 @@ class github_run:
             response = requests.post(url, headers=headers, json=data)
             if response.status_code != 201:
                 raise Exception(
-                    f"Failed to create github comment!, {response.json().get('message')}"
+                    f"Failed to create github comment!, {response.json()}"
                 )
         return True
 
