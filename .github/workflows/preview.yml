@@ -29,9 +29,12 @@ jobs:
           if ! git ls-remote --heads origin | grep -q "refs/heads/processed_files"; then
             git checkout -b processed_files
             git push origin processed_files
+            git checkout main
+          else
+            git checkout main
           fi
           git fetch origin processed_files:processed_files
-          git checkout processed_files -- processed_files.json
+          git checkout origin/processed_files -- processed_files.json
 
       - name: Set up Python
         if: steps.get_changed_files.outputs.any_changed == 'true'
