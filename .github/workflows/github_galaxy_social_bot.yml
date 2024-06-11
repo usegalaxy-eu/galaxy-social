@@ -1,17 +1,16 @@
-name: Create Preview
+name: Github Galaxy Social Bot
 
 on:
   pull_request_target:
     branches: [main]
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, closed]
 
 jobs:
-  preview:
-    name: Preview
+  preview-and-publish:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
       contents: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,15 +51,28 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      - name: Run script to create preview
-        if: steps.get_changed_files.outputs.any_changed == 'true'
+      - name: Crete env variables
+        run: echo "Creating environment variables"
         env:
           MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
           MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           SLACK_ACCESS_TOKEN: ${{ secrets.SLACK_ACCESS_TOKEN }}
-
           CHANGED_FILES: ${{ steps.get_changed_files.outputs.all_changed_files }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
+
+      - name: Run script to create preview
+        if: steps.get_changed_files.outputs.any_changed == 'true' && github.event.pull_request.state != 'closed'
         run: python -u github_run.py --preview
+
+      - name: Run script to publish contents
+        if: steps.get_changed_files.outputs.any_changed == 'true' && github.event.pull_request.merged == 'true'
+        run: python -u github_run.py --json-out processed_files.json
+
+      - name: Commit changes
+        if: steps.get_changed_files.outputs.any_changed == 'true' && github.event.pull_request.merged == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          file_pattern: "processed_files.json"
+          branch: "processed_files"
