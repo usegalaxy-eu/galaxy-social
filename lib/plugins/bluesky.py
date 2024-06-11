@@ -214,27 +214,24 @@ class bluesky_client:
         )
 
         reply_to = None
-
+        link = None
         for text in content["chunks"]:
             facets, last_url = self.parse_facets(text)
             if not content["images"] or reply_to:
                 embed = self.handle_url_card(cast(str, last_url))
 
-            post = self.blueskysocial.send_post(
-                text, facets=facets, embed=embed, reply_to=reply_to
-            )
+            try:
+                post = self.blueskysocial.send_post(
+                    text, facets=facets, embed=embed, reply_to=reply_to
+                )
 
-            for _ in range(5):
-                data = self.blueskysocial.get_posts([post.uri]).posts
-                if data:
-                    break
-            else:
+                if reply_to is None:
+                    link = f"https://bsky.app/profile/{self.blueskysocial.me.handle}/post/{post.uri.split('/')[-1]}"
+                    root = atproto.models.create_strong_ref(post)
+                parent = atproto.models.create_strong_ref(post)
+                reply_to = atproto.models.AppBskyFeedPost.ReplyRef(
+                    parent=parent, root=root
+                )
+            except:
                 return False, None
-
-            if reply_to is None:
-                link = f"https://bsky.app/profile/{self.blueskysocial.me.handle}/post/{post.uri.split('/')[-1]}"
-                root = atproto.models.create_strong_ref(post)
-            parent = atproto.models.create_strong_ref(post)
-            reply_to = atproto.models.AppBskyFeedPost.ReplyRef(parent=parent, root=root)
-
         return True, link
