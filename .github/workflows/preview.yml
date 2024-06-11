@@ -25,6 +25,17 @@ jobs:
       - name: get published files cache
         if: steps.get_changed_files.outputs.any_changed == 'true'
         run: |
+          if ! git ls-remote --heads origin | grep -q "refs/heads/processed_files"; then
+            git checkout --orphan processed_files
+            git rm -rf .
+            echo "{}" > processed_files.json
+            git add processed_files.json
+            git config user.name 'github-actions[bot]'
+            git config user.email 'github-actions[bot]@users.noreply.github.com'
+            git commit -m "Initialize processed_files branch with processed_files.json"
+            git push origin processed_files
+            git checkout main
+          fi
           git fetch origin processed_files:processed_files
           git checkout processed_files -- processed_files.json
 
