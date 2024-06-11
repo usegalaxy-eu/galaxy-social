@@ -22,6 +22,9 @@ jobs:
         with:
           files: posts/**
           json: "true"
+      - name: Setup git user
+        if: steps.get_changed_files.outputs.any_changed == 'true'
+        uses: fregante/setup-git-user@v2
 
       - name: get published files cache
         if: steps.get_changed_files.outputs.any_changed == 'true'
