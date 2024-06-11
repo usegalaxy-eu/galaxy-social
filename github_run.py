@@ -25,7 +25,7 @@ class github_run:
         # to avoid destroying links.
         # by accident.
         comment_text = re.sub(
-            r"([^a-zA-Z0-9_/])((?:[@][\w-]+)(?:[@][\w.-]+)?)",
+            r"([^a-zA-Z0-9_/])((?:[@][\w-]+)(?:[@.][\w.-]+)?)",
             lambda m: f"{m.group(1)}`{m.group(2)}`",
             comment_text
         )
