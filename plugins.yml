@@ -12,7 +12,7 @@ plugins:
     enabled: true
     config:
       base_url: "https://bsky.social"
-      username: $BLUESKY_USERNAME
+      username: "brilliantarash.bsky.social"
       password: $BLUESKY_PASSWORD
       max_content_length: 300
 
@@ -22,15 +22,15 @@ plugins:
     config:
       base_url: "https://matrix.org"
       access_token: $MATRIX_ACCESS_TOKEN
-      room_id: $MATRIX_ROOM_ID
-      user_id: $MATRIX_USER_ID
+      room_id: "!NhCFtQeugNCBqGJkml:matrix.org"
+      # user_id: "@galaxy_social:matrix.org"
 
   - name: slack
     class: slack.slack_client
     enabled: true
     config:
       access_token: $SLACK_ACCESS_TOKEN
-      channel_id: $SLACK_CHANNEL_ID
+      channel_id: "C06TRSSQRSR"
       max_content_length: 40000
 
   - name: markdown
