@@ -121,7 +121,7 @@ class galaxy_social:
             except Exception as e:
                 raise Exception(f"Failed to format post for {file_path}.\n{e}")
         if self.preview:
-            message = f'Hi, I\'m your friendly social media assistant. In the following, you will see a preview of this post "{file_path}"'
+            message = f"👋 Hello! I'm your friendly social media assistant. Below is a preview of this post:\n`{file_path}`"
             for media in metadata["media"]:
                 formatted_content, preview, warning = formatting_results[media]
                 message += f"\n\n## {media}\n\n"
