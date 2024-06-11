@@ -25,6 +25,10 @@ jobs:
       - name: get published files cache
         if: steps.get_changed_files.outputs.any_changed == 'true'
         run: |
+          if ! git ls-remote --heads origin | grep -q "refs/heads/processed_files"; then
+            git checkout -b processed_files
+            git push origin processed_files
+          fi
           git fetch origin processed_files:processed_files
           git checkout processed_files -- processed_files.json
 
