@@ -52,15 +52,14 @@ jobs:
           python -m pip install -r requirements.txt
 
       - name: Crete env variables
-        run: echo "Creating environment variables"
-        env:
-          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
-          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-          MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          SLACK_ACCESS_TOKEN: ${{ secrets.SLACK_ACCESS_TOKEN }}
-          CHANGED_FILES: ${{ steps.get_changed_files.outputs.all_changed_files }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          echo "MASTODON_ACCESS_TOKEN=${{ secrets.MASTODON_ACCESS_TOKEN }}" >> $GITHUB_ENV
+          echo "BLUESKY_PASSWORD=${{ secrets.BLUESKY_PASSWORD }}" >> $GITHUB_ENV
+          echo "MATRIX_ACCESS_TOKEN=${{ secrets.MATRIX_ACCESS_TOKEN }}" >> $GITHUB_ENV
+          echo "SLACK_ACCESS_TOKEN=${{ secrets.SLACK_ACCESS_TOKEN }}" >> $GITHUB_ENV
+          echo "CHANGED_FILES=${{ steps.get_changed_files.outputs.all_changed_files }}" >> $GITHUB_ENV
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
 
       - name: Run script to create preview
         if: steps.get_changed_files.outputs.any_changed == 'true' && github.event.pull_request.state != 'closed'
