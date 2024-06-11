@@ -28,19 +28,13 @@ jobs:
         run: |
           if ! git ls-remote --heads origin | grep -q "refs/heads/processed_files"; then
             git checkout --orphan processed_files
-            git commit -m "Initialize processed_files branch"
-            git push origin processed_files
-          fi
-          if ! git ls-tree -r origin/processed_files --name-only | grep -q "processed_files.json"; then
-            git fetch origin processed_files:processed_files
-            git checkout processed_files
             git rm -rf .
             echo "{}" > processed_files.json
             git add processed_files.json
-            git commit -m "Add processed_files.json to processed_files branch"
+            git commit -m "Initialize processed_files branch with processed_files.json"
             git push origin processed_files
+            git checkout main
           fi
-          git checkout main
           git fetch origin processed_files:processed_files
           git checkout processed_files -- processed_files.json
 
