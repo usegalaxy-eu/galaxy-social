@@ -27,12 +27,12 @@ class github_run:
         comment_text = re.sub(
             r"([^a-zA-Z0-9_/])((?:[@][\w-]+)(?:[@][\w.-]+)?)",
             lambda m: f"{m.group(1)}`{m.group(2)}`",
-            comment_text
+            comment_text,
         )
         comment_text = re.sub(
             r"([^a-zA-Z0-9_/])([#][\w]+)",
             lambda m: f"{m.group(1)}`{m.group(2)}`",
-            comment_text
+            comment_text,
         )
         print(comment_text)
         if (
@@ -51,12 +51,12 @@ class github_run:
             f"https://api.github.com/repos/{self.repo}/issues/{self.pr_number}/comments"
         )
         for comment_body in comment_text.split("\n\n---\n"):
+            if not comment_body:
+                continue
             data = {"body": str(comment_body)}
             response = requests.post(url, headers=headers, json=data)
             if response.status_code != 201:
-                raise Exception(
-                    f"Failed to create github comment!, {response.json()}"
-                )
+                raise Exception(f"Failed to create github comment!, {response.json()}")
         return True
 
     def get_files(self):
