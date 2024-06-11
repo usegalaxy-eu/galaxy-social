@@ -52,6 +52,7 @@ jobs:
           python -m pip install -r requirements.txt
 
       - name: Crete env variables
+        if: steps.get_changed_files.outputs.any_changed == 'true'
         run: |
           echo "MASTODON_ACCESS_TOKEN=${{ secrets.MASTODON_ACCESS_TOKEN }}" >> $GITHUB_ENV
           echo "BLUESKY_PASSWORD=${{ secrets.BLUESKY_PASSWORD }}" >> $GITHUB_ENV
