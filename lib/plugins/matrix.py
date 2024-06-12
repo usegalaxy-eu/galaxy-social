@@ -68,7 +68,7 @@ class matrix_client:
         await self.client.close()
         return (
             formatted_content,
-            preview + "\n" + message_content["body"],
+            preview + "\n" + content,
             warnings,
         )
 
