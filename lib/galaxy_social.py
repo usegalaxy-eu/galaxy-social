@@ -121,7 +121,7 @@ class galaxy_social:
             except Exception as e:
                 raise Exception(f"Failed to format post for {file_path}.\n{e}")
         if self.preview:
-            message = f'Hi, I\'m your friendly social media assistant. In the following, you will see a preview of this post "{file_path}"'
+            message = f"👋 Hello! I'm your friendly social media assistant. Below are the previews of this post:\n`{file_path}`"
             for media in metadata["media"]:
                 formatted_content, preview, warning = formatting_results[media]
                 message += f"\n\n## {media}\n\n"
@@ -130,10 +130,8 @@ class galaxy_social:
                     message += f"\nWARNING: {warning}"
             return processed_files, message.strip()
 
-        stats = {}
         url = {}
-        if file_path in processed_files:
-            stats = processed_files[file_path]
+        stats = processed_files[file_path] if file_path in processed_files else {}
         for media in metadata["media"]:
             if stats.get(media):
                 print("Skipping previous post to", media)
@@ -149,7 +147,11 @@ class galaxy_social:
                 if stats[media]
             ]
         )
-        message = f"Posted to:\n\n{url_text}" if url_text else "No posts created."
+        message = (
+            f"Below are the links of this post:\n`{file_path}`\n\n{url_text}"
+            if url_text
+            else f"Nothing created for this post:\n`{file_path}`"
+        )
 
         processed_files[file_path] = stats
         print(f"Processed {file_path}: {stats}")
