@@ -125,25 +125,34 @@ class bluesky_client:
             description_tag = soup.find("meta", attrs={"property": "og:description"})
             description_tag_alt = soup.find("meta", attrs={"name": "description"})
             image_tag = soup.find("meta", attrs={"property": "og:image"})
-            title = title_tag["content"] if title_tag else title_tag_alt
-            description = (
-                description_tag["content"]
-                if description_tag
-                else description_tag_alt["content"] if description_tag_alt else ""
+            title = (
+                title_tag.attrs.get("content")
+                if title_tag and hasattr(title_tag, "attrs")
+                else title_tag_alt
             )
-            uri = url
-            thumb = (
-                self.blueskysocial.upload_blob(
-                    requests.get(image_tag["content"]).content
-                ).blob
-                if image_tag
+            description = (
+                description_tag.attrs.get("content")
+                if description_tag and hasattr(description_tag, "attrs")
+                else (
+                    description_tag_alt.attrs.get("content")
+                    if description_tag_alt and hasattr(description_tag_alt, "attrs")
+                    else ""
+                )
+            )
+            image_url = (
+                image_tag.attrs.get("content")
+                if image_tag and hasattr(image_tag, "attrs")
                 else None
             )
+            if isinstance(image_url, str):
+                thumb = self.blueskysocial.upload_blob(
+                    requests.get(image_url).content
+                ).blob
             embed_external = atproto.models.AppBskyEmbedExternal.Main(
                 external=atproto.models.AppBskyEmbedExternal.External(
                     title=title,
                     description=description,
-                    uri=uri,
+                    uri=url,
                     thumb=thumb,
                 )
             )
