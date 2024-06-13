@@ -7,6 +7,7 @@ from fnmatch import filter
 from importlib import import_module
 from typing import Any, Dict
 
+import requests
 from jsonschema import validate
 from yaml import safe_load as yaml
 
@@ -29,36 +30,32 @@ class galaxy_social:
             module_name, class_name = plugin["class"].rsplit(".", 1)
             module_path = f"{'lib.' if not os.path.dirname(os.path.abspath(sys.argv[0])).endswith('lib') else ''}plugins.{module_name}"
 
-            config = {}
-            if plugin.get("config"):
-                for key, value in plugin["config"].items():
-                    if isinstance(value, str) and value.startswith("$"):
-                        try:
-                            config[key] = os.environ[value[1:]]
-                        except KeyError:
-                            print(
-                                f"Missing environment variable {value[1:]} for {plugin['class']}."
-                            )
-                    else:
-                        config[key] = value
-            else:
-                print(f"Missing config for {plugin['class']}.")
-
             self.plugins_config_dict[plugin["name"].lower()] = (
                 module_path,
                 class_name,
-                config,
+                plugin.get("config", {}),
             )
 
     def init_plugin(self, plugin: str):
         module_path, class_name, config = self.plugins_config_dict[plugin]
+        missing_env_vars = []
+        for key, value in config.items():
+            if isinstance(value, str) and value.startswith("$"):
+                if value[1:] in os.environ:
+                    config[key] = os.environ[value[1:]]
+                else:
+                    missing_env_vars.append(value[1:])
+        if missing_env_vars:
+            print(
+                f"Missing environment variables: {', '.join(missing_env_vars)} for {plugin} plugin."
+            )
         try:
             module = import_module(module_path)
             plugin_class = getattr(module, class_name)
             self.plugins[plugin] = plugin_class(**config)
         except Exception as e:
             raise Exception(
-                f"Invalid config for {module_path}.{class_name}.\nChange configs in plugins.yml.\n{e}"
+                f"Invalid config for {module_path}.{class_name}.\nChange configs in `plugins.yml`.\n{e}"
             )
 
     def lint_markdown_file(self, file_path):
@@ -78,23 +75,30 @@ class galaxy_social:
             return e, False
 
     def parse_markdown_file(self, file_path):
+        errors = ""
         result, status = self.lint_markdown_file(file_path)
         if not status:
-            raise Exception(f"Failed to parse {file_path}.\n{result}")
+            return (
+                "",
+                {},
+                f"Please check your meradata schema.",
+            )
 
         metadata, text = result
 
         if "media" not in metadata:
-            raise Exception(f"Missing media in metadata of {file_path}.")
+            return (
+                "",
+                {},
+                f"Missing media in metadata.\nAdd media to metadata.",
+            )
 
         metadata["media"] = [media.lower() for media in metadata["media"]]
 
         for media in metadata["media"]:
             if media not in self.plugins_config_dict:
-                raise Exception(
-                    f"Invalid media {media} in {file_path}.\nConsider enabling/adding it in plugins.yml or check the spelling."
-                )
-            if media not in self.plugins:
+                errors += f"- Invalid media `{media}` in metadata. Consider check the spelling or enabling/adding it to `plugins.yml`.\n"
+            elif media not in self.plugins:
                 self.init_plugin(media)
 
         metadata["mentions"] = (
@@ -108,18 +112,35 @@ class galaxy_social:
             else {}
         )
 
+        mentions_invalid = metadata["mentions"].keys() - metadata["media"]
+        if mentions_invalid:
+            errors += f"- Mentions for `{', '.join(mentions_invalid)}` social medias are not in medias list of metadata.\n"
+
+        hashtags_invalid = metadata["hashtags"].keys() - metadata["media"]
+        if hashtags_invalid:
+            errors += f"- Hashtags for `{', '.join(hashtags_invalid)}` social medias are not in medias list of metadata.\n"
+
         image_pattern = re.compile(r"!\[(.*?)\]\((.*?)\)")
         images = image_pattern.findall(text)
         plain_content = re.sub(image_pattern, "", text).strip()
+
+        for image in images:
+            try:
+                if requests.get(image[1]).status_code != 200:
+                    errors += f"- Image `{image[1]}` not found.\n"
+            except:
+                errors += f"- Invalid Image url `{image[1]}`.\n"
 
         metadata["images"] = [
             {"url": image[1], "alt_text": image[0]} for image in images
         ]
 
-        return plain_content, metadata
+        return plain_content, metadata, errors
 
     def process_markdown_file(self, file_path, processed_files):
-        content, metadata = self.parse_markdown_file(file_path)
+        content, metadata, errors = self.parse_markdown_file(file_path)
+        if errors:
+            return processed_files, f"Failed to process `{file_path}`.\n{errors}"
         formatting_results = {}
         for media in metadata["media"]:
             try:
