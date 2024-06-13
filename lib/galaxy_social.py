@@ -5,6 +5,7 @@ import sys
 from argparse import ArgumentParser
 from fnmatch import filter
 from importlib import import_module
+from typing import Any, Dict
 
 from jsonschema import validate
 from yaml import safe_load as yaml
@@ -18,42 +19,47 @@ class galaxy_social:
             os.path.dirname(os.path.abspath(__file__)), "..", "plugins.yml"
         )
         with open(plugins_path, "r") as file:
-            self.plugins_config = yaml(file)
+            plugins_config = yaml(file)
 
-        self.plugins = {}
-        for plugin in self.plugins_config["plugins"]:
-            if plugin["enabled"]:
-                module_name, class_name = plugin["class"].rsplit(".", 1)
-                try:
-                    module_path = f"{'lib.' if not os.path.dirname(os.path.abspath(sys.argv[0])).endswith('lib') else ''}plugins.{module_name}"
-                    module = import_module(module_path)
-                    plugin_class = getattr(module, class_name)
-                except Exception as e:
-                    raise Exception(
-                        f"Error with plugin {module_name}.{class_name}.\n{e}"
-                    )
+        self.plugins: Dict[str, Any] = {}
+        self.plugins_config_dict = {}
+        for plugin in plugins_config["plugins"]:
+            if not plugin["enabled"]:
+                continue
+            module_name, class_name = plugin["class"].rsplit(".", 1)
+            module_path = f"{'lib.' if not os.path.dirname(os.path.abspath(sys.argv[0])).endswith('lib') else ''}plugins.{module_name}"
 
-                config = {}
-                if plugin.get("config"):
-                    for key, value in plugin["config"].items():
-                        if isinstance(value, str) and value.startswith("$"):
-                            try:
-                                config[key] = os.environ[value[1:]]
-                            except KeyError:
-                                raise Exception(
-                                    f"Missing environment variable {value[1:]}."
-                                )
-                        else:
-                            config[key] = value
-                else:
-                    raise Exception(f"Missing config for {module_name}.{class_name}.")
+            config = {}
+            if plugin.get("config"):
+                for key, value in plugin["config"].items():
+                    if isinstance(value, str) and value.startswith("$"):
+                        try:
+                            config[key] = os.environ[value[1:]]
+                        except KeyError:
+                            print(
+                                f"Missing environment variable {value[1:]} for {plugin['class']}."
+                            )
+                    else:
+                        config[key] = value
+            else:
+                print(f"Missing config for {plugin['class']}.")
 
-                try:
-                    self.plugins[plugin["name"].lower()] = plugin_class(**config)
-                except Exception as e:
-                    raise Exception(
-                        f"Invalid config for {module_name}.{class_name}.\nChange configs in plugins.yml.\n{e}"
-                    )
+            self.plugins_config_dict[plugin["name"].lower()] = (
+                module_path,
+                class_name,
+                config,
+            )
+
+    def init_plugin(self, plugin: str):
+        module_path, class_name, config = self.plugins_config_dict[plugin]
+        try:
+            module = import_module(module_path)
+            plugin_class = getattr(module, class_name)
+            self.plugins[plugin] = plugin_class(**config)
+        except Exception as e:
+            raise Exception(
+                f"Invalid config for {module_path}.{class_name}.\nChange configs in plugins.yml.\n{e}"
+            )
 
     def lint_markdown_file(self, file_path):
         with open(file_path, "r") as file:
@@ -78,13 +84,18 @@ class galaxy_social:
 
         metadata, text = result
 
+        if "media" not in metadata:
+            raise Exception(f"Missing media in metadata of {file_path}.")
+
         metadata["media"] = [media.lower() for media in metadata["media"]]
 
         for media in metadata["media"]:
-            if not any(
-                item["name"].lower() == media for item in self.plugins_config["plugins"]
-            ):
-                raise Exception(f"Invalid media {media}.")
+            if media not in self.plugins_config_dict:
+                raise Exception(
+                    f"Invalid media {media} in {file_path}.\nConsider enabling/adding it in plugins.yml or check the spelling."
+                )
+            if media not in self.plugins:
+                self.init_plugin(media)
 
         metadata["mentions"] = (
             {key.lower(): value for key, value in metadata["mentions"].items()}
