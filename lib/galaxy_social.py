@@ -46,7 +46,7 @@ class galaxy_social:
                 else:
                     missing_env_vars.append(value[1:])
         if missing_env_vars:
-            print(
+            raise Exception(
                 f"Missing environment variables: {', '.join(missing_env_vars)} for {plugin} plugin."
             )
         try:
