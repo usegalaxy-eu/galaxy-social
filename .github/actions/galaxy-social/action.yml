@@ -9,32 +9,12 @@ inputs:
     description: "Whether to create a preview or not"
     default: "false"
 
-  GITHUB_TOKEN:
-    description: "GitHub token"
-    required: true
-
-  PR_NUMBER:
-    description: "Pull Request number"
-    required: true
-
-  MASTODON_ACCESS_TOKEN:
-    description: "Mastodon access token"
-
-  BLUESKY_PASSWORD:
-    description: "Bluesky password"
-
-  MATRIX_ACCESS_TOKEN:
-    description: "Matrix access token"
-
-  SLACK_ACCESS_TOKEN:
-    description: "Slack access token"
-
-  MASTODON_EU_FR_TOKEN:
-    description: "Mastodon EU FR token"
-
 runs:
   using: "composite"
   steps:
+    - name: checkout #This is needed to avoid error on post action
+      uses: actions/checkout@v4
+
     - name: Get changed files in posts folder
       id: get_changed_files
       uses: tj-actions/changed-files@v44
@@ -73,19 +53,6 @@ runs:
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
 
-    - name: Create env variables
-      if: steps.get_changed_files.outputs.any_changed == 'true'
-      shell: bash
-      run: |
-        echo "CHANGED_FILES=${{ steps.get_changed_files.outputs.all_changed_files }}" >> $GITHUB_ENV
-        echo "MASTODON_ACCESS_TOKEN=${{ inputs.MASTODON_ACCESS_TOKEN }}" >> $GITHUB_ENV
-        echo "BLUESKY_PASSWORD=${{ inputs.BLUESKY_PASSWORD }}" >> $GITHUB_ENV
-        echo "MATRIX_ACCESS_TOKEN=${{ inputs.MATRIX_ACCESS_TOKEN }}" >> $GITHUB_ENV
-        echo "SLACK_ACCESS_TOKEN=${{ inputs.SLACK_ACCESS_TOKEN }}" >> $GITHUB_ENV
-        echo "MASTODON_EU_FR_TOKEN=${{ inputs.MASTODON_EU_FR_TOKEN }}" >> $GITHUB_ENV
-        echo "GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}" >> $GITHUB_ENV
-        echo "PR_NUMBER=${{ inputs.PR_NUMBER }}" >> $GITHUB_ENV
-
     - name: Run script to create preview
       if: steps.get_changed_files.outputs.any_changed == 'true' && inputs.preview == 'true'
       shell: bash
@@ -102,6 +69,3 @@ runs:
       with:
         file_pattern: "processed_files.json"
         branch: "processed_files"
-
-    - name: checkout main
-      uses: actions/checkout@v4
