@@ -1,0 +1,107 @@
+name: Galaxy Social composite action
+description: Perform common steps for getting changed files, setting up the environment, and running the main logic.
+inputs:
+  files:
+    description: "File patterns to check for changes"
+    default: "posts/**"
+
+  preview:
+    description: "Whether to create a preview or not"
+    default: "false"
+
+  GITHUB_TOKEN:
+    description: "GitHub token"
+    required: true
+
+  PR_NUMBER:
+    description: "Pull Request number"
+    required: true
+
+  MASTODON_ACCESS_TOKEN:
+    description: "Mastodon access token"
+
+  BLUESKY_PASSWORD:
+    description: "Bluesky password"
+
+  MATRIX_ACCESS_TOKEN:
+    description: "Matrix access token"
+
+  SLACK_ACCESS_TOKEN:
+    description: "Slack access token"
+
+  MASTODON_EU_FR_TOKEN:
+    description: "Mastodon EU FR token"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get changed files in posts folder
+      id: get_changed_files
+      uses: tj-actions/changed-files@v44
+      with:
+        files: ${{ inputs.files }}
+        json: "true"
+
+    - name: get published files cache
+      if: steps.get_changed_files.outputs.any_changed == 'true'
+      shell: bash
+      run: |
+        if ! git ls-remote --heads origin | grep -q "refs/heads/processed_files"; then
+          git checkout --orphan processed_files
+          git rm -rf .
+          echo "{}" > processed_files.json
+          git add processed_files.json
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -m "Initialize processed_files branch with processed_files.json"
+          git push origin processed_files
+          git checkout main
+        fi
+        git fetch origin processed_files:processed_files
+        git checkout processed_files -- processed_files.json
+
+    - name: Set up Python
+      if: steps.get_changed_files.outputs.any_changed == 'true'
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      if: steps.get_changed_files.outputs.any_changed == 'true'
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+
+    - name: Create env variables
+      if: steps.get_changed_files.outputs.any_changed == 'true'
+      shell: bash
+      run: |
+        echo "CHANGED_FILES=${{ steps.get_changed_files.outputs.all_changed_files }}" >> $GITHUB_ENV
+        echo "MASTODON_ACCESS_TOKEN=${{ inputs.MASTODON_ACCESS_TOKEN }}" >> $GITHUB_ENV
+        echo "BLUESKY_PASSWORD=${{ inputs.BLUESKY_PASSWORD }}" >> $GITHUB_ENV
+        echo "MATRIX_ACCESS_TOKEN=${{ inputs.MATRIX_ACCESS_TOKEN }}" >> $GITHUB_ENV
+        echo "SLACK_ACCESS_TOKEN=${{ inputs.SLACK_ACCESS_TOKEN }}" >> $GITHUB_ENV
+        echo "MASTODON_EU_FR_TOKEN=${{ inputs.MASTODON_EU_FR_TOKEN }}" >> $GITHUB_ENV
+        echo "GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}" >> $GITHUB_ENV
+        echo "PR_NUMBER=${{ inputs.PR_NUMBER }}" >> $GITHUB_ENV
+
+    - name: Run script to create preview
+      if: steps.get_changed_files.outputs.any_changed == 'true' && inputs.preview == 'true'
+      shell: bash
+      run: python -u github_run.py --preview
+
+    - name: Run script to publish contents
+      if: steps.get_changed_files.outputs.any_changed == 'true' && inputs.preview == 'false'
+      shell: bash
+      run: python -u github_run.py --json-out processed_files.json
+
+    - name: Commit changes
+      if: steps.get_changed_files.outputs.any_changed == 'true' && inputs.preview == 'false'
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        file_pattern: "processed_files.json"
+        branch: "processed_files"
+
+    - name: checkout main
+      uses: actions/checkout@v4

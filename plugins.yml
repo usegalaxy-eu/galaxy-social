@@ -12,7 +12,7 @@ plugins:
     enabled: false
     config:
       base_url: "https://bsky.social"
-      username: $BLUESKY_USERNAME
+      username: ""
       password: $BLUESKY_PASSWORD
       max_content_length: 300
 
@@ -37,7 +37,7 @@ plugins:
     enabled: false
     config:
       access_token: $SLACK_ACCESS_TOKEN
-      channel_id: $SLACK_CHANNEL_ID
+      channel_id: ""
       max_content_length: 40000
 
   - name: markdown

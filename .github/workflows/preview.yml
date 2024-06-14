@@ -4,53 +4,29 @@ on:
   pull_request_target:
     branches: [main]
     types: [opened, synchronize, reopened]
+    paths:
+      - "posts/**"
 
 jobs:
   preview:
     name: Preview
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get changed files in posts folder
-        id: get_changed_files
-        uses: tj-actions/changed-files@v44
+      - name: Run composite action
+        id: composite_action
+        uses: ./.github/actions/galaxy-social
         with:
-          files: posts/**
-          json: "true"
-
-      - name: get published files cache
-        if: steps.get_changed_files.outputs.any_changed == 'true'
-        run: |
-          git fetch origin processed_files:processed_files
-          git checkout processed_files -- processed_files.json
-
-      - name: Set up Python
-        if: steps.get_changed_files.outputs.any_changed == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        if: steps.get_changed_files.outputs.any_changed == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-
-      - name: Run script to create preview
-        if: steps.get_changed_files.outputs.any_changed == 'true'
-        env:
-          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
-          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
-          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-          MASTODON_EU_FR_TOKEN: ${{ secrets.MASTODON_EU_FR_TOKEN }}
-          MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          SLACK_ACCESS_TOKEN: ${{ secrets.SLACK_ACCESS_TOKEN }}
-          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
-          CHANGED_FILES: ${{ steps.get_changed_files.outputs.all_changed_files }}
+          preview: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
-        run: python -u github_run.py --preview
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+          MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
+          SLACK_ACCESS_TOKEN: ${{ secrets.SLACK_ACCESS_TOKEN }}
+          MASTODON_EU_FR_TOKEN: ${{ secrets.MASTODON_EU_FR_TOKEN }}
