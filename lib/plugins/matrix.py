@@ -120,8 +120,9 @@ class matrix_client:
         await self.client.close()
         return True, event_link
 
-    def format_content(self, *args, **kwargs):
-        result = self.runner.run(self.async_format_content(*args, **kwargs))
+    def format_content(self, content, *args, **kwargs):
+        content = content.replace("\n" * 3, "\n" * 2)
+        result = self.runner.run(self.async_format_content(content, *args, **kwargs))
         return result
 
     def create_post(self, content, **kwargs):
