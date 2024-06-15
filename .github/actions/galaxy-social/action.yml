@@ -1,0 +1,71 @@
+name: Galaxy Social composite action
+description: Perform common steps for getting changed files, setting up the environment, and running the main logic.
+inputs:
+  files:
+    description: "File patterns to check for changes"
+    default: "posts/**"
+
+  preview:
+    description: "Whether to create a preview or not"
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: checkout #This is needed to avoid error on post action
+      uses: actions/checkout@v4
+
+    - name: Get changed files in posts folder
+      id: get_changed_files
+      uses: tj-actions/changed-files@v44
+      with:
+        files: ${{ inputs.files }}
+        json: "true"
+
+    - name: get published files cache
+      if: steps.get_changed_files.outputs.any_changed == 'true'
+      shell: bash
+      run: |
+        if ! git ls-remote --heads origin | grep -q "refs/heads/processed_files"; then
+          git checkout --orphan processed_files
+          git rm -rf .
+          echo "{}" > processed_files.json
+          git add processed_files.json
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -m "Initialize processed_files branch with processed_files.json"
+          git push origin processed_files
+          git checkout main
+        fi
+        git fetch origin processed_files:processed_files
+        git checkout processed_files -- processed_files.json
+
+    - name: Set up Python
+      if: steps.get_changed_files.outputs.any_changed == 'true'
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      if: steps.get_changed_files.outputs.any_changed == 'true'
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+
+    - name: Run script to create preview
+      if: steps.get_changed_files.outputs.any_changed == 'true' && inputs.preview == 'true'
+      shell: bash
+      run: python -u github_run.py --preview
+
+    - name: Run script to publish contents
+      if: steps.get_changed_files.outputs.any_changed == 'true' && inputs.preview == 'false'
+      shell: bash
+      run: python -u github_run.py --json-out processed_files.json
+
+    - name: Commit changes
+      if: steps.get_changed_files.outputs.any_changed == 'true' && inputs.preview == 'false'
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        file_pattern: "processed_files.json"
+        branch: "processed_files"
