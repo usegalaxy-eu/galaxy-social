@@ -14,7 +14,7 @@ class mastodon_client:
         )
         self.max_content_length = kwargs.get("max_content_length", 500)
 
-    def content_in_chunks(content, max_chunk_length):
+    def content_in_chunks(self, content, max_chunk_length):
         paragraphs = content.split("\n\n\n")
         for p in paragraphs:
             for chunk in textwrap.wrap(p.strip("\n"), max_chunk_length, replace_whitespace=False):
