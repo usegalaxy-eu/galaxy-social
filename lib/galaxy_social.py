@@ -7,7 +7,6 @@ from fnmatch import filter
 from importlib import import_module
 from typing import Any, Dict
 
-import requests
 from jsonschema import validate
 from yaml import safe_load as yaml
 
@@ -123,13 +122,6 @@ class galaxy_social:
         image_pattern = re.compile(r"!\[(.*?)\]\((.*?)\)")
         images = image_pattern.findall(text)
         plain_content = re.sub(image_pattern, "", text).strip()
-
-        for image in images:
-            try:
-                if requests.get(image[1]).status_code != 200:
-                    errors += f"- Image `{image[1]}` not found.\n"
-            except:
-                errors += f"- Invalid Image url `{image[1]}`.\n"
 
         metadata["images"] = [
             {"url": image[1], "alt_text": image[0]} for image in images
