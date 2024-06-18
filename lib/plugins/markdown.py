@@ -11,6 +11,7 @@ class markdown_client:
         )
 
     def format_content(self, content, mentions, hashtags, images, **kwargs):
+        content = content.replace("\n" * 3, "\n" * 2)
         _images = "\n".join(
             [f'![{image.get("alt_text", "")}]({image["url"]})' for image in images]
         )

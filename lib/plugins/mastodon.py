@@ -14,21 +14,28 @@ class mastodon_client:
         )
         self.max_content_length = kwargs.get("max_content_length", 500)
 
+    def content_in_chunks(self, content, max_chunk_length):
+        paragraphs = content.split("\n\n\n")
+        for p in paragraphs:
+            for chunk in textwrap.wrap(p.strip("\n"), max_chunk_length, replace_whitespace=False):
+                yield chunk
+
     def wrap_text_with_index(self, content):
         if len(content) <= self.max_content_length:
             return [content]
+        # urls always count as 23 chars on mastodon
+        placeholder = "~" * 23
         urls = re.findall(r"https?://\S+", content)
         placeholder_content = re.sub(
-            r"https?://\S+", lambda m: "~" * len(m.group()), content
+            r"https?://\S+", placeholder, content
         )
-        wrapped_lines = textwrap.wrap(
-            placeholder_content, self.max_content_length - 8, replace_whitespace=False
+        wrapped_lines = list(
+            self.content_in_chunks(placeholder_content, self.max_content_length - 8)
         )
         final_lines = []
         url_index = 0
         for i, line in enumerate(wrapped_lines, 1):
-            while "~~~~~~~~~~" in line and url_index < len(urls):
-                placeholder = "~" * len(urls[url_index])
+            while placeholder in line and url_index < len(urls):
                 line = line.replace(placeholder, urls[url_index], 1)
                 url_index += 1
             final_lines.append(f"{line} ({i}/{len(wrapped_lines)})")

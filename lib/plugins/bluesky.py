@@ -158,6 +158,12 @@ class bluesky_client:
             )
         return embed_external
 
+    def content_in_chunks(self, content, max_chunk_length):
+        paragraphs = content.split("\n\n\n")
+        for p in paragraphs:
+            for chunk in textwrap.wrap(p.strip("\n"), max_chunk_length, replace_whitespace=False):
+                yield chunk
+
     def wrap_text_with_index(self, content):
         if len(content) <= self.max_content_length:
             return [content]
@@ -165,8 +171,8 @@ class bluesky_client:
         placeholder_content = re.sub(
             r"https?://\S+", lambda m: "~" * len(m.group()), content
         )
-        wrapped_lines = textwrap.wrap(
-            placeholder_content, self.max_content_length - 8, replace_whitespace=False
+        wrapped_lines = list(
+            self.content_in_chunks(placeholder_content, self.max_content_length - 8)
         )
         final_lines = []
         url_index = 0
