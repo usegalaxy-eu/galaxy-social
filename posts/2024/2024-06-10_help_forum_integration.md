@@ -20,7 +20,7 @@ Huge thanks to @ElectronicBlueberry@chaosfem.tw for not just the implementation,
 
 This is a wonderful feature with great potential to reduce friction in Galaxy tool use even further.
 
-Linking from Galaxy tool forms to the Galaxy Help Forum, https://help.galaxyproject.org/, was first discussed at the European Galaxy Days at @unifreiburg last autumn and we are happy to be able to offer it to our users on #GalaxyEurope now as part of our earlier update to Galaxy release 24.0.
+Linking from tool forms to the Help Forum, https://help.galaxyproject.org/, was first discussed at the European Galaxy Days at @unifreiburg last autumn and we are happy to be able to offer it to our users on #GalaxyEurope now as part of our earlier update to Galaxy release 24.0.
 
 
 Thanks also to all users who, over the years, have taken the time to turn their tool and analysis questions into help forum contributions. Your extra efforts help us help the community and are very much appreciated 💖
