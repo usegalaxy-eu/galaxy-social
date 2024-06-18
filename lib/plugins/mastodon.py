@@ -50,7 +50,12 @@ class mastodon_client:
         else:
             warnings = ""
 
-        chunks = self.wrap_text_with_index(f"{content}\n\n{mentions}\n{hashtags}")
+        content += "\n"
+        if mentions:
+            content = f"{content}\n{mentions}"
+        if hashtags:
+            content = f"{content}\n{hashtags}"
+        chunks = self.wrap_text_with_index(content.strip("\n"))
 
         formatted_content = {
             "body": "\n\n".join(chunks),
