@@ -9,12 +9,17 @@ inputs:
     description: "Whether to create a preview or not"
     default: "false"
 
+  PR_NUMBER:
+    description: "Pull request number"
+    required: true
+
+  GITHUB_TOKEN:
+    description: "GitHub token"
+    required: true
+
 runs:
   using: "composite"
   steps:
-    - name: checkout #This is needed to avoid error on post action
-      uses: actions/checkout@v4
-
     - name: Get changed files in posts folder
       id: get_changed_files
       uses: tj-actions/changed-files@v44
@@ -53,11 +58,12 @@ runs:
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
 
-    - name: Create env variables for changed files
+    - name: Create env variables
       if: steps.get_changed_files.outputs.any_changed == 'true'
       shell: bash
       run: |
         echo "CHANGED_FILES=${{ steps.get_changed_files.outputs.all_changed_files }}" >> $GITHUB_ENV
+        echo "PR_NUMBER=${{ inputs.PR_NUMBER }}" >> $GITHUB_ENV
 
     - name: Run script to create preview
       if: steps.get_changed_files.outputs.any_changed == 'true' && inputs.preview == 'true'
@@ -75,3 +81,6 @@ runs:
       with:
         file_pattern: "processed_files.json"
         branch: "processed_files"
+
+    - name: Checkout again to prevent errors on post processing
+      uses: actions/checkout@v4
