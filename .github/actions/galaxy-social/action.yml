@@ -9,14 +9,6 @@ inputs:
     description: "Whether to create a preview or not"
     default: "false"
 
-  PR_NUMBER:
-    description: "Pull request number"
-    required: true
-
-  GITHUB_TOKEN:
-    description: "GitHub token"
-    required: true
-
 runs:
   using: "composite"
   steps:
@@ -58,12 +50,11 @@ runs:
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
 
-    - name: Create env variables
+    - name: Create env variables for changed files
       if: steps.get_changed_files.outputs.any_changed == 'true'
       shell: bash
       run: |
         echo "CHANGED_FILES=${{ steps.get_changed_files.outputs.all_changed_files }}" >> $GITHUB_ENV
-        echo "PR_NUMBER=${{ inputs.PR_NUMBER }}" >> $GITHUB_ENV
 
     - name: Run script to create preview
       if: steps.get_changed_files.outputs.any_changed == 'true' && inputs.preview == 'true'
