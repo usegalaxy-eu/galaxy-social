@@ -51,13 +51,17 @@ Your text content goes here.
 
 - "mentions" and "hashtags" (Optional): Follow the specified format as shown in the template.
 
-- "Your text content goes here." (Required): This is the content that will be posted to social media platforms. When the character limit is reached on a social media, it will be divided into several posts as a thread. Note that some social media platforms do not support Markdown formatting, so use plain text only.
+- "Your text content goes here." (Required): This is the content that will be posted to social media platforms.
+
+  Note that some social media platforms do not support Markdown formatting, so use plain text only.
+
+  Dividing long content into multiple threaded posts: when the character limit is reached on a social media, it will be divided into several posts as a thread. You can also define custom breakpoints for splitting the post by inserting 2 empty lines anywhere in the text. The second empty line will simply be removed for media that don't support content splitting.
 
 - "images" (Optional): You can include images using Markdown format at the end of the file like this: `![Alternative text](Link to the image)`. Alternatively, you can simply drag and drop an image from your PC while adding your file.
 
 4. **Create a Pull Request:** Once your post is ready, [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request?tool=webui#creating-the-pull-request) to the main branch from another branch or [from your fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
 
-5. **Preview and Review:** After each pull request, the "Create Preview" GitHub action will run. It will preview the content as a comment to the pull request and highlight any errors that need to be fixed before merging.
+5. **Preview and Review:** After each pull request, the "Create Preview" GitHub action will run. It will generate previews of the content as it would appear on each platform listed under "media" in a comment to the pull request and highlight any errors that need to be fixed before merging.
 
 6. **Publish Your Content:** Upon merging the pull request, the "Publish Content" GitHub action will run. The results will be added to `processed_files.json` in the processed_files branch.
 
@@ -73,7 +77,7 @@ Expanding the capabilities of Galaxy Social by adding a new social media platfor
 2. **Update plugins.yml**: Next, update the `plugins.yml` file to include the new social media platform. Follow this template:
 
 ```yaml
-  - name: name_of_the_media 
+  - name: name_of_the_media
     class: file_name.class_name
     enabled: true
     config:
@@ -124,6 +128,6 @@ Remember to add the env variable that needed for each social media seperatly.
 ## Social media implemented
 - Bluesky
 - Mastodon
-- Matrix: hashtags and alt_text for image are not working!
+- Matrix: hashtags are included in the post but have no special function in matrix.
 - Slack: mentions and hashtags are not working!
 - Linkedin: not implemented but the first draft of python file is in the plugins.
