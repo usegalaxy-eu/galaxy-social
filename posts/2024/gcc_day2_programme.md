@@ -1,9 +1,9 @@
 ---
 media:
-  - mastodon
+  - mastodon-eu-freiburg
 
 hashtags:
-  mastodon:
+  mastodon-eu-freiburg:
     - #UseGalaxy
     
 ---
