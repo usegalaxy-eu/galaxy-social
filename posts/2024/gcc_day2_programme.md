@@ -4,7 +4,7 @@ media:
 
 hashtags:
   mastodon-eu-freiburg:
-    - #UseGalaxy
+    - UseGalaxy
     
 ---
 
