@@ -13,7 +13,7 @@ hashtags:
 After the traditional annual Galaxy Community update talk we will have two parallel track sessions in the morning,
 one focusing on scientific applications of Galaxy, the other on the latest advances of Galaxy, the platform.
 
-https://galaxyproject.org/events/gcc2024/schedule/#talks
+https://galaxyproject.org/events/gcc2024/schedule/#tuesday-1010---1200
 
 
 The afternoon, like yesterday's, is reserved for workshops, posters and BoFs
