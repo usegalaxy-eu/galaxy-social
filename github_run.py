@@ -177,6 +177,7 @@ if __name__ == "__main__":
             file_path: [media for media, stat in social_stat_dict.items() if not stat]
             for file_path, social_stat_dict in processed_files.items()
             if any(not stat for stat in social_stat_dict.values())
+            and file_path in files_to_process
         }
         if not_posted:
             url = github_instance.new_pr(not_posted)
