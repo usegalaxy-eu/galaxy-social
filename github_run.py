@@ -149,6 +149,11 @@ class github_run:
             base="main",
             head=branch_name,
         )
+        create_dispatch = self.repo.get_workflow("preview.yml")
+        create_dispatch.create_dispatch(
+            ref="main",
+            inputs={"pr_number": new_pr.number},
+        )
         return new_pr.html_url
 
 
@@ -173,6 +178,8 @@ if __name__ == "__main__":
     try:
         message, processed_files = gs.process_files(files_to_process)
         github_instance.comment(message, preview=args.preview)
+        if args.preview:
+            sys.exit()
         not_posted = {
             file_path: [media for media, stat in social_stat_dict.items() if not stat]
             for file_path, social_stat_dict in processed_files.items()
