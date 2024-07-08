@@ -40,6 +40,14 @@ plugins:
       channel_id: ""
       max_content_length: 40000
 
+  - name: linkedin
+    class: linkedin.linkedin_client
+    enabled: false
+    config:
+      access_token: $LINKEDIN_ACCESS_TOKEN
+      org_id: ""
+      max_content_length: 3000
+
   - name: markdown
     class: markdown.markdown_client
     enabled: true
