@@ -203,7 +203,7 @@ class galaxy_social:
             if not self.preview:
                 with open(processed_files_path, "w") as file:
                     json.dump(processed_files, file)
-        return messages, processed_files
+        return messages
 
 
 if __name__ == "__main__":
@@ -239,5 +239,5 @@ if __name__ == "__main__":
         sys.exit()
     print(f"Processing {len(files_to_process)} file(s): {files_to_process}\n")
     gs = galaxy_social(args.preview, args.json_out)
-    message, _ = gs.process_files(files_to_process)
+    message = gs.process_files(files_to_process)
     print(message)

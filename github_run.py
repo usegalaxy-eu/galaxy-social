@@ -1,5 +1,6 @@
 import argparse
 import fnmatch
+import json
 import os
 import re
 import sys
@@ -101,11 +102,14 @@ class github_run:
         return files_to_process
 
     def new_pr(self, not_posted):
+        if not not_posted:
+            return
         branch_name = f"Failed-posts-{self.pr.number}"
         self.repo.create_git_ref(
             ref=f"refs/heads/{branch_name}",
             sha=self.repo.get_branch("main").commit.sha,
         )
+        created_files = []
         for file_path, media in not_posted.items():
             new_file_path = os.path.join(
                 os.path.dirname(file_path),
@@ -116,17 +120,18 @@ class github_run:
                 md_content = f.read()
             _, metadata, text = md_content.split("---\n", 2)
             metadata = yaml.safe_load(metadata)
-            metadata["media"] = media
-            metadata["mentions"] = {
-                key: value
-                for key, value in metadata["mentions"].items()
-                if key in media
-            }
-            metadata["hashtags"] = {
-                key: value
-                for key, value in metadata["hashtags"].items()
-                if key in media
-            }
+            if media:
+                metadata["media"] = media
+                metadata["mentions"] = {
+                    key: value
+                    for key, value in metadata["mentions"].items()
+                    if key in media
+                }
+                metadata["hashtags"] = {
+                    key: value
+                    for key, value in metadata["hashtags"].items()
+                    if key in media
+                }
             new_md_content = f"---\n{yaml.dump(metadata)}---\n{text}"
             self.repo.create_file(
                 path=new_file_path,
@@ -134,14 +139,12 @@ class github_run:
                 content=new_md_content,
                 branch=branch_name,
             )
+            created_files.append(f"`{file_path}` to `{', '.join(metadata['media'])}`")
 
         title = f"Try to post failed posts from PR {self.pr.number}"
         body = (
             f"Failed to post the following from #{self.pr.number}:\n- "
-            + "\n- ".join(
-                f"`{file_path}` to `{', '.join(media)}`"
-                for file_path, media in not_posted.items()
-            )
+            + "\n- ".join(created_files)
         )
         new_pr = self.repo.create_pull(
             title=title,
@@ -154,7 +157,11 @@ class github_run:
             ref="main",
             inputs={"pr_number": new_pr.number},
         )
-        return new_pr.html_url
+
+        self.comment(
+            f"Unfortunately, there was a problem!\n"
+            f"I created a new PR for failed posts: {new_pr.html_url}"
+        )
 
 
 if __name__ == "__main__":
@@ -176,26 +183,26 @@ if __name__ == "__main__":
     gs = galaxy_social(args.preview, args.json_out)
 
     try:
-        message, processed_files = gs.process_files(files_to_process)
+        message = gs.process_files(files_to_process)
         github_instance.comment(message, preview=args.preview)
         if args.preview:
             sys.exit()
+
+        with open(args.json_out, "r") as file:
+            processed_files = json.load(file)
         not_posted = {
             file_path: [media for media, stat in social_stat_dict.items() if not stat]
             for file_path, social_stat_dict in processed_files.items()
             if any(not stat for stat in social_stat_dict.values())
             and file_path in files_to_process
         }
-        if not_posted:
-            url = github_instance.new_pr(not_posted)
-            not_posted_text = "\n".join(
-                f"File `{file_path}` failed to post to `{', '.join(media)}`."
-                for file_path, media in not_posted.items()
-            )
-            github_instance.comment(
-                f"Unfortunately, there was a problem!\n{not_posted_text}\n"
-                f"I created a new PR for failed posts: {url}"
-            )
+        github_instance.new_pr(not_posted)
+
     except Exception as e:
-        github_instance.comment("Something went wrong, an Admin will take a look.")
+        if args.preview:
+            github_instance.comment("Something went wrong, an Admin will take a look.")
+        else:
+            not_posted = {file_path: [] for file_path in files_to_process}
+            github_instance.new_pr(not_posted)
+
         raise e
