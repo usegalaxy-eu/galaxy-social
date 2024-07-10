@@ -2,7 +2,7 @@
 
 <div align="center">
       👇</br>
-      <kbd><a href="../../new/main/?filename=posts/2024/<your-path>.md&value=---%0Amedia%3A%0A%20 - bluesky%0A%20 - mastodon%0A%20 - matrix%0A%20 - slack%0A%0Amentions%3A%0A%20 bluesky%3A%0A%20%20%20 - a.bsky.social%0A%20 mastodon%3A%0A%20%20%20 - a%0A%20 matrix%3A%0A%20%20%20 - a%3Amatrix.org%0A%0Ahashtags%3A%0A%20 bluesky%3A%0A%20%20%20 - a%0A%20%20%20 - b%0A%20 mastodon%3A%0A%20%20%20 - c%0A%20%20%20 - d%0A---%0AYour text content goes here.%0A%0A![A](https%3A%2F%2Fexample.com%2Fa.jpg)%0A![B](https%3A%2F%2Fexample.org%2Fb.png)">Create new post</a></kbd>
+      <kbd><a href="../../new/main/?filename=posts/2024/<your-path>.md&value=---%0Amedia%3A%0A - mastodon-eu-freiburg%0A - matrix-eu-announce%0A%0Amentions%3A%0A mastodon-eu-freiburg%3A%0A%20%20%20 - galaxyproject%40mstdn.science%0A matrix-eu-announce%3A%0A%20%20%20 - bgruening%3Amatrix.org%0A%0Ahashtags%3A%0A mastodon-eu-freiburg%3A%0A%20%20%20 - usegalaxy%0A%0A---%0A%0AYour text content goes here. (Markdown syntax will not pass to Bluesky and Mastodon!)%0AFor images just drag and drop them here. they will look like this%3A%0A![A](https%3A%2F%2Fexample.com%2Fa.jpg)">Create new post</a></kbd>
 </div>
 
 ## How to Create a Post
@@ -44,7 +44,9 @@ Your text content goes here.
 ![A](https://example.com/a.jpg)
 ![B](https://example.org/b.png)
 ```
+
 **Notes on the Template:**
+
 - Everything between the two `---` are metatags and should be in YAML format.
 
 - "media" (Required): Ensure the media name is implemented inside the `plugins.yml`.
@@ -67,7 +69,6 @@ Your text content goes here.
 
 By following these steps, you can effectively create and publish posts on Galaxy Social.
 
-
 ## Add a New Social Media Platform
 
 Expanding the capabilities of Galaxy Social by adding a new social media platform is a straightforward process. Follow these steps to integrate a new platform:
@@ -77,15 +78,16 @@ Expanding the capabilities of Galaxy Social by adding a new social media platfor
 2. **Update plugins.yml**: Next, update the `plugins.yml` file to include the new social media platform. Follow this template:
 
 ```yaml
-  - name: name_of_the_media
-    class: file_name.class_name
-    enabled: true
-    config:
-      token: $TOKEN_SAVED_IN_PUBLISH_CONTENT
-      room_id: "room_id"
+- name: name_of_the_media
+  class: file_name.class_name
+  enabled: true
+  config:
+    token: $TOKEN_SAVED_IN_PUBLISH_CONTENT
+    room_id: "room_id"
 ```
+
 Ensure to replace `name_of_the_media` with the name of the new platform, and `file_name.class_name` with the appropriate file and class name for the plugin.
-The `name` is then used in the `media` tag in the post file (posts/*.md) to determine the social media.
+The `name` is then used in the `media` tag in the post file (posts/\*.md) to determine the social media.
 
 3. **Configuration**: In the `config` section, specify any required variables for initializing the plugin class. This may include authentication tokens, room IDs, or other platform-specific parameters. Any configuration that needs to be securely passed with GitHub secrets should be prefixed with `$` in order to be easily identifiable within the workflow YAML file.
 
@@ -96,10 +98,10 @@ The `name` is then used in the `media` tag in the post file (posts/*.md) to dete
 6. **Update publish_content.yml**: Finally, update the `publish_content.yml` file to include an environment variable referencing the token saved in GitHub secrets. Use the following template: (Don't put the prefixed `$` in here)
 
 ```yaml
-...
+
+---
 env:
   TOKEN_SAVED_IN_PUBLISH_CONTENT: ${{ secrets.TOKEN_SAVED_IN_GITHUB_SECRETS }}
-...
 ```
 
 Replace `TOKEN_SAVED_IN_GITHUB_SECRETS` with the name of the secret containing the token for the new social media platform.
@@ -121,11 +123,13 @@ If you need to use the same social media platform with different authentication 
 By following these steps, you can effectively duplicate a social media platform with a different token for specific use cases or configurations.
 
 ## Run locally
+
 You can execute this repository on your machine by running `lib/galaxy_social.py` with the argument `--files Files ...` or `--folder FOLDER` to process files, or add `--preview` to preview the file as markdown. Also there is `--json-out processed_files.json` that could be change where to save the json results output.
 
 Remember to add the env variable that needed for each social media seperatly.
 
 ## Social media implemented
+
 - Bluesky
 - Mastodon
 - Matrix: hashtags are included in the post but have no special function in matrix.
