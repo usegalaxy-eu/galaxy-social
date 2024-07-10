@@ -46,13 +46,13 @@ These workflows adhere to FAIR (Findable, Accessible, Interoperable, Reusable) p
 
 
 📚 Training Material Available
-To support users, a comprehensive tutorial have been developed. These resources guide users through the workflows, ensuring they can effectively utilize the tools for their research and public health initiatives.
+To support users, a comprehensive tutorial have been developed. It guides users through the workflows, ensuring they can effectively utilize the tools for their research and public health initiatives.
 
 🔗 Tutorial: https://training.galaxyproject.org/training-material/topics/microbiome/tutorials/pathogen-detection-from-nanopore-foodborne-data/tutorial.html
 
 
-🌍 Impact on Global Health
-PathoGFAIR is set to revolutionize food safety and pathogen tracking, providing robust tools for researchers and public health officials worldwide. By improving detection capabilities, we can better protect public health. 🌎🔬
+🌍 Impact
+PathoGFAIR is set to improve pathogen tracking, providing robust tools for researchers and public health officials worldwide. By improving detection capabilities, we can better protect public health. 🌎🔬
 
 📝 Preprint: https://www.biorxiv.org/content/10.1101/2024.06.26.600753v1
 🔗 Blogpost: https://galaxyproject.org/news/2024-07-08-pathogfair-preprint/
