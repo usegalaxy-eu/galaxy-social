@@ -42,7 +42,7 @@ PathoGFAIR consists of 5 workflows:
 **🌟 Embracing FAIR Principles**  
 These workflows adhere to FAIR (Findable, Accessible, Interoperable, Reusable) principles, ensuring they are easy to find (via WorkflowHub and Dockstore), share, adapt, and integrate with other data and tools. This enhances collaboration and transparency in pathogen research.
 
-![graphical abstract](./images/2024-07-09-pathogair-preprint-graphical-abstract.png)
+![graphical abstract](https://raw.githubusercontent.com/usegalaxy-eu/galaxy-social/335ea9443332660a9f406c2439ff95e832426eee/posts/images/2024-07-09-pathogair-preprint-graphical-abstract.png)
 
 
 **📚 Training Material Available**  
