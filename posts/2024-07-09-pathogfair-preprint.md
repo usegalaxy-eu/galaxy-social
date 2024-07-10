@@ -1,27 +1,13 @@
 ---
 media:
-  - bluesky
-  - mastodon
   - mastodon-eu-freiburg
   - matrix-eu-announce
 
 mentions:
-  bluesky:
-    - bebatut.bsky.social
-  mastodon:
-    - bebatut@piaille.fr 
   mastodon-eu-freiburg:
     - bebatut@piaille.fr 
 
 hashtags:
-  bluesky:
-    - metagenomics
-    - pathogen
-    - usegalaxy
-  mastodon:
-    - metagenomics
-    - pathogen
-    - usegalaxy
   mastodon-eu-freiburg:
     - metagenomics
     - pathogen
