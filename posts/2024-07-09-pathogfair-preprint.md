@@ -30,11 +30,11 @@ The journey began with funding from EOSC-Life for Industry Collaboration to mode
 
 🔍 What's in PathoGFAIR?
 PathoGFAIR consists of 5 workflows:
-- **Preprocessing**
-- **Taxonomy Profiling and Visualization**
-- **Gene-based Pathogen Identification** with assembly, AMR and VF gene detection
-- **Allele-based Pathogen Identification** with variant calling
-- **PathoGFAIR Samples Aggregation and Visualisation** including phylogenetic analysis
+- Preprocessing
+- Taxonomy Profiling and Visualization
+- Gene-based Pathogen Identification with assembly, AMR and VF gene detection
+- Allele-based Pathogen Identification with variant calling
+- PathoGFAIR Samples Aggregation and Visualisation including phylogenetic analysis
 
 🔗 Workflows: https://usegalaxy-eu.github.io/PathoGFAIR/#how-to-find-pathogfair-workflows
 
