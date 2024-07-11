@@ -45,7 +45,7 @@ plugins:
     enabled: true
     config:
       access_token: $LINKEDIN_ACCESS_TOKEN
-      org_id: 101662592
+      org_id: 101662592  # Galaxy Project LinkedIn account
       max_content_length: 3000
 
   - name: markdown
