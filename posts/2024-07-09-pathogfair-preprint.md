@@ -11,7 +11,7 @@ hashtags:
   mastodon-eu-freiburg:
     - metagenomics
     - pathogen
-    - usegalaxy
+    - UseGalaxy
 
 ---
 
@@ -46,7 +46,7 @@ These workflows adhere to FAIR (Findable, Accessible, Interoperable, Reusable) p
 
 
 📚 Training Material Available
-To support users, a comprehensive tutorial have been developed. It guides users through the workflows, ensuring they can effectively utilize the tools for their research and public health initiatives.
+To support users, a comprehensive tutorial has been developed. It guides users through the workflows, ensuring they can effectively utilize the tools for their research and public health initiatives.
 
 🔗 Tutorial: https://training.galaxyproject.org/training-material/topics/microbiome/tutorials/pathogen-detection-from-nanopore-foodborne-data/tutorial.html
 
