@@ -134,4 +134,4 @@ Remember to add the env variable that needed for each social media seperatly.
 - Mastodon
 - Matrix: hashtags are included in the post but have no special function in matrix.
 - Slack: mentions and hashtags are not working!
-- Linkedin: not implemented but the first draft of python file is in the plugins.
+- Linkedin: mentions are not working!
