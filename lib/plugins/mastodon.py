@@ -3,8 +3,6 @@ import tempfile
 import textwrap
 
 import requests
-from bs4 import BeautifulSoup
-from markdown import markdown
 from mastodon import Mastodon
 
 
@@ -51,15 +49,6 @@ class mastodon_client:
             images = images[:4]
         else:
             warnings = ""
-
-        # convert markdown formatting because Mastodon doesn't support it
-        paragraphs = content.split("\n\n\n")
-        for i, p in enumerate(paragraphs):
-            soup = BeautifulSoup(markdown(p), "html.parser")
-            for link in soup.find_all("a"):
-                link.string = f"{link.string}: {link['href']}"
-            paragraphs[i] = "\n\n".join([p.get_text() for p in soup.find_all("p")])
-        content = "\n\n\n".join(paragraphs)
 
         content += "\n"
         if mentions:

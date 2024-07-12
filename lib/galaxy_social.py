@@ -7,7 +7,9 @@ from fnmatch import filter
 from importlib import import_module
 from typing import Any, Dict
 
+from bs4 import BeautifulSoup
 from jsonschema import validate
+from markdown import markdown
 from yaml import safe_load as yaml
 
 
@@ -129,15 +131,29 @@ class galaxy_social:
 
         return plain_content, metadata, errors
 
+    def ignore_markdown(self, content: str):
+        paragraphs = content.split("\n\n\n")
+        for i, p in enumerate(paragraphs):
+            soup = BeautifulSoup(markdown(p), "html.parser")
+            for link in soup.find_all("a"):
+                link.string = f"{link.string}: {link['href']}"
+            paragraphs[i] = "\n\n".join([p.get_text() for p in soup.find_all("p")])
+        return "\n\n\n".join(paragraphs)
+
     def process_markdown_file(self, file_path, processed_files):
         content, metadata, errors = self.parse_markdown_file(file_path)
         if errors:
             return processed_files, f"Failed to process `{file_path}`.\n{errors}"
         formatting_results = {}
         for media in metadata["media"]:
+            new_content = (
+                self.ignore_markdown(content)
+                if self.plugins_config_dict[media][2].get("ignore_markdown", False)
+                else content
+            )
             try:
                 formatting_results[media] = self.plugins[media].format_content(
-                    content=content,
+                    content=new_content,
                     mentions=metadata.get("mentions", {}).get(media, []),
                     hashtags=metadata.get("hashtags", {}).get(media, []),
                     images=metadata.get("images", []),

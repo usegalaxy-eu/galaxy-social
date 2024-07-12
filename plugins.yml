@@ -15,6 +15,7 @@ plugins:
       username: ""
       password: $BLUESKY_PASSWORD
       max_content_length: 300
+      ignore_markdown: true
 
   - name: mastodon-eu-freiburg
     class: mastodon.mastodon_client
@@ -23,6 +24,7 @@ plugins:
       base_url: "https://xn--baw-joa.social"
       access_token: $MASTODON_EU_FR_TOKEN
       max_content_length: 500
+      ignore_markdown: true
 
   - name: matrix-eu-announce
     class: matrix.matrix_client
@@ -47,6 +49,7 @@ plugins:
       access_token: $LINKEDIN_ACCESS_TOKEN
       org_id: 101662592  # Galaxy Project LinkedIn account
       max_content_length: 3000
+      ignore_markdown: true
 
   - name: markdown
     class: markdown.markdown_client
