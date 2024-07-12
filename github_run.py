@@ -16,6 +16,10 @@ class github_run:
         self.pr_number = os.getenv("PR_NUMBER")
 
     def comment(self, comment_text):
+        # Delete old comments of the bot
+        for comment in self.pr.get_issue_comments():
+            if comment.user.login == "github-actions[bot]":
+                comment.delete()
         # Enclose mentions and hashtags in backticks before commenting
         # so that they stand out for the reviewer and to prevent accidental
         # mentioning of github users.
