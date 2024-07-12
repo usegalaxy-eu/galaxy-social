@@ -148,10 +148,10 @@ class galaxy_social:
         stats = processed_files[file_path] if file_path in processed_files else {}
         if self.preview:
             message = f"👋 Hello! I'm your friendly social media assistant. Below are the previews of this post:\n`{file_path}`"
-            for media in metadata["media"]:
-                if stats.get(media):
-                    print("Skipping previous post to", media)
-                    continue
+            skiped_media = [media for media in metadata["media"] if stats.get(media)]
+            if skiped_media:
+                message += f"\n\nSkipping post to {', '.join(skiped_media)}. because it was already posted."
+            for media in set(metadata["media"]) - set(skiped_media):
                 formatted_content, preview, warning = formatting_results[media]
                 message += f"\n\n## {media}\n\n"
                 message += preview
