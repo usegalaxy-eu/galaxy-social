@@ -58,7 +58,7 @@ class linkedin_client:
         else:
             warnings = ""
 
-        # convert markdown formatting because Mastodon doesn't support it
+        # convert markdown formatting because Linkedin doesn't support it
         paragraphs = content.split("\n\n\n")
         for i, p in enumerate(paragraphs):
             soup = BeautifulSoup(markdown(p), "html.parser")
