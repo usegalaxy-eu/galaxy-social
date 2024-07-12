@@ -172,7 +172,7 @@ class galaxy_social:
             ]
         )
         message = (
-            f"Below are the links of this post:\n`{file_path}`\n\n{url_text}"
+            f"🎉 The post is now online. The links may take a few minutes to become active. Here are the links for this post:\n`{file_path}`\n\n{url_text}"
             if url_text
             else f"Nothing created for this post:\n`{file_path}`"
         )
