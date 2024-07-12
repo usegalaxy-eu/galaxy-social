@@ -40,7 +40,7 @@ plugins:
       channel_id: ""
       max_content_length: 40000
 
-  - name: linkedin
+  - name: linkedin-galaxyproject
     class: linkedin.linkedin_client
     enabled: true
     config:
