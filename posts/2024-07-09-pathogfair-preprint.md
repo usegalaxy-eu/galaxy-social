@@ -2,6 +2,7 @@
 media:
   - mastodon-eu-freiburg
   - matrix-eu-announce
+  - linkedin-galaxyproject
 
 mentions:
   mastodon-eu-freiburg:
