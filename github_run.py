@@ -152,8 +152,8 @@ class github_run:
             base="main",
             head=branch_name,
         )
-        create_dispatch = self.repo.get_workflow("preview.yml")
-        create_dispatch.create_dispatch(
+
+        self.repo.get_workflow("preview.yml").create_dispatch(
             ref="main",
             inputs={"pr_number": new_pr.number},
         )
