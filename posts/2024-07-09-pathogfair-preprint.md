@@ -3,13 +3,18 @@ media:
   - mastodon-eu-freiburg
   - matrix-eu-announce
   - linkedin-galaxyproject
+  - bluesky-galaxyproject
 
 mentions:
   mastodon-eu-freiburg:
-    - bebatut@piaille.fr 
+    - bebatut@piaille.fr
 
 hashtags:
   mastodon-eu-freiburg:
+    - metagenomics
+    - pathogen
+    - UseGalaxy
+  bluesky-galaxyproject:
     - metagenomics
     - pathogen
     - UseGalaxy
