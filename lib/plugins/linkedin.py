@@ -4,6 +4,8 @@ import textwrap
 from urllib.parse import quote
 
 import requests
+from bs4 import BeautifulSoup
+from markdown import markdown
 
 
 class linkedin_client:
@@ -47,15 +49,23 @@ class linkedin_client:
         return final_lines
 
     def format_content(self, content, mentions, hashtags, images, **kwargs):
+        # the mentions are not linked to anyone!
         mentions = " ".join([f"@{v}" for v in mentions])
-        hashtags = " ".join(
-            [f"#{v}" for v in hashtags]
-        )  # the mentions are not linked to anyone!
+        hashtags = " ".join([f"#{v}" for v in hashtags])
         if len(images) > 20:
             warnings = f"A maximum of 20 images, not {len(images)}, can be included in a single linkedin post."
             images = images[:20]
         else:
             warnings = ""
+
+        # convert markdown formatting because Mastodon doesn't support it
+        paragraphs = content.split("\n\n\n")
+        for i, p in enumerate(paragraphs):
+            soup = BeautifulSoup(markdown(p), "html.parser")
+            for link in soup.find_all("a"):
+                link.string = f"{link.string}: {link['href']}"
+            paragraphs[i] = "\n\n".join([p.get_text() for p in soup.find_all("p")])
+        content = "\n\n\n".join(paragraphs)
 
         content += "\n"
         if mentions:
