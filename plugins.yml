@@ -7,12 +7,12 @@ plugins:
       access_token: $MASTODON_ACCESS_TOKEN
       max_content_length: 500
 
-  - name: bluesky
+  - name: bluesky-galaxyproject
     class: bluesky.bluesky_client
-    enabled: false
+    enabled: true
     config:
       base_url: "https://bsky.social"
-      username: ""
+      username: "galaxyproject.bsky.social"
       password: $BLUESKY_PASSWORD
       max_content_length: 300
 
