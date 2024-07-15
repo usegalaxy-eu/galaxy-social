@@ -137,7 +137,7 @@ class galaxy_social:
             soup = BeautifulSoup(markdown(p), "html.parser")
             for link in soup.find_all("a"):
                 link.string = f"{link.string}: {link['href']}"
-            paragraphs[i] = "\n\n".join([p.get_text() for p in soup.find_all("p")])
+            paragraphs[i] = soup.get_text()
         return "\n\n\n".join(paragraphs)
 
     def process_markdown_file(self, file_path, processed_files):
