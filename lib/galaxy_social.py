@@ -9,7 +9,7 @@ from typing import Any, Dict
 
 from bs4 import BeautifulSoup
 from jsonschema import validate
-from markdown import markdown
+from markdown2 import markdown
 from yaml import safe_load as yaml
 
 
@@ -134,9 +134,13 @@ class galaxy_social:
     def ignore_markdown(self, content: str):
         paragraphs = content.split("\n\n\n")
         for i, p in enumerate(paragraphs):
-            soup = BeautifulSoup(markdown(p), "html.parser")
+            soup = BeautifulSoup(markdown(p, extras=["cuddled-lists"]), "html.parser")
             for link in soup.find_all("a"):
                 link.string = f"{link.string}: {link['href']}"
+            for list_tag in soup.find_all(["ul", "ol"]):
+                for i, li in enumerate(list_tag.find_all("li"), 1):
+                    bullet = f"{i}. " if list_tag.name == "ol" else "• "
+                    li.string = f"{bullet}{li.get_text()}"
             paragraphs[i] = soup.get_text()
         return "\n\n\n".join(paragraphs)
 
