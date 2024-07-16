@@ -5,6 +5,8 @@ from urllib.parse import quote
 
 import requests
 
+from .base import strip_markdown_formatting
+
 
 class linkedin_client:
     def __init__(self, **kwargs):
@@ -47,16 +49,16 @@ class linkedin_client:
         return final_lines
 
     def format_content(self, content, mentions, hashtags, images, **kwargs):
+        # the mentions are not linked to anyone!
         mentions = " ".join([f"@{v}" for v in mentions])
-        hashtags = " ".join(
-            [f"#{v}" for v in hashtags]
-        )  # the mentions are not linked to anyone!
+        hashtags = " ".join([f"#{v}" for v in hashtags])
         if len(images) > 20:
             warnings = f"A maximum of 20 images, not {len(images)}, can be included in a single linkedin post."
             images = images[:20]
         else:
             warnings = ""
 
+        content = strip_markdown_formatting(content)
         content += "\n"
         if mentions:
             content = f"{content}\n{mentions}"
