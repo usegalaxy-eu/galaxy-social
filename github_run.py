@@ -15,11 +15,26 @@ class github_run:
         self.repo = os.getenv("GITHUB_REPOSITORY")
         self.pr_number = os.getenv("PR_NUMBER")
 
-    def comment(self, comment_text):
-        # Delete old comments of the bot
-        for comment in self.pr.get_issue_comments():
-            if comment.user.login == "github-actions[bot]":
-                comment.delete()
+    def comment(self, comment_text, **kwargs):
+        # Hide old comments of the bot
+        if kwargs.get("preview"):
+            query = "mutation($input: MinimizeCommentInput!) { minimizeComment(input: $input) { minimizedComment { isMinimized minimizedReason } } }"
+            headers = {
+                "Authorization": f"Bearer {self.github_token}",
+                "Content-Type": "application/json",
+            }
+            for comment in self.pr.get_issue_comments():
+                if comment.user.login == "github-actions[bot]":
+                    comment_node_id = requests.get(comment.url).json()["node_id"]
+                    variables = {
+                        "subjectId": comment_node_id,
+                        "classifier": "OUTDATED",
+                    }
+                    response = requests.post(
+                        "https://api.github.com/graphql",
+                        headers=headers,
+                        json=({"query": query, "variables": {"input": variables}}),
+                    )
         # Enclose mentions and hashtags in backticks before commenting
         # so that they stand out for the reviewer and to prevent accidental
         # mentioning of github users.
@@ -116,7 +131,7 @@ if __name__ == "__main__":
 
     try:
         message = gs.process_files(files_to_process)
-        github.comment(message)
+        github.comment(message, preview=args.preview)
     except Exception as e:
         github.comment("Something went wrong, an Admin will take a look.")
         raise e
