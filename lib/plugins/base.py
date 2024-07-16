@@ -3,6 +3,8 @@ from html.parser import HTMLParser
 from markdown import markdown
 
 
+# inspired by:
+# https://stackoverflow.com/questions/14694482/
 class HTMLFilter(HTMLParser):
     text = ""
     href = ""
