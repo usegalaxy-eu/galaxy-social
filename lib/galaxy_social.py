@@ -94,10 +94,15 @@ class galaxy_social:
 
         metadata["media"] = [media.lower() for media in metadata["media"]]
 
+        invalid_media = [
+            media
+            for media in metadata["media"]
+            if media not in self.plugins_config_dict
+        ]
+        errors += f"- Invalid media `{', '.join(invalid_media)}` in metadata. you can only use `{', '.join(self.plugins_config_dict.keys())}`.\n"
+
         for media in metadata["media"]:
-            if media not in self.plugins_config_dict:
-                errors += f"- Invalid media `{media}` in metadata. Consider check the spelling or enabling/adding it to `plugins.yml`.\n"
-            elif media not in self.plugins:
+            if media in self.plugins_config_dict and media not in self.plugins:
                 self.init_plugin(media)
 
         metadata["mentions"] = (
@@ -132,7 +137,7 @@ class galaxy_social:
     def process_markdown_file(self, file_path, processed_files):
         content, metadata, errors = self.parse_markdown_file(file_path)
         if errors:
-            return processed_files, f"Failed to process `{file_path}`.\n{errors}"
+            return processed_files, f"⚠️ Failed to process `{file_path}`.\n{errors}"
         formatting_results = {}
         for media in metadata["media"]:
             try:
