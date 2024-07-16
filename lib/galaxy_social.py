@@ -141,6 +141,8 @@ class galaxy_social:
                 for i, li in enumerate(list_tag.find_all("li"), 1):
                     bullet = f"{i}. " if list_tag.name == "ol" else "• "
                     li.string = f"{bullet}{li.get_text()}"
+            for blackquote in soup.find_all("blockquote"):
+                blackquote.string = f"“{blackquote.get_text().strip()}”"
             paragraphs[i] = soup.get_text()
         return "\n\n\n".join(paragraphs)
 
