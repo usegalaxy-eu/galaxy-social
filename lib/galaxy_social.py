@@ -99,7 +99,8 @@ class galaxy_social:
             for media in metadata["media"]
             if media not in self.plugins_config_dict
         ]
-        errors += f"- Invalid media `{', '.join(invalid_media)}` in metadata. you can only use `{', '.join(self.plugins_config_dict.keys())}`.\n"
+        if invalid_media:
+            errors += f"- Invalid media `{', '.join(invalid_media)}` in metadata. You can only use `{', '.join(self.plugins_config_dict.keys())}` defined in your `plugins.yml` file.\n"
 
         for media in metadata["media"]:
             if media in self.plugins_config_dict and media not in self.plugins:
