@@ -63,4 +63,4 @@ class HTMLFilter(HTMLParser):
 def strip_markdown_formatting(text):
     html_filter = HTMLFilter()
     html_filter.feed(markdown(text))
-    return html_filter.text
+    return html_filter.text.strip('\n')

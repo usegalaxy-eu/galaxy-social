@@ -58,7 +58,12 @@ class linkedin_client:
         else:
             warnings = ""
 
-        content = strip_markdown_formatting(content)
+        # convert markdown formatting because linkedin doesn't support it
+        paragraphs = content.split("\n\n\n")
+        for i, p in enumerate(paragraphs):
+            paragraphs[i] = strip_markdown_formatting(p)
+        content = "\n\n\n".join(paragraphs)
+
         content += "\n"
         if mentions:
             content = f"{content}\n{mentions}"
