@@ -3,9 +3,9 @@ import tempfile
 import textwrap
 
 import requests
-from bs4 import BeautifulSoup
-from markdown import markdown
 from mastodon import Mastodon
+
+from .base import strip_markdown_formatting
 
 
 class mastodon_client:
@@ -55,10 +55,7 @@ class mastodon_client:
         # convert markdown formatting because Mastodon doesn't support it
         paragraphs = content.split("\n\n\n")
         for i, p in enumerate(paragraphs):
-            soup = BeautifulSoup(markdown(p), "html.parser")
-            for link in soup.find_all("a"):
-                link.string = f"{link.string}: {link['href']}"
-            paragraphs[i] = "\n\n".join([p.get_text() for p in soup.find_all("p")])
+            paragraphs[i] = strip_markdown_formatting(p)
         content = "\n\n\n".join(paragraphs)
 
         content += "\n"
