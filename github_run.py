@@ -23,9 +23,7 @@ class github_run:
                 "Authorization": f"Bearer {self.github_token}",
                 "Content-Type": "application/json",
             }
-            comments_url = (
-                f"https://api.github.com/repos/{self.repo}/issues/{self.pr_number}/comments",
-            )
+            comments_url = f"https://api.github.com/repos/{self.repo}/issues/{self.pr_number}/comments"
             comments_headers = {"Authorization": f"Bearer {self.github_token}"}
             comments = requests.get(comments_url, headers=comments_headers).json()
             for comment in comments:
