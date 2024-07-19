@@ -7,7 +7,9 @@ hashtags:
     - metagenomics
     - pathogen
     - UseGalaxy
-
+mentions:
+  bluesky-galaxyproject:
+    - bebatut.bsky.social
 ---
 
 **🚀 Exciting news in pathogen detection!**
