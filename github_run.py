@@ -23,11 +23,15 @@ class github_run:
                 "Authorization": f"Bearer {self.github_token}",
                 "Content-Type": "application/json",
             }
-            for comment in self.pr.get_issue_comments():
-                if comment.user.login == "github-actions[bot]":
-                    comment_node_id = requests.get(comment.url).json()["node_id"]
+            comments_url = (
+                f"https://api.github.com/repos/{self.repo}/issues/{self.pr_number}/comments",
+            )
+            comments_headers = {"Authorization": f"Bearer {self.github_token}"}
+            comments = requests.get(comments_url, headers=comments_headers).json()
+            for comment in comments:
+                if comment["user"]["login"] == "github-actions[bot]":
                     variables = {
-                        "subjectId": comment_node_id,
+                        "subjectId": comment["node_id"],
                         "classifier": "OUTDATED",
                     }
                     response = requests.post(
