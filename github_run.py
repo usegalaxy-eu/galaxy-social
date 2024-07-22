@@ -14,7 +14,8 @@ from lib.galaxy_social import galaxy_social
 
 class github_run:
     def __init__(self):
-        g = github.Github(os.getenv("GITHUB_TOKEN"))
+        self.github_token = os.getenv("GITHUB_TOKEN")
+        g = github.Github(self.github_token)
         self.repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
         self.pr = self.repo.get_pull(int(os.getenv("PR_NUMBER")))
 
@@ -28,16 +29,11 @@ class github_run:
                 "Authorization": f"Bearer {self.github_token}",
                 "Content-Type": "application/json",
             }
-            comments_url = f"https://api.github.com/repos/{self.repo}/issues/{self.pr_number}/comments"
-            comments_headers = {"Authorization": f"Bearer {self.github_token}"}
-            comments = requests.get(comments_url, headers=comments_headers).json()
-            for comment in comments:
-                if comment["user"]["login"] == "github-actions[bot]":
-                    variables = {
-                        "subjectId": comment["node_id"],
-                        "classifier": "OUTDATED",
-                    }
-                    response = requests.post(
+            for comment in self.pr.get_issue_comments():
+                if comment.user.login == "github-actions[bot]":
+                    comment_node_id = requests.get(comment.url).json()["node_id"]
+                    variables = {"subjectId": comment_node_id, "classifier": "OUTDATED"}
+                    requests.post(
                         "https://api.github.com/graphql",
                         headers=headers,
                         json=({"query": query, "variables": {"input": variables}}),
