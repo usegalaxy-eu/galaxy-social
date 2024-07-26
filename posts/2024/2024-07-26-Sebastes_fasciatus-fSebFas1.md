@@ -1,28 +1,26 @@
 ---
 media:
-  - bluesky
-  - mastodon
-  - matrix
-  - linkedin
+  - bluesky-galaxyproject
+  - matrix-eu-announce
+  - linkedin-galaxyproject
 
 mentions:
+  bluesky:
+    - ebpgenome.bsky.social
 
 hashtags:
   bluesky:
-    - VertebrateGenomesProject
-    - usegalaxy
+    - UseGalaxy
   mastodon:
-    - VertebrateGenomesProject
-    - usegalaxy
-  matrix:
-    - VertebrateGenomesProject
-    - usegalaxy
-  linkedin:
-    - VertebrateGenomesProject
-    - usegalaxy
+    - VGP
+    - EBP
+    - UseGalaxy
 
 ---
 We have finished the curation of Sebastes fasciatus (Acadian redfish), fSebFas1. The files have been uploaded to [GenomeArk](https://genomeark.s3.amazonaws.com/index.html?prefix=species/Sebastes_fasciatus/fSebFas1/assembly_curated/). Curation was done by Kirsty McCaffrey, with QCing by Jo Collins.
+
+![grafik](https://github.com/user-attachments/assets/95eef11f-f445-4b37-a548-d2fdefb7b110)
+
 
 Karyotyping indicated 24 chromosome pairs. No sex chromosomes where identified. 99.25% of sequence was assigned to chromosomes in this primary assembly.
 
