@@ -5,7 +5,7 @@ media:
   - linkedin-galaxyproject
 
 mentions:
-  bluesky:
+  bluesky-galaxyproject:
     - ebpgenome.bsky.social
 
 hashtags:
