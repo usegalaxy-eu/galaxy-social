@@ -1,7 +1,7 @@
 ---
 media:
   - bluesky-galaxyproject
-  - matrix-eu-announce
+  - mastodon-eu-freiburg
   - linkedin-galaxyproject
 
 mentions:
@@ -9,9 +9,9 @@ mentions:
     - ebpgenome.bsky.social
 
 hashtags:
-  bluesky:
+  bluesky-galaxyproject:
     - UseGalaxy
-  mastodon:
+  mastodon-eu-freiburg:
     - VGP
     - EBP
     - UseGalaxy
