@@ -2,7 +2,7 @@
 
 <div align="center">
       👇</br>
-      <kbd><a href="../../new/main/?filename=posts/2024/<your-path>.md&value=---%0Amedia%3A%0A - mastodon-eu-freiburg%0A - matrix-eu-announce%0A%0Amentions%3A%0A mastodon-eu-freiburg%3A%0A%20%20%20 - galaxyproject%40mstdn.science%0A matrix-eu-announce%3A%0A%20%20%20 - bgruening%3Amatrix.org%0A%0Ahashtags%3A%0A mastodon-eu-freiburg%3A%0A%20%20%20 - usegalaxy%0A%0A---%0A%0AYour text content goes here. (Markdown syntax will not pass to Bluesky and Mastodon!)%0AFor images just drag and drop them here. they will look like this%3A%0A![A](https%3A%2F%2Fexample.com%2Fa.jpg)">Create new post</a></kbd>
+      <kbd><a href="../../new/main/?filename=posts/2024/<your-path>.md&value=---%0Amedia:%0A - mastodon-eu-freiburg%0A - matrix-eu-announce%0A - bluesky-galaxyproject%0A - linkedin-galaxyproject%0A%0Amentions:%0A mastodon-eu-freiburg:%0A%20 - galaxyproject@mstdn.science%0A bluesky-galaxyproject:%0A%20 - galaxyproject.bsky.social%0A matrix-eu-announce:%0A%20 - bgruening:matrix.org%0A%0Ahashtags:%0A mastodon-eu-freiburg:%0A%20 - UseGalaxy%0A%20 - GalaxyProject%0A%20 - UniFreiburg%0A%20 - usegalaxy%0A%20 - EOSC%0A%20 - EuroScienceGateway%0A bluesky-galaxyprojct:%0A%20 - UseGalaxy%0A%20 - GalaxyProject%0A%20 - UniFreiburg%0A%20 - usegalaxy%0A%20 - EOSC%0A%20 - EuroScienceGateway%0A linkedin-galaxyproject:%0A%20 - UseGalaxy%0A%20 - GalaxyProject%0A%20 - UniFreiburg%0A%20 - usegalaxy%0A%20 - EOSC%0A%20 - EuroScienceGateway%0A---%0AYour text content goes here. (Markdown syntax will not pass to Bluesky, Mastodon, and Linkedin!)%0AFor images just drag and drop them here. they will look like this:%0A![A](https://example.com/a.jpg)">Create new post</a></kbd>
 </div>
 
 ## How to Create a Post
@@ -18,31 +18,45 @@ To create a post on Galaxy Social, follow these steps:
 ```yaml
 ---
 media:
-  - bluesky
-  - mastodon
-  - matrix
-  - slack
+ - mastodon-eu-freiburg
+ - matrix-eu-announce
+ - bluesky-galaxyproject
+ - linkedin-galaxyproject
 
 mentions:
-  bluesky:
-    - a.bsky.social
-  mastodon:
-    - a
-  matrix:
-    - a:matrix.org
+ mastodon-eu-freiburg:
+  - galaxyproject@mstdn.science
+ bluesky-galaxyproject:
+  - galaxyproject.bsky.social
+ matrix-eu-announce:
+  - bgruening:matrix.org
 
 hashtags:
-  bluesky:
-    - a
-    - b
-  mastodon:
-    - c
-    - d
+ mastodon-eu-freiburg:
+  - UseGalaxy
+  - GalaxyProject
+  - UniFreiburg
+  - usegalaxy
+  - EOSC
+  - EuroScienceGateway
+ bluesky-galaxyprojct:
+  - UseGalaxy
+  - GalaxyProject
+  - UniFreiburg
+  - usegalaxy
+  - EOSC
+  - EuroScienceGateway
+ linkedin-galaxyproject:
+  - UseGalaxy
+  - GalaxyProject
+  - UniFreiburg
+  - usegalaxy
+  - EOSC
+  - EuroScienceGateway
 ---
-Your text content goes here.
-
+Your text content goes here. (Markdown syntax will not pass to Bluesky, Mastodon, and Linkedin!)
+For images just drag and drop them here. they will look like this:
 ![A](https://example.com/a.jpg)
-![B](https://example.org/b.png)
 ```
 
 **Notes on the Template:**
