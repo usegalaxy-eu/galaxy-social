@@ -32,7 +32,7 @@ Giving researchers free access to a huge computational infrastructure and traini
 
 🌟 **Thank you!**
 
-Without the help of many people this success would have been impossible. We want to thank from the bottom of our hearts all our funders, our supporters at the University of Freiburg and everywhere in the world, and we want to thank our users who chose Galaxy for their data analysis.
+Without the help of many people this success would have been impossible. We want to thank from the bottom of our hearts all our funders, our supporters at the Uni Freiburg and everywhere in the world, and we want to thank our users who chose Galaxy for their data analysis.
 
 ![100,000 users of Galaxy-EU](https://github.com/user-attachments/assets/8c3d5de6-35b9-4e8b-bb5a-a2180e8d931d)
 ![Factsheet_Galaxy-EU](https://github.com/user-attachments/assets/a2072420-b056-417a-9f4a-e52d028563ff)
