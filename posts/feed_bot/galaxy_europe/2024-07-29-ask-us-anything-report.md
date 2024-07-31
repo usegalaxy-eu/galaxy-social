@@ -40,5 +40,5 @@ Serving and engaging with its user community is one of the key pillars of the Ga
 
 🌟 **Questions from beginners and advanced users**
 
-More than 30 scientists followed our invitation and filled this one hour with interesting questions which were answered by experts of our team. For all of us it was a well received and great experience and we plan to offer online live Q\&A sessions every 2\-3 months. The next one will be offered in September 2024\. We will announce them on the [Events page](https://galaxyproject.org/events).
+More than 30 scientists followed our invitation and filled this one hour with interesting questions that were answered by experts of our team. It was a well received and great experience for us and we plan to offer this format every 2\-3 months with the next session in September 2024\. Watch the [Events page](https://galaxyproject.org/events) for announcements.
 ![User Questions](https://galaxyproject.org/news/2024-07-29-ask-us-anything-report/questions_1.png)
