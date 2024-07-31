@@ -32,7 +32,7 @@ hashtags:
   - EOSC
   - EuroScienceGateway
 ---
-📝 New blog post Released!
+📝 New blog post released!
 
 🚀 **First “Ask Us Anything about Galaxy” live Q\&A session was successful**
 
