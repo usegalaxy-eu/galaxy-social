@@ -7,6 +7,13 @@ on:
     paths:
       - "posts/**"
 
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "The number of the pull request to handle"
+        required: true
+        type: number
+
 jobs:
   preview:
     name: Preview
@@ -14,13 +21,18 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      actions: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set environment variables
         run: |
-          echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
+          if [[ "${{ github.event.number }}" ]]; then
+            echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
+          else
+            echo "PR_NUMBER=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
+          fi
           echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
           echo "MASTODON_ACCESS_TOKEN=${{ secrets.MASTODON_ACCESS_TOKEN }}" >> $GITHUB_ENV
           echo "BLUESKY_PASSWORD=${{ secrets.BLUESKY_PASSWORD }}" >> $GITHUB_ENV

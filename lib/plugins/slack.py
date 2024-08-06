@@ -14,7 +14,9 @@ class slack_client:
     def content_in_chunks(self, content, max_chunk_length):
         paragraphs = content.split("\n\n\n")
         for p in paragraphs:
-            for chunk in textwrap.wrap(p.strip("\n"), max_chunk_length, replace_whitespace=False):
+            for chunk in textwrap.wrap(
+                p.strip("\n"), max_chunk_length, replace_whitespace=False
+            ):
                 yield chunk
 
     def wrap_text_with_index(self, content):
@@ -84,23 +86,27 @@ class slack_client:
         return response
 
     def create_post(self, content, **kwargs):
-        link = None
-        parent_ts = None
+        posts = []
         for text in content["chunks"]:
+            parent_ts = posts[0]["ts"] if posts else None
             response = self.client.chat_postMessage(
                 channel=self.channel_id,
                 text=text,
                 thread_ts=parent_ts if parent_ts else None,
             )
-            if not parent_ts:
-                parent_ts = response["ts"]
+            posts.append(response)
+            if len(posts) == 1:
                 link = self.client.chat_getPermalink(
-                    channel=self.channel_id, message_ts=parent_ts
+                    channel=self.channel_id, message_ts=posts[0]["ts"]
                 )["permalink"]
-            if not response["ok"]:
-                return False, None
         if content["images"]:
             response = self.upload_images(content["images"])
-            if not response["ok"]:
-                return False, None
+            posts.append(response)
+
+        if not all(post["ok"] for post in posts):
+            print("Error creating post in Slack")
+            for post in posts:
+                self.client.chat_delete(channel=self.channel_id, ts=post["ts"])
+            return False, None
+
         return True, link

@@ -117,48 +117,49 @@ class bluesky_client:
     ) -> Optional[atproto.models.AppBskyEmbedExternal.Main]:
         try:
             response = requests.get(url)
-        except:
+        except Exception as e:
+            print(e)
             return None
-        embed_external = None
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, "html.parser")
-            title_tag = soup.find("meta", attrs={"property": "og:title"})
-            title_tag_alt = soup.title.string if soup.title else None
-            description_tag = soup.find("meta", attrs={"property": "og:description"})
-            description_tag_alt = soup.find("meta", attrs={"name": "description"})
-            image_tag = soup.find("meta", attrs={"property": "og:image"})
-            title = (
-                title_tag.attrs.get("content")
-                if title_tag and hasattr(title_tag, "attrs")
-                else title_tag_alt
+        if response.status_code != 200:
+            return None
+        soup = BeautifulSoup(response.text, "html.parser")
+        title_tag = soup.find("meta", attrs={"property": "og:title"})
+        title_tag_alt = soup.title.string if soup.title else None
+        description_tag = soup.find("meta", attrs={"property": "og:description"})
+        description_tag_alt = soup.find("meta", attrs={"name": "description"})
+        image_tag = soup.find("meta", attrs={"property": "og:image"})
+        title = (
+            title_tag.attrs.get("content")
+            if title_tag and hasattr(title_tag, "attrs")
+            else title_tag_alt
+        )
+        description = (
+            description_tag.attrs.get("content")
+            if description_tag and hasattr(description_tag, "attrs")
+            else (
+                description_tag_alt.attrs.get("content")
+                if description_tag_alt and hasattr(description_tag_alt, "attrs")
+                else ""
             )
-            description = (
-                description_tag.attrs.get("content")
-                if description_tag and hasattr(description_tag, "attrs")
-                else (
-                    description_tag_alt.attrs.get("content")
-                    if description_tag_alt and hasattr(description_tag_alt, "attrs")
-                    else ""
-                )
+        )
+        image_url = (
+            image_tag.attrs.get("content")
+            if image_tag and hasattr(image_tag, "attrs")
+            else None
+        )
+        thumb = (
+            self.blueskysocial.upload_blob(requests.get(image_url).content).blob
+            if isinstance(image_url, str)
+            else None
+        )
+        embed_external = atproto.models.AppBskyEmbedExternal.Main(
+            external=atproto.models.AppBskyEmbedExternal.External(
+                title=title,
+                description=description,
+                uri=url,
+                thumb=thumb,
             )
-            image_url = (
-                image_tag.attrs.get("content")
-                if image_tag and hasattr(image_tag, "attrs")
-                else None
-            )
-            thumb = (
-                self.blueskysocial.upload_blob(requests.get(image_url).content).blob
-                if isinstance(image_url, str)
-                else None
-            )
-            embed_external = atproto.models.AppBskyEmbedExternal.Main(
-                external=atproto.models.AppBskyEmbedExternal.External(
-                    title=title,
-                    description=description,
-                    uri=url,
-                    thumb=thumb,
-                )
-            )
+        )
         return embed_external
 
     def content_in_chunks(self, content, max_chunk_length):
@@ -224,12 +225,14 @@ class bluesky_client:
         return formatted_content, preview, warnings
 
     def create_post(self, content, **kwargs) -> Tuple[bool, Optional[str]]:
-        embed_images = []
-        for image in content["images"][:4]:
-            response = requests.get(image["url"])
-            if response.status_code == 200 and response.headers.get(
-                "Content-Type", ""
-            ).startswith("image/"):
+        try:
+            embed_images = []
+            for image in content["images"]:
+                response = requests.get(image["url"])
+                if response.status_code != 200 or not response.headers.get(
+                    "Content-Type", ""
+                ).startswith("image/"):
+                    continue
                 img_data = response.content
                 upload = self.blueskysocial.com.atproto.repo.upload_blob(img_data)
                 embed_images.append(
@@ -238,16 +241,26 @@ class bluesky_client:
                         image=upload.blob,
                     )
                 )
-        embed = (
-            atproto.models.AppBskyEmbedImages.Main(images=embed_images)
-            if embed_images
-            else None
-        )
+            embed = (
+                atproto.models.AppBskyEmbedImages.Main(images=embed_images)
+                if embed_images
+                else None
+            )
+        except Exception as e:
+            print(e)
+            return False, None
 
-        reply_to = None
-        link = None
+        posts: List["atproto.models.AppBskyFeedPost.CreateRecordResponse"] = []
         for text in content["chunks"]:
             facets, last_url = self.parse_facets(text)
+            reply_to = (
+                atproto.models.AppBskyFeedPost.ReplyRef(
+                    parent=atproto.models.create_strong_ref(posts[-1]),
+                    root=atproto.models.create_strong_ref(posts[0]),
+                )
+                if posts
+                else None
+            )
             if not content["images"] or reply_to:
                 embed = self.handle_url_card(cast(str, last_url))
 
@@ -255,14 +268,12 @@ class bluesky_client:
                 post = self.blueskysocial.send_post(
                     text, facets=facets, embed=embed, reply_to=reply_to
                 )
-
-                if reply_to is None:
-                    link = f"https://bsky.app/profile/{self.blueskysocial.me.handle}/post/{post.uri.split('/')[-1]}"
-                    root = atproto.models.create_strong_ref(post)
-                parent = atproto.models.create_strong_ref(post)
-                reply_to = atproto.models.AppBskyFeedPost.ReplyRef(
-                    parent=parent, root=root
-                )
-            except:
+                posts.append(post)
+                if len(posts) == 1:
+                    link = f"https://bsky.app/profile/{self.blueskysocial.me.handle}/post/{posts[0].uri.split('/')[-1]}"
+            except Exception as e:
+                print(e)
+                for post in posts:
+                    self.blueskysocial.delete_post(post.uri)
                 return False, None
         return True, link

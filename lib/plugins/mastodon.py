@@ -46,6 +46,7 @@ class mastodon_client:
     def format_content(self, content, mentions, hashtags, images, **kwargs):
         mentions = " ".join([f"@{v}" for v in mentions])
         hashtags = " ".join([f"#{v}" for v in hashtags])
+        # later we could make seperate posts for images if there are more than 4 images
         if len(images) > 4:
             warnings = f"A maximum of four images, not {len(images)}, can be included in a single mastodon post."
             images = images[:4]
@@ -87,31 +88,32 @@ class mastodon_client:
                 with tempfile.NamedTemporaryFile() as temp:
                     temp.write(response.content)
                     temp.flush()
-                    media_uploaded = self.mastodon_handle.media_post(
-                        media_file=temp.name,
-                        description=image["alt_text"] if "alt_text" in image else None,
-                    )
-                    media_ids.append(media_uploaded["id"])
+                    try:
+                        media_uploaded = self.mastodon_handle.media_post(
+                            media_file=temp.name,
+                            description=(
+                                image["alt_text"] if "alt_text" in image else None
+                            ),
+                        )
+                        media_ids.append(media_uploaded["id"])
+                    except Exception as e:
+                        print(e)
+                        return False, None
 
-        toot_id = link = None
+        posts = []
         for text in content["chunks"]:
-            toot = self.mastodon_handle.status_post(
-                status=text,
-                in_reply_to_id=toot_id,
-                media_ids=media_ids if (media_ids and toot_id is None) else None,
-            )
-
-            toot_id = toot["id"]
-            if not link:
-                link = f"{self.base_url}/@{toot['account']['acct']}/{toot_id}"
-
-            for _ in range(3):
-                post = self.mastodon_handle.status(toot_id)
-                if post.url:
-                    if not link:
-                        link = post.url
-                    break
-            else:
+            try:
+                toot = self.mastodon_handle.status_post(
+                    status=text,
+                    in_reply_to_id=posts[-1] if posts else None,
+                    media_ids=media_ids if (media_ids and not posts) else None,
+                )
+                posts.append(toot.id)
+                if len(posts) == 1:
+                    link = toot.url
+            except Exception as e:
+                print(e)
+                for post in posts:
+                    self.mastodon_handle.status_delete(post)
                 return False, None
-
         return True, link
