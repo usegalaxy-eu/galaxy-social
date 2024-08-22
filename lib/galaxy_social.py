@@ -57,7 +57,7 @@ class galaxy_social:
                 f"Invalid config for {module_path}.{class_name}.\nChange configs in plugins.yml.\n{e}"
             )
 
-    def lint_markdown_file(self, file_path):
+    def lint_markdown_file(self, file_path: str):
         with open(file_path, "r") as file:
             content = file.read()
         try:
@@ -73,7 +73,7 @@ class galaxy_social:
         except Exception as e:
             return e, False
 
-    def parse_markdown_file(self, file_path):
+    def parse_markdown_file(self, file_path: str):
         errors = ""
         result, status = self.lint_markdown_file(file_path)
         if not status:
@@ -135,7 +135,7 @@ class galaxy_social:
 
         return plain_content, metadata, errors
 
-    def process_markdown_file(self, file_path, processed_files):
+    def process_markdown_file(self, file_path: str, processed_files: Dict[str, Any]):
         content, metadata, errors = self.parse_markdown_file(file_path)
         if errors:
             return processed_files, f"⚠️ Failed to process `{file_path}`.\n{errors}"
@@ -188,7 +188,7 @@ class galaxy_social:
         print(f"Processed {file_path}: {stats}")
         return processed_files, message
 
-    def process_files(self, files_to_process):
+    def process_files(self, files_to_process: list):
         processed_files = {}
         messages = ""
         processed_files_path = self.json_out

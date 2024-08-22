@@ -11,12 +11,10 @@ from PIL import Image
 
 
 class matrix_client:
-
     def __init__(self, **kwargs):
         self.base_url = kwargs.get("base_url", "https://matrix.org")
         self.client = AsyncClient(self.base_url)
         self.client.access_token = kwargs.get("access_token")
-        self.client.device_id = kwargs.get("device_id")
         self.room_id = kwargs.get("room_id")
         self.runner = asyncio.Runner()
 
@@ -73,6 +71,7 @@ class matrix_client:
         )
 
     async def async_create_post(self, content):
+        posts = []
         for msg in content:
             if msg["msgtype"] == "m.image":
                 response = requests.get(msg["url"])
@@ -96,7 +95,7 @@ class matrix_client:
                     )
 
                 if not isinstance(resp, UploadResponse):
-                    continue
+                    return False, None
 
                 # add info about the image to the message
                 msg["info"] = {
@@ -109,15 +108,20 @@ class matrix_client:
                 msg["url"] = resp.content_uri
 
             try:
-                response = await self.client.room_send(
+                post = await self.client.room_send(
                     self.room_id, message_type="m.room.message", content=msg
                 )
+                posts.append(post.event_id)
             except Exception as e:
                 print(e)
+                for post in posts:
+                    await self.client.room_redact(
+                        self.room_id, post, "Failed to post completely!"
+                    )
                 return False, None
-            event_link = f"https://matrix.to/#/{self.room_id}/{response.event_id}"
 
         await self.client.close()
+        event_link = f"https://matrix.to/#/{self.room_id}/{posts[-1]}"
         return True, event_link
 
     def format_content(self, content, *args, **kwargs):
