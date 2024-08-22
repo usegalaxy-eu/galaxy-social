@@ -14,7 +14,6 @@ mentions:
   - hrhotz@genomic.social 
  bluesky-galaxyproject:
   - galaxyproject.bsky.social
- matrix-eu-announce:
 
 hashtags:
  mastodon-eu-freiburg:
