@@ -1,8 +1,6 @@
 ---
-hashtags: {}
 media:
 - matrix-eu-announce
-mentions: {}
 ---
 
 **🚀 Exciting news about shiny applications in Galaxy**
