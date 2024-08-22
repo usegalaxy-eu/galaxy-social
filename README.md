@@ -36,21 +36,18 @@ hashtags:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - usegalaxy
   - EOSC
   - EuroScienceGateway
  bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - usegalaxy
   - EOSC
   - EuroScienceGateway
  linkedin-galaxyproject:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - usegalaxy
   - EOSC
   - EuroScienceGateway
 ---
