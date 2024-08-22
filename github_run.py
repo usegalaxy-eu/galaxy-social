@@ -120,12 +120,12 @@ class github_run:
                 metadata["media"] = media
                 metadata["mentions"] = {
                     key: value
-                    for key, value in metadata["mentions"].items()
+                    for key, value in metadata.get("mentions", {}).items()
                     if key in media
                 }
                 metadata["hashtags"] = {
                     key: value
-                    for key, value in metadata["hashtags"].items()
+                    for key, value in metadata.get("hashtags", {}).items()
                     if key in media
                 }
             new_md_content = f"---\n{yaml.dump(metadata)}---\n{text}"
@@ -186,12 +186,17 @@ if __name__ == "__main__":
 
         with open(args.json_out, "r") as file:
             processed_files = json.load(file)
-        not_posted = {
-            file_path: [media for media, stat in social_stat_dict.items() if not stat]
-            for file_path, social_stat_dict in processed_files.items()
-            if any(not stat for stat in social_stat_dict.values())
-            and file_path in files_to_process
-        }
+
+        not_posted = {}
+        for file_path, social_stat_dict in processed_files.items():
+            if file_path in files_to_process:
+                media_list = []
+                for media, stat in social_stat_dict.items():
+                    if not stat:
+                        media_list.append(media)
+                if media_list:
+                    not_posted[file_path] = media_list
+
         github_instance.new_pr(not_posted)
 
     except Exception as e:
