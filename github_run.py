@@ -109,7 +109,7 @@ class github_run:
         for file_path, media in not_posted.items():
             new_file_path = os.path.join(
                 os.path.dirname(file_path),
-                f"retry-{self.pr.number}-{os.path.basename(file_path)}",
+                f"retry-{self.pr.number}_{os.path.basename(file_path)}",
             )
             message = f"Add failed post for file {file_path} from PR {self.pr.number}"
             with open(file_path, "r") as f:
