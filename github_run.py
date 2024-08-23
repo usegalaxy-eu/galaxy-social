@@ -118,18 +118,10 @@ class github_run:
             metadata = yaml.safe_load(metadata)
             if media:
                 metadata["media"] = media
-                if "mentions" in metadata:
-                    metadata["mentions"] = {
-                        key: value
-                        for key, value in metadata["mentions"].items()
-                        if key in media
-                    }
-                if "hashtags" in metadata:
-                    metadata["hashtags"] = {
-                        key: value
-                        for key, value in metadata["hashtags"].items()
-                        if key in media
-                    }
+                for meta in ["mentions", "hashtags"]:
+                    for key, value in metadata.get(meta, {}).items():
+                        if key in media:
+                            metadata[meta].update({key: value})
             new_md_content = f"---\n{yaml.dump(metadata, sort_keys=False)}---\n{text}"
             self.repo.create_file(
                 path=new_file_path,
