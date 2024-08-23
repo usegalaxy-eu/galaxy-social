@@ -118,17 +118,19 @@ class github_run:
             metadata = yaml.safe_load(metadata)
             if media:
                 metadata["media"] = media
-                metadata["mentions"] = {
-                    key: value
-                    for key, value in metadata.get("mentions", {}).items()
-                    if key in media
-                }
-                metadata["hashtags"] = {
-                    key: value
-                    for key, value in metadata.get("hashtags", {}).items()
-                    if key in media
-                }
-            new_md_content = f"---\n{yaml.dump(metadata)}---\n{text}"
+                if "mentions" in metadata:
+                    metadata["mentions"] = {
+                        key: value
+                        for key, value in metadata["mentions"].items()
+                        if key in media
+                    }
+                if "hashtags" in metadata:
+                    metadata["hashtags"] = {
+                        key: value
+                        for key, value in metadata["hashtags"].items()
+                        if key in media
+                    }
+            new_md_content = f"---\n{yaml.dump(metadata, sort_keys=False)}---\n{text}"
             self.repo.create_file(
                 path=new_file_path,
                 message=message,
@@ -137,7 +139,7 @@ class github_run:
             )
             created_files.append(f"`{file_path}` to `{', '.join(metadata['media'])}`")
 
-        title = f"Try to post failed posts from PR {self.pr.number}"
+        title = f"Try to post failed posts from #{self.pr.number}"
         body = (
             f"Failed to post the following from #{self.pr.number}:\n- "
             + "\n- ".join(created_files)
