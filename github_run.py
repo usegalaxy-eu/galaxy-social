@@ -119,9 +119,12 @@ class github_run:
             if media:
                 metadata["media"] = media
                 for meta in ["mentions", "hashtags"]:
-                    for key, value in metadata.get(meta, {}).items():
-                        if key in media:
-                            metadata[meta].update({key: value})
+                    if meta in metadata:
+                        new_metadata = {}
+                        for key, value in metadata.get(meta, {}).items():
+                            if key in media:
+                                new_metadata[key] = value
+                        metadata[meta] = new_metadata
             new_md_content = f"---\n{yaml.dump(metadata, sort_keys=False)}---\n{text}"
             self.repo.create_file(
                 path=new_file_path,
