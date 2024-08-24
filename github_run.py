@@ -121,7 +121,7 @@ class github_run:
                 for meta in ["mentions", "hashtags"]:
                     if meta in metadata:
                         new_metadata = {}
-                        for key, value in metadata.get(meta, {}).items():
+                        for key, value in metadata[meta].items():
                             if key in media:
                                 new_metadata[key] = value
                         metadata[meta] = new_metadata
