@@ -88,6 +88,7 @@ class linkedin_client:
             # This is needed to escape special characters in the content
             # https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/little-text-format?view=li-lms-2024-08#text
             for char in [
+                "\\",
                 "|",
                 "{",
                 "}",
@@ -99,7 +100,7 @@ class linkedin_client:
                 "<",
                 ">",
                 "#",
-                "\\" "*",
+                "*",
                 "_",
                 "~",
             ]:
