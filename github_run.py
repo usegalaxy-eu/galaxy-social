@@ -14,8 +14,7 @@ from lib.galaxy_social import galaxy_social
 
 class github_run:
     def __init__(self):
-        self.github_token = os.getenv("GITHUB_TOKEN")
-        g = github.Github(self.github_token)
+        g = github.Github(os.getenv("GITHUB_TOKEN"))
         self.repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
         self.pr = self.repo.get_pull(int(os.getenv("PR_NUMBER")))
 
@@ -24,20 +23,10 @@ class github_run:
             return
         # Hide old comments of the bot
         if kwargs.get("preview"):
-            query = "mutation($input: MinimizeCommentInput!) { minimizeComment(input: $input) { minimizedComment { isMinimized minimizedReason } } }"
-            headers = {
-                "Authorization": f"Bearer {self.github_token}",
-                "Content-Type": "application/json",
-            }
             for comment in self.pr.get_issue_comments():
                 if comment.user.login == "github-actions[bot]":
-                    comment_node_id = requests.get(comment.url).json()["node_id"]
-                    variables = {"subjectId": comment_node_id, "classifier": "OUTDATED"}
-                    requests.post(
-                        "https://api.github.com/graphql",
-                        headers=headers,
-                        json=({"query": query, "variables": {"input": variables}}),
-                    )
+                    comment.minimize()
+
         # Enclose mentions and hashtags in backticks before commenting
         # so that they stand out for the reviewer and to prevent accidental
         # mentioning of github users.

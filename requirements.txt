@@ -8,4 +8,4 @@ PyYAML==6.0.1
 slack_sdk==3.27.1
 jsonschema==4.21.1
 Markdown==3.6
-PyGithub==2.3.0
+PyGithub==2.4.0
