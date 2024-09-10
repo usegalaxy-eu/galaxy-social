@@ -8,9 +8,6 @@ hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
 ---
 📝 New blog post about "Uncovering the evolutionary secrets of wild loquats using comparative chloroplast genomics" by Lin, Z., Guo, Q., Ma, S. et al.
 
