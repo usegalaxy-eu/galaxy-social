@@ -85,6 +85,26 @@ class linkedin_client:
 
     def linkedin_post(self, content, images):
         try:
+            # This is needed to escape special characters in the content
+            # https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/little-text-format?view=li-lms-2024-08#text
+            for char in [
+                "|",
+                "{",
+                "}",
+                "@",
+                "[",
+                "]",
+                "(",
+                ")",
+                "<",
+                ">",
+                "#",
+                "\\" "*",
+                "_",
+                "~",
+            ]:
+                content = content.replace(char, f"\\{char}")
+
             data = {
                 "author": self.organization_urn,
                 "commentary": content,
