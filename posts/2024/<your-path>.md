@@ -15,9 +15,6 @@ hashtags:
  mastodon-eu-freiburg:
   - UseGalaxy
   - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
  bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
