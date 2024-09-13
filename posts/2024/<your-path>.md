@@ -18,9 +18,6 @@ hashtags:
  bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
  linkedin-galaxyproject:
   - UseGalaxy
   - GalaxyProject
