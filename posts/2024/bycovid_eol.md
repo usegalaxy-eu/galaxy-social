@@ -27,4 +27,4 @@ Parts of the SARS-CoV-2 data analysis efforts of the #GalaxyProject have been co
 The results are highlighted on page 15 of the brochure and were also featured prominently at the policy event.
 
 BY-COVID has helped us turn Galaxy into a first-class platform for viral pathogen data analysis, but we will keep up our efforts beyond this project.
-Visit our new subdomain https://virology.usegalaxy.eu to learn what's currently available and to keep up with new developments.
+Visit our new subdomain https://virology.usegalaxy.eu to stay up to date.
