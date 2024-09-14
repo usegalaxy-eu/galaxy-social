@@ -22,6 +22,7 @@ The BY-COVID project is coming to an end and we are proud to have contributed to
 BY-COVID was launched in autumn 2021 to support the response to COVID-19 and our preparedness for future infectious disease outbreaks.
 Last week saw the project's [final general assembly](https://www.linkedin.com/posts/by-covid_infectiousdiseases-horizoneurope-activity-7239227812895760384-_3lk) and [policy meeting](https://www.linkedin.com/posts/by-covid_openscience-pandemics-openscience-activity-7239657006670704640-EShC) and the release of a ["Stories of Success"](https://by-covid.org/news/by-covid-success-story/) brochure.
 
+
 Parts of the SARS-CoV-2 data analysis efforts of the #GalaxyProject have been conducted under BY-COVID.
 The results are highlighted on page 15 of the brochure and were also featured prominently at the policy event.
 
