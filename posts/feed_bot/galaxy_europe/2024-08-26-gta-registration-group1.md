@@ -1,21 +1,7 @@
 ---
 media:
-- mastodon-eu-freiburg
 - matrix-eu-announce
-mentions:
-  mastodon-eu-freiburg:
-  - galaxyproject@mstdn.science
-hashtags:
-  mastodon-eu-freiburg:
-  - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
 ---
-📝 New blog post Released!
-https://galaxyproject.org/news/2024-08-26-gta-registration/
-
 📢 **Registration for the Galaxy Training Academy is Open!** 📢
 
 If you want to learn how to analyze your data using the open\-source data analysis platform Galaxy, then join us for our 5\-days global online and asynchronous learning event.
