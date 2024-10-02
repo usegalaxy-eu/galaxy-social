@@ -76,5 +76,5 @@ plugins:
     enabled: true
     config:
       access_token: $BRC_LINKEDIN_ACCESS_TOKEN
-      org_id: 101662592  # Galaxy Project LinkedIn account
+      org_id: 104467448  # BRC Analytics LinkedIn account
       max_content_length: 3000
