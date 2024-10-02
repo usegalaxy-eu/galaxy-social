@@ -10,8 +10,6 @@ mentions:
     - galaxyproject@mstdn.science
   bluesky-galaxyproject:
     - galaxyproject.bsky.social
-
-hashtags:
 ---
 
 Please join Anton Nekrutenko and the dev team for the first webinar for BRC Analytics (https://brc-analytics.org). This will be a Q&A were we will present the BRC Analytics roadmap, outlining how we hope to help the #parasite and #vector #genomics communities.
