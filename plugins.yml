@@ -53,3 +53,28 @@ plugins:
     enabled: true
     config:
       save_path: "markdown_cache"
+
+  - name: mastodon-brc
+    class: mastodon.mastodon_client
+    enabled: true
+    config:
+      base_url: "https://mstdn.science"
+      access_token: $BRC_MASTODON_ACCESS_TOKEN
+      max_content_length: 500
+
+  - name: bluesky-brc
+    class: bluesky.bluesky_client
+    enabled: true
+    config:
+      base_url: "https://bsky.social"
+      username: "brcanalytics.bsky.social"
+      password: $BRC_BLUESKY_PASSWORD
+      max_content_length: 300
+
+  - name: linkedin-brc
+    class: linkedin.linkedin_client
+    enabled: true
+    config:
+      access_token: $BRC_LINKEDIN_ACCESS_TOKEN
+      org_id: 104467448  # BRC Analytics LinkedIn account
+      max_content_length: 3000
