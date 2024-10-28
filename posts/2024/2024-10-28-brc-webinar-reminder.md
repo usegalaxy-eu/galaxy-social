@@ -19,8 +19,8 @@ mentions:
 ---
 
 Webinar reminder: we are hosting a BRC Analytics Q&A where we will give an early
-demo the "Analytics" part of the site: BYO Data and plug it into workflows that
-run on publicly-funded computing resources. Join to discuss and give feedback!
+demo the "Analytics" part of the site: BYO data and plug it into workflows that
+run on publicly-funded computing resources. Join to discuss!
 
 Wednesday, Oct 30 at 1PM EDT/1700UTC
 http://gxy.io/zoom-brc-24-10-30
