@@ -29,4 +29,4 @@ https://youtu.be/IM2lgHTO-tg
 
 Also, mentioned in the webinar is this survey:
 https://psu.zoom.us/survey/cpLUmO0gadf18TQe_n4oFJeS7asvqGdaroZ0AkmEa4JEci8ISpY.q9gFW5kkP1O5Juwc/view?id=vZwIiSabSteec8gmQS0-KA#/sharePreview
-which will help us direct early development efforts as well as provide direction for the next webinar.
+which will help us direct early development efforts and provide direction for the next webinar.
