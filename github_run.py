@@ -4,7 +4,6 @@ import re
 import sys
 
 import github
-import requests
 import yaml
 
 from lib.galaxy_social import galaxy_social
@@ -64,12 +63,14 @@ class github_run:
         for file in self.pr.get_files():
             file_path = file.filename
             if file_path.endswith(".md"):
-                response = requests.get(file.raw_url)
-                if response.status_code == 200:
-                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-                    with open(file_path, "w") as f:
-                        f.write(response.text)
-                    files_to_process.append(file_path)
+                head_branch = self.pr.head
+                pr_content = head_branch.repo.get_contents(
+                    file_path, ref=head_branch.ref
+                ).decoded_content.decode()
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                with open(file_path, "w") as f:
+                    f.write(pr_content)
+                files_to_process.append(file_path)
 
         return files_to_process
 
