@@ -1,0 +1,52 @@
+name: Create Preview
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, closed]
+    paths:
+      - "posts/**"
+
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "The number of the pull request to create preview for"
+        required: true
+
+jobs:
+  manage_content:
+    name: Manage Content
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run script to create preview or publish contents
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+          MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}
+          SLACK_ACCESS_TOKEN: ${{ secrets.SLACK_ACCESS_TOKEN }}
+          MASTODON_EU_FR_TOKEN: ${{ secrets.MASTODON_EU_FR_TOKEN }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          BRC_MASTODON_ACCESS_TOKEN: ${{ secrets.BRC_MASTODON_ACCESS_TOKEN }}
+          BRC_BLUESKY_PASSWORD: ${{ secrets.BRC_BLUESKY_PASSWORD }}
+          BRC_LINKEDIN_ACCESS_TOKEN: ${{ secrets.BRC_LINKEDIN_ACCESS_TOKEN }}
+        run: python -u github_run.py
