@@ -12,9 +12,8 @@ from yaml import safe_load as yaml
 
 
 class galaxy_social:
-    def __init__(self, preview: bool, json_out: str):
+    def __init__(self, preview: bool):
         self.preview = preview
-        self.json_out = json_out
         plugins_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), "..", "plugins.yml"
         )
@@ -188,10 +187,9 @@ class galaxy_social:
         print(f"Processed {file_path}: {stats}")
         return processed_files, message
 
-    def process_files(self, files_to_process: list):
+    def process_files(self, files_to_process: list, processed_files_path: str):
         processed_files = {}
         messages = ""
-        processed_files_path = self.json_out
         if os.path.exists(processed_files_path):
             with open(processed_files_path, "r") as file:
                 processed_files = json.load(file)
@@ -238,6 +236,6 @@ if __name__ == "__main__":
         print("No files to process.")
         sys.exit()
     print(f"Processing {len(files_to_process)} file(s): {files_to_process}\n")
-    gs = galaxy_social(args.preview, args.json_out)
-    message = gs.process_files(files_to_process)
+    gs = galaxy_social(args.preview)
+    message = gs.process_files(files_to_process, args.json_out)
     print(message)

@@ -74,9 +74,9 @@ For images just drag and drop them here. they will look like this:
 
 4. **Create a Pull Request:** Once your post is ready, [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request?tool=webui#creating-the-pull-request) to the main branch from another branch or [from your fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
 
-5. **Preview and Review:** After each pull request, the "Create Preview" GitHub action will run. It will generate previews of the content as it would appear on each platform listed under "media" in a comment to the pull request and highlight any errors that need to be fixed before merging.
+5. **Preview and Review:** After each pull request, the GitHub action will run and will generate previews of the content as it would appear on each platform listed under "media" in a comment to the pull request and highlight any errors that need to be fixed before merging.
 
-6. **Publish Your Content:** Upon merging the pull request, the "Publish Content" GitHub action will run. The results will be added to `processed_files.json` in the processed_files branch.
+6. **Publish Your Content:** Upon merging the pull request, the GitHub action will run. The results will be added to `processed_files.json` in the processed_files branch.
 
 By following these steps, you can effectively create and publish posts on Galaxy Social.
 
@@ -106,7 +106,7 @@ The `name` is then used in the `media` tag in the post file (posts/\*.md) to det
 
 5. **Enable the Plugin**: Simply set `enabled: true` to enable the new social media platform. This ensures that it will be implemented when creating posts.
 
-6. **Update publish_content.yml**: Finally, update the `publish_content.yml` file to include an environment variable referencing the token saved in GitHub secrets. Use the following template: (Don't put the prefixed `$` in here)
+6. **Update galaxy_social.yml**: Finally, update the `galaxy_social.yml` file to include an environment variable referencing the token saved in GitHub secrets. Use the following template: (Don't put the prefixed `$` in here)
 
 ```yaml
 
