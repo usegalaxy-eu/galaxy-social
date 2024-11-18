@@ -1,4 +1,4 @@
-name: Create Preview
+name: Create Preview/Publish Contents
 
 on:
   pull_request_target:
