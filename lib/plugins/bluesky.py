@@ -3,10 +3,38 @@ import textwrap
 from typing import Dict, List, Optional, Tuple, cast
 
 import atproto
+import cv2
+import numpy as np
 import requests
 from bs4 import BeautifulSoup
 
 from .base import strip_markdown_formatting
+
+
+def compress_image_to_limit(image_url):
+    if not isinstance(image_url, str) or not image_url.startswith(("http", "https")):
+        return None
+    response = requests.get(image_url)
+    if response.status_code != 200 and not response.headers.get(
+        "Content-Type", ""
+    ).startswith("image/"):
+        return None
+    image_content = response.content
+    if len(image_content) < 976.56 * 1024:
+        return image_content
+
+    np_array = np.frombuffer(image_content, np.uint8)
+    image = cv2.imdecode(np_array, cv2.IMREAD_UNCHANGED)
+    quality = 95
+    while quality >= 10:
+        success, compressed_image = cv2.imencode(
+            ".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, quality]
+        )
+        if not success:
+            return None
+        if len(compressed_image) <= 976.56 * 1024:
+            return compressed_image.tobytes()
+        quality -= 5
 
 
 class bluesky_client:
@@ -147,15 +175,12 @@ class bluesky_client:
             if image_tag and hasattr(image_tag, "attrs")
             else None
         )
-        thumb = None
-        if isinstance(image_url, str) and image_url.startswith(("http", "https")):
-            response = requests.get(image_url)
-            if response.status_code == 200 and response.headers.get(
-                "Content-Type", ""
-            ).startswith("image/"):
-                image_content = response.content
-                if len(image_content) < 976.56 * 1024:
-                    thumb = self.blueskysocial.upload_blob(image_content).blob
+        image_content = compress_image_to_limit(image_url)
+        thumb = (
+            self.blueskysocial.upload_blob(image_content).blob
+            if image_content
+            else None
+        )
         embed_external = atproto.models.AppBskyEmbedExternal.Main(
             external=atproto.models.AppBskyEmbedExternal.External(
                 title=title,
@@ -232,18 +257,16 @@ class bluesky_client:
         try:
             embed_images = []
             for image in content["images"]:
-                response = requests.get(image["url"])
-                if response.status_code != 200 or not response.headers.get(
-                    "Content-Type", ""
-                ).startswith("image/"):
-                    continue
-                img_data = response.content
-                if len(img_data) < 976.56 * 1024:
-                    upload = self.blueskysocial.com.atproto.repo.upload_blob(img_data)
+                img_data = compress_image_to_limit(image["url"])
+                upload = (
+                    self.blueskysocial.com.atproto.repo.upload_blob(img_data).blob
+                    if img_data
+                    else None
+                )
                 embed_images.append(
                     atproto.models.AppBskyEmbedImages.Image(
                         alt=image["alt_text"] if "alt_text" in image else "",
-                        image=upload.blob,
+                        image=upload,
                     )
                 )
             embed = (
