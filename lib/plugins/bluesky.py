@@ -148,7 +148,7 @@ class bluesky_client:
             else None
         )
         thumb = None
-        if image_url:
+        if isinstance(image_url, str):
             image_content = requests.get(image_url).content
             if len(image_content) < 976.56 * 1024:
                 thumb = self.blueskysocial.upload_blob(image_content).blob
