@@ -148,10 +148,14 @@ class bluesky_client:
             else None
         )
         thumb = None
-        if isinstance(image_url, str):
-            image_content = requests.get(image_url).content
-            if len(image_content) < 976.56 * 1024:
-                thumb = self.blueskysocial.upload_blob(image_content).blob
+        if isinstance(image_url, str) and image_url.startswith(("http", "https")):
+            response = requests.get(image_url)
+            if response.status_code == 200 and response.headers.get(
+                "Content-Type", ""
+            ).startswith("image/"):
+                image_content = response.content
+                if len(image_content) < 976.56 * 1024:
+                    thumb = self.blueskysocial.upload_blob(image_content).blob
         embed_external = atproto.models.AppBskyEmbedExternal.Main(
             external=atproto.models.AppBskyEmbedExternal.External(
                 title=title,
@@ -234,7 +238,8 @@ class bluesky_client:
                 ).startswith("image/"):
                     continue
                 img_data = response.content
-                upload = self.blueskysocial.com.atproto.repo.upload_blob(img_data)
+                if len(img_data) < 976.56 * 1024:
+                    upload = self.blueskysocial.com.atproto.repo.upload_blob(img_data)
                 embed_images.append(
                     atproto.models.AppBskyEmbedImages.Image(
                         alt=image["alt_text"] if "alt_text" in image else "",
