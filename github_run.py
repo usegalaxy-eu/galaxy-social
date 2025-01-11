@@ -65,7 +65,7 @@ class github_run:
             if file_path.endswith(".md"):
                 head_branch = self.pr.head
                 pr_content = head_branch.repo.get_contents(
-                    file_path, ref=head_branch.ref
+                    file_path, ref=head_branch.sha
                 ).decoded_content.decode()
                 os.makedirs(os.path.dirname(file_path), exist_ok=True)
                 with open(file_path, "w") as f:
