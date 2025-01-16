@@ -1,7 +1,7 @@
 plugins:
   - name: mastodon
     class: mastodon.mastodon_client
-    enabled: false
+    enabled: true
     config:
       base_url: "https://mstdn.science"
       access_token: $MASTODON_ACCESS_TOKEN
