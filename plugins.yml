@@ -1,5 +1,5 @@
 plugins:
-  - name: mastodon
+  - name: mastodon-galaxyproject
     class: mastodon.mastodon_client
     enabled: true
     config:
