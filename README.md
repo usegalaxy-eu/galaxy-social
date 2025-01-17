@@ -20,12 +20,15 @@ To create a post on Galaxy Social, follow these steps:
 media:
  - mastodon-eu-freiburg
  - matrix-eu-announce
+ - mastodon-galaxyproject
  - bluesky-galaxyproject
  - linkedin-galaxyproject
 
 mentions:
  mastodon-eu-freiburg:
   - galaxyproject@mstdn.science
+ mastodon-galaxyproject:
+  - galaxyfreiburg@bawü.social
  bluesky-galaxyproject:
   - galaxyproject.bsky.social
  matrix-eu-announce:
@@ -38,6 +41,8 @@ hashtags:
   - UniFreiburg
   - EOSC
   - EuroScienceGateway
+ mastodon-galaxyproject:
+  - UseGalaxy
  bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
