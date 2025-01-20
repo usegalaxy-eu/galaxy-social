@@ -31,8 +31,6 @@ mentions:
   - galaxyfreiburg@bawü.social
  bluesky-galaxyproject:
   - galaxyproject.bsky.social
- matrix-eu-announce:
-  - bgruening:matrix.org
 
 hashtags:
  mastodon-eu-freiburg:
