@@ -1,0 +1,15 @@
+---
+media:
+ - bluesky-galaxyproject
+
+hashtags:
+ bluesky-galaxyproject:
+  - UseGalaxy
+  - GBCC2025
+  - DataScience
+  - OpenScience
+---
+:mega: GBCC2025 Abstracts & Registration Open!
+Join us June 23-26, 2025, at Cold Spring Harbor Lab for the first Galaxy & Bioconductor Community Conference.
+:spiral_calendar_pad: Abstract Deadline: April 1
+:link: Submit/Register: www.gbcc2025.org
