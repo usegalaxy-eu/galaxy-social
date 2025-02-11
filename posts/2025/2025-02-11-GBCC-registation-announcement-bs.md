@@ -9,7 +9,7 @@ hashtags:
   - DataScience
   - OpenScience
 ---
-:mega: GBCC2025 Abstracts & Registration Open!
+🎉 GBCC2025 Abstracts & Registration Open!
 Join us June 23-26, 2025, at Cold Spring Harbor Lab for the first Galaxy & Bioconductor Community Conference.
 🗓️ Abstract Deadline: April 1
-:link: Submit/Register: www.gbcc2025.org
+🔗 Submit/Register: www.gbcc2025.org
