@@ -24,5 +24,5 @@ hashtags:
 🎉 BoG scholarship opportunity! 🎉
 ❗️Deadline tomorrow: the jxtxFoundation and CSHL are offering a scholarship for graduate students to attend and present at the Biology of Genomes conference May 6-10. 
 
-Go here to apply: https://jxtxfoundation.org/news/2025-2-4-bg/
+Go here to apply: https://gxy.io/jxtxbog25 
 ❗️Deadline tomorrow❗️
