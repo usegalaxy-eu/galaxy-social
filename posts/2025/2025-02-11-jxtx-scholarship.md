@@ -25,8 +25,6 @@ mentions:
  bluesky-galaxyproject:
   - jxtxfoundation.bsky.social
   - cshlaboratory.bsky.social
- mastodon-galaxyproject:
-  - jxtxFoundation@mstdn.science
 ---
 🎉 BoG scholarship opportunity! 🎉
 ❗️Deadline tomorrow: the jxtxFoundation and CSHL are offering a scholarship for graduate students to attend and present at the Biology of Genomes conference May 6-10. 
