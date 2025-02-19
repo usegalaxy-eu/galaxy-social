@@ -78,3 +78,20 @@ plugins:
       access_token: $BRC_LINKEDIN_ACCESS_TOKEN
       org_id: 104467448  # BRC Analytics LinkedIn account
       max_content_length: 3000
+
+  - name: mastodon-vgp
+    class: mastodon.mastodon_client
+    enabled: true
+    config:
+      base_url: "https://mastodon.social"
+      access_token: $VGP_MASTODON
+      max_content_length: 500
+
+  - name: bluesky-vgp
+    class: bluesky.bluesky_client
+    enabled: true
+    config:
+      base_url: "https://bsky.social"
+      username: "vertebrategenomes.bsky.social"
+      password: $VGP_BLUESKY_PASSWORD
+      max_content_length: 300
