@@ -135,7 +135,8 @@ class github_run:
     def initialize_processed_files_branch(self):
         try:
             branch = self.repo.get_branch(self.processed_files_branch)
-        except:
+        except Exception as e:
+            print(e)
             self.repo.create_git_ref(
                 ref=f"refs/heads/{self.processed_files_branch}",
                 sha=self.repo.get_branch("main").commit.sha,

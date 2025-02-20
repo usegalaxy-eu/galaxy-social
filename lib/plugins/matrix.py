@@ -6,7 +6,7 @@ import magic
 import requests
 from bs4 import BeautifulSoup
 from markdown import markdown
-from nio import AsyncClient, UploadResponse
+from nio import AsyncClient, UploadResponse  # type: ignore
 from PIL import Image
 
 

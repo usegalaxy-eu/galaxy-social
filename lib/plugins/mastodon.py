@@ -3,7 +3,7 @@ import tempfile
 import textwrap
 
 import requests
-from mastodon import Mastodon
+from mastodon import Mastodon  # type: ignore
 
 from .base import strip_markdown_formatting
 
