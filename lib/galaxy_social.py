@@ -79,7 +79,7 @@ class galaxy_social:
             return (
                 "",
                 {},
-                f"Please check your meradata schema.",
+                "Please check your meradata schema.",
             )
 
         metadata, text = result
@@ -88,7 +88,7 @@ class galaxy_social:
             return (
                 "",
                 {},
-                f"Missing media in metadata.\nAdd media to metadata.",
+                "Missing media in metadata.\nAdd media to metadata.",
             )
 
         metadata["media"] = [media.lower() for media in metadata["media"]]

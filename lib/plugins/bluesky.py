@@ -2,7 +2,7 @@ import re
 import textwrap
 from typing import Dict, List, Optional, Tuple, cast
 
-import atproto
+import atproto  # type: ignore
 import cv2
 import numpy as np
 import requests
