@@ -78,14 +78,33 @@ def validate_secrets(plugins_file, workflow_file):
 
     missing_in_workflow = plugin_secrets - workflow_secrets
     if missing_in_workflow:
+        guide_lines = "\n".join(
+            [
+                f"  {secret}: ${{{{ secrets.{secret} }}}}"
+                for secret in missing_in_workflow
+            ]
+        )
         errors.append(
-            f"Secrets defined in **enabled plugins** but missing in workflow: {', '.join(missing_in_workflow)}."
+            "The following secrets are defined in **enabled plugins** in "
+            "[plugins.yml](../blob/main/plugins.yml) but are missing from the workflow environment in "
+            "[galaxy_social.yml](../blob/main/.github/workflows/galaxy_social.yml): "
+            f"{', '.join(missing_in_workflow)}. "
+            "Please either add them to the workflow environment or remove them from `plugins.yml`.\n"
+            "For example, update your workflow to include:\n"
+            "```yaml\n"
+            f"{guide_lines}\n"
+            "```"
         )
 
     missing_in_plugins = workflow_secrets - plugin_secrets
     if missing_in_plugins:
         errors.append(
-            f"Secrets in **workflow env** that are not used by any enabled plugin: {', '.join(missing_in_plugins)}."
+            "The following secrets are defined in **workflow env** in "
+            "[galaxy_social.yml](../blob/main/.github/workflows/galaxy_social.yml) "
+            "but are not used by any enabled plugin in "
+            "[plugins.yml](../blob/main/plugins.yml): "
+            f"{', '.join(missing_in_plugins)}. "
+            "Please either remove them from the workflow environment or ensure they are used in `plugins.yml`."
         )
 
     for file in files_to_process:
