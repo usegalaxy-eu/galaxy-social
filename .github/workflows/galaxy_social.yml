@@ -49,4 +49,6 @@ jobs:
           BRC_MASTODON_ACCESS_TOKEN: ${{ secrets.BRC_MASTODON_ACCESS_TOKEN }}
           BRC_BLUESKY_PASSWORD: ${{ secrets.BRC_BLUESKY_PASSWORD }}
           BRC_LINKEDIN_ACCESS_TOKEN: ${{ secrets.BRC_LINKEDIN_ACCESS_TOKEN }}
+          VGP_BLUESKY_PASSWORD: ${{ secrets.VGP_BLUESKY_PASSWORD }}
+          VGP_MASTODON: ${{ secrets.VGP_MASTODON }}
         run: python -u github_run.py
