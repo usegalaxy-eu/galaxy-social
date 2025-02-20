@@ -1,18 +1,30 @@
-# Notes on creating a LinkedIn token
+# LinkedIn API Token Setup
+You need to [set up a company](https://www.linkedin.com/company/setup/new/) before get started.
 
-## Create an app
+## 1. Create a LinkedIn Developer App  
 
-Go to https://www.linkedin.com/developers/apps/new and fill out the form. I think you have to provide a logo image and if you have to provide a privacy policy and don't have one available, you can use the Galaxy one: https://usegalaxy.org/static/terms.html
+- Go to [Create a LinkedIn App](https://www.linkedin.com/developers/apps/new) and fill in the required fields.  
+- Upload a logo. If a privacy policy is needed, use [this one](https://usegalaxy.org/static/terms.html).  
+- In **Settings**, click **Verify** next to your company name and complete the verification.  
 
-## Here it gets a little fuzzy
+## 2. Request API Access  
 
-(Adding notes here about the process would be good, since I'm retroactively looking at mine.)
+- In **Products**, find **Community Management API** and click **Request Access**.  
+- Provide a reason (e.g., "Automate low-frequency posting on our company page").  
+- Wait for manual approval.  
 
-You connect the app you created to your company account, then you have to request the `Community Management API`. My recollection is that this is manually reviewed, so it will likely take some time to be approved. You probably have to provide a reason why you want it, which can be as easy as "To allow my group to automate posting low frequency content."
+## 3. Generate & Secure the Token  
 
-## Generate a token
+- After approval, visit the [Token Generator](https://www.linkedin.com/developers/tools/oauth/token-generator).  
+- Select your app, choose the required scopes (w_organization_social, w_organization_social_feed), and generate the token.  
+- Store the Access token securely in repo secrets.
 
-Once you get API approval, you generate a token by going to this page: 
- https://www.linkedin.com/developers/tools/oauth/token-generator
-and then this token has to be added to the repo secrets.
+**Note**: Tokens expire every 2 months
+
+## 4. Get Your LinkedIn Company ID  
+
+- Go to your **LinkedIn Company Page**.  
+- Look at the URL: `https://www.linkedin.com/company/{YOUR_COMPANY_ID}`.  
+- Copy the number after `/company/`—this is your **Company ID**.
+- Add this into the [plugins file](https://github.com/usegalaxy-eu/galaxy-social/blob/main/plugins.yml) as the `org_id`.
 
