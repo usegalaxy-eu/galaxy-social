@@ -26,7 +26,6 @@ repo = g.get_repo(os.getenv("GITHUB_REPOSITORY", ""))
 pr = repo.get_pull(int(pr_number))
 files_to_process = pr.get_files()
 
-base_dir = os.path.abspath(os.path.join(__file__, "../../.."))
 plugins_file = "plugins.yml"
 workflow_file = os.path.join(".github", "workflows", "galaxy_social.yml")
 readme_file = "README.md"
@@ -63,12 +62,13 @@ def extract_secrets_from_workflow(workflow_data):
 
 def validate_secrets(plugins_file, workflow_file):
     logging.info(f"Validating secrets in {plugins_file} and {workflow_file} ...")
-    plugins_file = os.path.join(base_dir, plugins_file)
-    with open(plugins_file, "r") as f:
-        plugins_data = yaml.safe_load(f)
-    workflow_file = os.path.join(base_dir, workflow_file)
-    with open(workflow_file, "r") as f:
-        workflow_data = yaml.safe_load(f)
+    head_branch = pr.head
+    plugins_contents = head_branch.repo.get_contents(plugins_file, ref=head_branch.sha)
+    plugins_data = yaml.safe_load(plugins_contents.decoded_content.decode())
+    workflow_contents = head_branch.repo.get_contents(
+        workflow_file, ref=head_branch.sha
+    )
+    workflow_data = yaml.safe_load(workflow_contents.decoded_content.decode())
     if plugins_data is None or workflow_data is None:
         logging.error("Failed to load plugins or workflow data.")
         return
