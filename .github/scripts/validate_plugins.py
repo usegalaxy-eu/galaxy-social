@@ -83,7 +83,7 @@ def validate_secrets(plugins_file, workflow_file):
     if missing_in_workflow:
         guide_lines = "\n".join(
             [
-                f"  {secret}: ${{{{ secrets.{secret} }}}}"
+                f"          {secret}: ${{{{ secrets.{secret} }}}}"
                 for secret in missing_in_workflow
             ]
         )
@@ -92,11 +92,11 @@ def validate_secrets(plugins_file, workflow_file):
             f"{plugins_url} but are missing from the workflow environment in "
             f"{workflow_url}: {', '.join(missing_in_workflow)}. "
             "Please either add them to the workflow environment or remove them from `plugins.yml`.\n"
+            "Make sure to add the secrets to the repository secrets as well.\n"
             "For example, update your workflow to include:\n"
             "```yaml\n"
             f"{guide_lines}\n"
-            "```\n"
-            "Make sure to add the secrets to the repository secrets as well."
+            "```"
         )
 
     missing_in_plugins = workflow_secrets - plugin_secrets
