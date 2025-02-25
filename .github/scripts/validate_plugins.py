@@ -93,7 +93,8 @@ def validate_secrets(plugins_file, workflow_file):
             "For example, update your workflow to include:\n"
             "```yaml\n"
             f"{guide_lines}\n"
-            "```"
+            "```\n"
+            "Make sure to add the secrets to the repository secrets as well."
         )
 
     missing_in_plugins = workflow_secrets - plugin_secrets
@@ -105,6 +106,16 @@ def validate_secrets(plugins_file, workflow_file):
             "[plugins.yml](../blob/main/plugins.yml): "
             f"{', '.join(missing_in_plugins)}. "
             "Please either remove them from the workflow environment or ensure they are used in `plugins.yml`."
+        )
+
+    missing_repo_secrets_workflow = workflow_secrets - set(repo.get_secrets())
+    if missing_repo_secrets_workflow:
+        errors.append(
+            "The following secrets are defined in **workflow env** in "
+            "[galaxy_social.yml](../blob/main/.github/workflows/galaxy_social.yml) "
+            "but are missing from the repository secrets: "
+            f"{', '.join(missing_repo_secrets_workflow)}. "
+            "Please add them to the repository secrets."
         )
 
     for file in files_to_process:
