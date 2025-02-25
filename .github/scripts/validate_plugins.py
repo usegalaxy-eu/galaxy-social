@@ -139,7 +139,7 @@ def create_pr(body, readme_content, readme_sha):
         message="Update README.md",
         content=readme_content,
         sha=readme_sha,
-        branch=pr.base.ref,
+        branch=branch_name,
     )
     try:
         new_pr = repo.create_pull(
