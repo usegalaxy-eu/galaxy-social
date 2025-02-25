@@ -57,7 +57,7 @@ def extract_secrets_from_workflow(workflow_data):
     return workflow_secrets
 
 
-def validate_secrets(plugins_file, workflow_file):
+def validate_secrets():
     logging.info(f"Validating secrets in {plugins_file} and {workflow_file} ...")
     head_branch = pr.head
     head_repo = head_branch.repo
@@ -141,19 +141,13 @@ def create_pr(body, readme_content, readme_sha):
         sha=readme_sha,
         branch=branch_name,
     )
-    try:
-        new_pr = repo.create_pull(
-            title="Update README file",
-            body=body,
-            base=pr.base.ref,
-            head=branch_name,
-        )
-        logging.info(f"{body}\nCreated PR: {new_pr.html_url}")
-    except GithubException as e:
-        repo.get_git_ref(f"heads/{branch_name}").delete()
-        logging.error(
-            f"Error in creating PR: {e.data.get('errors')[0].get('message')}\nRemoving branch {branch_name}"
-        )
+    new_pr = repo.create_pull(
+        title="Update README file",
+        body=body,
+        base=pr.base.ref,
+        head=branch_name,
+    )
+    logging.info(f"{body}\nCreated PR: {new_pr.html_url}")
 
 
 def enabled_plugins(branch):
@@ -166,12 +160,13 @@ def enabled_plugins(branch):
     return enabled_plugins
 
 
-def update_readme(readme_path, new_media_names=[]):
+def update_readme(new_media_names=[]):
     try:
-        readme_contents = repo.get_contents(readme_path, ref=pr.base.ref)
-        readme_content = readme_contents.decoded_content.decode("utf-8")
+        readme_contents = repo.get_contents(readme_file, ref=pr.base.ref)
+        original_readme_content = readme_contents.decoded_content.decode("utf-8")
+        readme_content = original_readme_content
     except Exception as e:
-        logging.error(f"Error fetching {readme_path}: {e}")
+        logging.error(f"Error fetching {readme_file}: {e}")
         return
 
     post_template_section = re.search(
@@ -187,6 +182,10 @@ def update_readme(readme_path, new_media_names=[]):
 
     readme_content = update_readme_link(readme_content)
 
+    if readme_content == original_readme_content:
+        logging.info("No change in README content. Skipping PR creation.")
+        return
+
     if new_media_names:
         body = f"Updated README.md with new media names: {', '.join(new_media_names)}"
     else:
@@ -197,7 +196,7 @@ def update_readme(readme_path, new_media_names=[]):
 if __name__ == "__main__":
     if any(f.filename in {plugins_file, workflow_file} for f in files_to_process):
         if not merged:
-            validate_secrets(plugins_file, workflow_file)
+            validate_secrets()
             if errors:
                 error_message = "⚠️ **Validation Errors Found:**\n\n" + "\n".join(
                     f"- {e}" for e in errors
@@ -210,6 +209,6 @@ if __name__ == "__main__":
                 logging.info("All validations passed successfully.")
         else:
             new_plugin_names = enabled_plugins(pr.head) - enabled_plugins(pr.base)
-            update_readme(readme_file, new_plugin_names)
+            update_readme(new_plugin_names)
     elif readme_file in {f.filename for f in files_to_process} and merged:
-        update_readme(readme_file)
+        update_readme()
