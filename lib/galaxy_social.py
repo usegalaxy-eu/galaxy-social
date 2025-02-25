@@ -151,12 +151,12 @@ class galaxy_social:
                 raise Exception(f"Failed to format post for {file_path}.\n{e}")
 
         stats = processed_files[file_path] if file_path in processed_files else {}
-        skiped_media = [media for media in metadata["media"] if stats.get(media)]
+        skipped_media = [media for media in metadata["media"] if stats.get(media)]
         if self.preview:
             message = f"👋 Hello! I'm your friendly social media assistant. Below are the previews of this post:\n`{file_path}`"
-            if skiped_media:
-                message += f"\n\nSkipping post to {', '.join(skiped_media)}. because it was already posted."
-            for media in set(metadata["media"]) - set(skiped_media):
+            if skipped_media:
+                message += f"\n\nSkipping post to {', '.join(skipped_media)}. because it was already posted."
+            for media in set(metadata["media"]) - set(skipped_media):
                 formatted_content, preview, warning = formatting_results[media]
                 message += f"\n\n## {media}\n\n"
                 message += preview
@@ -165,7 +165,7 @@ class galaxy_social:
             return processed_files, message.strip()
 
         url = {}
-        for media in set(metadata["media"]) - set(skiped_media):
+        for media in set(metadata["media"]) - set(skipped_media):
             formatted_content, _, _ = formatting_results[media]
             stats[media], url[media] = self.plugins[media].create_post(
                 formatted_content, file_path=file_path
