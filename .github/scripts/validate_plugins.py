@@ -32,19 +32,16 @@ readme_file = "README.md"
 
 
 def extract_secrets_from_plugins(plugins_data):
-    enabled_plugins = set()
     found_secrets = set()
     for plugin in plugins_data.get("plugins", []):
         if not isinstance(plugin, dict):
             logging.error(f"Invalid plugin data: {plugin}")
             continue
-        if plugin.get("enabled", False):
-            enabled_plugins.add(plugin.get("name"))
         config = plugin.get("config", {})
         for key, value in config.items():
             if isinstance(value, str) and value.startswith("$"):
                 found_secrets.add(value.strip("$"))
-    return enabled_plugins, found_secrets
+    return found_secrets
 
 
 def extract_secrets_from_workflow(workflow_data):
@@ -73,7 +70,7 @@ def validate_secrets(plugins_file, workflow_file):
         logging.error("Failed to load plugins or workflow data.")
         return
 
-    enabled_plugins, plugin_secrets = extract_secrets_from_plugins(plugins_data)
+    plugin_secrets = extract_secrets_from_plugins(plugins_data)
     workflow_secrets = extract_secrets_from_workflow(workflow_data) - {"GITHUB_TOKEN"}
 
     plugins_url = f"[plugins.yml]({plugins_contents.html_url})"
@@ -113,15 +110,6 @@ def validate_secrets(plugins_file, workflow_file):
             break
     else:
         return []
-
-    base_content = repo.get_contents(
-        plugins_file, ref=pr.base.ref
-    ).decoded_content.decode()
-    base_plugins_data = yaml.safe_load(base_content)
-    base_enabled_plugins, _ = extract_secrets_from_plugins(base_plugins_data)
-    new_plugin_names = enabled_plugins - base_enabled_plugins
-
-    return new_plugin_names
 
 
 def update_readme_link(readme_content):
@@ -168,6 +156,16 @@ def create_pr(body, readme_content, readme_sha):
         )
 
 
+def enabled_plugins(branch):
+    plugins_contents = branch.repo.get_contents(plugins_file, ref=branch.sha)
+    plugins_data = yaml.safe_load(plugins_contents.decoded_content.decode())
+    enabled_plugins = set()
+    for plugin in plugins_data.get("plugins", []):
+        if plugin.get("enabled", False):
+            enabled_plugins.add(plugin.get("name"))
+    return enabled_plugins
+
+
 def update_readme(readme_path, new_media_names=[]):
     try:
         readme_contents = repo.get_contents(readme_path, ref=pr.base.ref)
@@ -198,19 +196,20 @@ def update_readme(readme_path, new_media_names=[]):
 
 if __name__ == "__main__":
     if any(f.filename in {plugins_file, workflow_file} for f in files_to_process):
-        new_media_name = validate_secrets(plugins_file, workflow_file)
-        if errors:
-            error_message = "⚠️ **Validation Errors Found:**\n\n" + "\n".join(
-                f"- {e}" for e in errors
-            )
-            logging.error(error_message)
-            pr.create_issue_comment(error_message)
-            logging.info(f"Posted comment on PR #{pr_number}")
-            sys.exit(1)
+        if not merged:
+            validate_secrets(plugins_file, workflow_file)
+            if errors:
+                error_message = "⚠️ **Validation Errors Found:**\n\n" + "\n".join(
+                    f"- {e}" for e in errors
+                )
+                logging.error(error_message)
+                pr.create_issue_comment(error_message)
+                logging.info(f"Posted comment on PR #{pr_number}")
+                sys.exit(1)
+            else:
+                logging.info("All validations passed successfully.")
         else:
-            logging.info("All validations passed successfully.")
-
-        if merged:
-            update_readme(readme_file, new_media_name)
+            new_plugin_names = enabled_plugins(pr.head) - enabled_plugins(pr.base)
+            update_readme(readme_file, new_plugin_names)
     elif readme_file in {f.filename for f in files_to_process} and merged:
         update_readme(readme_file)
