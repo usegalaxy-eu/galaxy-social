@@ -1,5 +1,6 @@
 import re
 import textwrap
+import traceback
 from typing import Dict, List, Optional, Tuple, cast
 
 import atproto  # type: ignore
@@ -146,7 +147,8 @@ class bluesky_client:
         try:
             response = requests.get(url)
         except Exception as e:
-            print(e)
+            print(f"Bluesky error: {e}")
+            traceback.print_exc()
             return None
         if response.status_code != 200:
             return None
@@ -275,7 +277,8 @@ class bluesky_client:
                 else None
             )
         except Exception as e:
-            print(e)
+            print(f"Bluesky error: {e}")
+            traceback.print_exc()
             return False, None
 
         posts: List["atproto.models.AppBskyFeedPost.CreateRecordResponse"] = []
@@ -300,7 +303,8 @@ class bluesky_client:
                 if len(posts) == 1:
                     link = f"https://bsky.app/profile/{self.blueskysocial.me.handle}/post/{posts[0].uri.split('/')[-1]}"
             except Exception as e:
-                print(e)
+                print(f"Bluesky error: {e}")
+                traceback.print_exc()
                 for post in posts:
                     self.blueskysocial.delete_post(post.uri)
                 return False, None

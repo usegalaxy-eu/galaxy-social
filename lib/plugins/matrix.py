@@ -1,5 +1,6 @@
 import asyncio
 import tempfile
+import traceback
 
 import aiofiles.os
 import magic
@@ -113,7 +114,8 @@ class matrix_client:
                 )
                 posts.append(post.event_id)
             except Exception as e:
-                print(e)
+                print(f"Matrix error: {e}")
+                traceback.print_exc()
                 for post in posts:
                     await self.client.room_redact(
                         self.room_id, post, "Failed to post completely!"

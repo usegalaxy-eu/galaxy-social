@@ -1,6 +1,7 @@
 import re
 import tempfile
 import textwrap
+import traceback
 
 import requests
 from mastodon import Mastodon  # type: ignore
@@ -97,7 +98,8 @@ class mastodon_client:
                         )
                         media_ids.append(media_uploaded["id"])
                     except Exception as e:
-                        print(e)
+                        print(f"Mastodon error: {e}")
+                        traceback.print_exc()
                         return False, None
 
         posts = []
@@ -112,7 +114,8 @@ class mastodon_client:
                 if len(posts) == 1:
                     link = toot.url
             except Exception as e:
-                print(e)
+                print(f"Mastodon error: {e}")
+                traceback.print_exc()
                 for post in posts:
                     self.mastodon_handle.status_delete(post)
                 return False, None

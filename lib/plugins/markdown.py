@@ -1,5 +1,6 @@
 import os
 import time
+import traceback
 
 
 class markdown_client:
@@ -32,5 +33,6 @@ class markdown_client:
                     f.write(formatted_content)
             return True, None
         except Exception as e:
-            print(e)
+            print(f"Markdown error: {e}")
+            traceback.print_exc()
             return False, None

@@ -1,6 +1,7 @@
 import os
 import re
 import textwrap
+import traceback
 from urllib.parse import quote
 
 import requests
@@ -130,7 +131,8 @@ class linkedin_client:
             response.raise_for_status()
             return response.headers.get("x-restli-id")
         except Exception as e:
-            print(str(e))
+            print(f"Linkedin error: {e}")
+            traceback.print_exc()
             return None
 
     def linkedin_upload_images(self, images):
@@ -170,7 +172,8 @@ class linkedin_client:
             )
             return content
         except Exception as e:
-            print(str(e))
+            print(f"Linkedin error: {e}")
+            traceback.print_exc()
             return None
 
     def linkedin_comment(self, content, post_id):
@@ -190,7 +193,8 @@ class linkedin_client:
             response.raise_for_status()
             return True
         except Exception as e:
-            print(str(e))
+            print(f"Linkedin error: {e}")
+            traceback.print_exc()
             return False
 
     def linkedin_delete_post(self, post_id):
@@ -203,7 +207,8 @@ class linkedin_client:
             response.raise_for_status()
             return True
         except Exception as e:
-            print(str(e))
+            print(f"Linkedin error: {e}")
+            traceback.print_exc()
             return False
 
     def create_post(self, content, **kwargs):
