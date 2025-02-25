@@ -75,7 +75,10 @@ class matrix_client:
         posts = []
         for msg in content:
             if msg["msgtype"] == "m.image":
-                response = requests.get(msg["url"])
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                }
+                response = requests.get(msg["url"], headers=headers)
                 if response.status_code != 200:
                     continue
                 temp = tempfile.NamedTemporaryFile()
