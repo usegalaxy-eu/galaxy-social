@@ -144,20 +144,20 @@ def create_pr(body, readme_content, readme_sha):
     branch_name = f"update-readme-{pr.number}"
     repo.create_git_ref(
         ref=f"refs/heads/{branch_name}",
-        sha=repo.get_branch("main").commit.sha,
+        sha=repo.get_branch(pr.base.ref).commit.sha,
     )
     repo.update_file(
         path=readme_file,
         message="Update README.md",
         content=readme_content,
         sha=readme_sha,
-        branch="main",
+        branch=pr.base.ref,
     )
     try:
         new_pr = repo.create_pull(
             title="Update README file",
             body=body,
-            base="main",
+            base=pr.base.ref,
             head=branch_name,
         )
         logging.info(f"{body}\nCreated PR: {new_pr.html_url}")
@@ -170,8 +170,8 @@ def create_pr(body, readme_content, readme_sha):
 
 def update_readme(readme_path, new_media_names=[]):
     try:
-        contents = repo.get_contents(readme_path, ref="main")
-        readme_content = contents.decoded_content.decode("utf-8")
+        readme_contents = repo.get_contents(readme_path, ref=pr.base.ref)
+        readme_content = readme_contents.decoded_content.decode("utf-8")
     except Exception as e:
         logging.error(f"Error fetching {readme_path}: {e}")
         return
@@ -193,7 +193,7 @@ def update_readme(readme_path, new_media_names=[]):
         body = f"Updated README.md with new media names: {', '.join(new_media_names)}"
     else:
         body = "Updated README.md with new link"
-    create_pr(body, readme_content, contents.sha)
+    create_pr(body, readme_content, readme_contents.sha)
 
 
 if __name__ == "__main__":
