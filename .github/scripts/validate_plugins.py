@@ -94,7 +94,7 @@ def validate_secrets():
         errors.append(
             "The following secrets are defined in **enabled plugins** in "
             f"{plugins_url} but are missing from the workflow environment in "
-            f"{workflow_url}: {', '.join(missing_in_workflow)}. "
+            f"{workflow_url}: `{', '.join(missing_in_workflow)}`.\n"
             "Please either add them to the workflow environment or remove them from `plugins.yml`.\n"
             "Make sure to add the secrets to the repository secrets as well.\n"
             "For example, update your workflow to include:\n"
@@ -146,7 +146,7 @@ def create_pr(readme_content, readme_sha):
     )
     new_pr = repo.create_pull(
         title="Update README file",
-        body="Updated README.md with new media names",
+        body="🔧 The `README.md` file is updated with the current media names.",
         base=pr.base.ref,
         head=branch_name,
     )
@@ -154,7 +154,8 @@ def create_pr(readme_content, readme_sha):
         f"Updated README.md with new media names\nCreated PR: {new_pr.html_url}"
     )
     pr.create_issue_comment(
-        f"The README.md has been updated to reflect the new media names. A new PR has been created: {new_pr.html_url}."
+        "✅ The `README.md` file has been updated to reflect the new media names.\n"
+        f"A new PR has been created: {new_pr.html_url}."
     )
 
 
