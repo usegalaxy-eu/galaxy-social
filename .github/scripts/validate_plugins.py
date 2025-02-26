@@ -153,6 +153,9 @@ def create_pr(readme_content, readme_sha):
     logging.info(
         f"Updated README.md with new media names\nCreated PR: {new_pr.html_url}"
     )
+    pr.create_issue_comment(
+        f"The README.md has been updated to reflect the new media names. A new PR has been created: {new_pr.html_url}."
+    )
 
 
 def update_readme(head_plugins={}):
