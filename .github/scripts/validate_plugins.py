@@ -108,7 +108,7 @@ def validate_secrets():
         errors.append(
             "The following secrets are defined in **workflow env** in "
             f"{workflow_url} but are not used by any enabled plugin in "
-            f"{plugins_url}: {', '.join(missing_in_plugins)}. "
+            f"{plugins_url}: `{', '.join(missing_in_plugins)}`.\n"
             "Please either remove them from the workflow environment or ensure they are used in `plugins.yml`."
         )
 
