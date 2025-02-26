@@ -168,7 +168,7 @@ def update_readme(head_plugins={}):
         return
 
     if head_plugins:
-        match = re.search(r"---\n(.*?)\n---", readme_content, flags=re.DOTALL)
+        match = re.search(r"```yaml\s*---\n(.*?)\n---", readme_content, flags=re.DOTALL)
         if match:
             yaml_content = match.group(1)
             yaml_data = yaml.safe_load(yaml_content)
@@ -180,10 +180,12 @@ def update_readme(head_plugins={}):
                 }
                 for plugin in head_plugins:
                     yaml_data[key].setdefault(
-                        plugin, [] if key == "mentions" else DEFAULT_HASHTAGS
+                        plugin, [] if key == "mentions" else DEFAULT_HASHTAGS.copy()
                     )
             yaml_data["media"] = list(head_plugins)
-            updated_yaml_content = yaml.dump(yaml_data, sort_keys=False)
+            updated_yaml_content = yaml.dump(
+                yaml_data, sort_keys=False, default_flow_style=False
+            )
             readme_content = readme_content.replace(yaml_content, updated_yaml_content)
 
     readme_content = update_readme_link(readme_content)
@@ -217,7 +219,7 @@ if __name__ == "__main__":
             plugins_data = yaml.safe_load(plugins_contents.decoded_content.decode())
             head_plugins = set()
             for plugin in plugins_data.get("plugins", []):
-                if plugin.get("enabled", False):
+                if plugin.get("enabled", False) and plugin.get("name") != "markdown":
                     head_plugins.add(plugin.get("name"))
             update_readme(head_plugins)
     elif readme_file in {f.filename for f in files_to_process} and merged:
