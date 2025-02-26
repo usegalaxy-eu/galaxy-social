@@ -10,7 +10,6 @@ from github import Github, GithubException
 
 logging.basicConfig(level=logging.INFO)
 
-errors = []
 
 event_path = os.getenv("GITHUB_EVENT_PATH", "")
 with open(event_path, "r") as f:
@@ -76,6 +75,7 @@ def validate_secrets():
     plugins_url = f"[plugins.yml]({plugins_contents.html_url})"
     workflow_url = f"[galaxy_social.yml]({workflow_contents.html_url})"
 
+    errors = []
     missing_in_workflow = plugin_secrets - workflow_secrets
     if missing_in_workflow:
         guide_lines = "\n".join(
@@ -105,11 +105,7 @@ def validate_secrets():
             "Please either remove them from the workflow environment or ensure they are used in `plugins.yml`."
         )
 
-    for file in files_to_process:
-        if file.filename == plugins_file:
-            break
-    else:
-        return []
+    return errors
 
 
 def update_readme_link(readme_content):
@@ -128,7 +124,7 @@ def update_readme_link(readme_content):
     return updated_readme
 
 
-def create_pr(body, readme_content, readme_sha):
+def create_pr(readme_content, readme_sha):
     branch_name = f"update-readme-{pr.number}"
     repo.create_git_ref(
         ref=f"refs/heads/{branch_name}",
@@ -143,24 +139,16 @@ def create_pr(body, readme_content, readme_sha):
     )
     new_pr = repo.create_pull(
         title="Update README file",
-        body=body,
+        body="Updated README.md with new media names",
         base=pr.base.ref,
         head=branch_name,
     )
-    logging.info(f"{body}\nCreated PR: {new_pr.html_url}")
+    logging.info(
+        f"Updated README.md with new media names\nCreated PR: {new_pr.html_url}"
+    )
 
 
-def enabled_plugins(branch):
-    plugins_contents = branch.repo.get_contents(plugins_file, ref=branch.sha)
-    plugins_data = yaml.safe_load(plugins_contents.decoded_content.decode())
-    enabled_plugins = set()
-    for plugin in plugins_data.get("plugins", []):
-        if plugin.get("enabled", False):
-            enabled_plugins.add(plugin.get("name"))
-    return enabled_plugins
-
-
-def update_readme(new_media_names=[]):
+def update_readme(head_plugins={}):
     try:
         readme_contents = repo.get_contents(readme_file, ref=pr.base.ref)
         original_readme_content = readme_contents.decoded_content.decode("utf-8")
@@ -169,16 +157,19 @@ def update_readme(new_media_names=[]):
         logging.error(f"Error fetching {readme_file}: {e}")
         return
 
-    post_template_section = re.search(
-        r"```yaml\n---\nmedia:\n((?: .+\n)+)", readme_content
-    )
-    media_list = post_template_section.group(1)
-    for new_media_name in new_media_names:
-        if f" - {new_media_name}\n" not in media_list:
-            updated_media_list = media_list + f" - {new_media_name}\n"
-            readme_content = readme_content.replace(media_list, updated_media_list)
-        else:
-            logging.info(f"{new_media_name} already exists in the media list.")
+    if head_plugins:
+        match = re.search(r"---\n(.*?)\n---", readme_content, flags=re.DOTALL)
+        if not match:
+            logging.error("No YAML section found in README.md")
+        yaml_content = match.group(1)
+        yaml_data = yaml.safe_load(yaml_content)
+        for key in ["mentions", "hashtags"]:
+            yaml_data[key] = {
+                k: v for k, v in yaml_data.get(key, {}).items() if k in head_plugins
+            }
+        yaml_data["media"] = list(head_plugins)
+        updated_yaml_content = yaml.dump(yaml_data, default_flow_style=False)
+        readme_content = readme_content.replace(yaml_content, updated_yaml_content)
 
     readme_content = update_readme_link(readme_content)
 
@@ -186,17 +177,13 @@ def update_readme(new_media_names=[]):
         logging.info("No change in README content. Skipping PR creation.")
         return
 
-    if new_media_names:
-        body = f"Updated README.md with new media names: {', '.join(new_media_names)}"
-    else:
-        body = "Updated README.md with new link"
-    create_pr(body, readme_content, readme_contents.sha)
+    create_pr(readme_content, readme_contents.sha)
 
 
 if __name__ == "__main__":
     if any(f.filename in {plugins_file, workflow_file} for f in files_to_process):
         if not merged:
-            validate_secrets()
+            errors = validate_secrets()
             if errors:
                 error_message = "⚠️ **Validation Errors Found:**\n\n" + "\n".join(
                     f"- {e}" for e in errors
@@ -208,7 +195,15 @@ if __name__ == "__main__":
             else:
                 logging.info("All validations passed successfully.")
         else:
-            new_plugin_names = enabled_plugins(pr.head) - enabled_plugins(pr.base)
-            update_readme(new_plugin_names)
+            plugins_contents = pr.head.repo.get_contents(plugins_file, ref=pr.head.sha)
+            if isinstance(plugins_contents, list):
+                logging.error(f"Failed to load {plugins_file} from PR head branch.")
+                sys.exit(1)
+            plugins_data = yaml.safe_load(plugins_contents.decoded_content.decode())
+            head_plugins = set()
+            for plugin in plugins_data.get("plugins", []):
+                if plugin.get("enabled", False):
+                    head_plugins.add(plugin.get("name"))
+            update_readme(head_plugins)
     elif readme_file in {f.filename for f in files_to_process} and merged:
         update_readme()
