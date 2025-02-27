@@ -1,23 +1,22 @@
 ---
 media:
- - bluesky-brc
- - linkedin-brc
- - mastodon-brc
+  - bluesky-brc
+  - linkedin-brc
+  - mastodon-brc
 
 hashtags:
- bluesky-brc
-  - UseGalaxy
-  - NIAID
-  - BRC
- linkedin-brc
-  - UseGalaxy
-  - NIAID
-  - BRC
- mastodon-brc
-  - UseGalaxy
-  - NIAID
-  - BRC
-
+  bluesky-brc:
+   - UseGalaxy
+   - NIAID
+   - BRC
+  linkedin-brc:
+   - UseGalaxy
+   - NIAID
+   - BRC
+  mastodon-brc:
+   - UseGalaxy
+   - NIAID
+   - BRC
 ---
 ![BRC Analytics logo](https://galaxyproject.org/images/logos/brc.svg)
 
