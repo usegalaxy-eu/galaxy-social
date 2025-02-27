@@ -43,7 +43,7 @@ Curation QC: Jo Collins (Sanger)
 
 https://genomeark.s3.amazonaws.com/index.html?prefix=species/Anomaloglossus_baeobatrachus/aAnoBae1/assembly_curated/
 
-:camera:  https://www.inaturalist.org/observations/203518915
+📷 https://www.inaturalist.org/observations/203518915
 
 ![Mantella aurantiaca (golden mantella) - Chien Lee (iNaturalist)](https://static.inaturalist.org/photos/41718067/medium.jpg)
 
@@ -53,4 +53,4 @@ Curation: Dominic Absolon (Sanger)
 
 https://genomeark.s3.amazonaws.com/index.html?prefix=species/Mantella_aurantiaca/aManAur1/assembly_curated/
 
-:camera: Chien Lee https://www.inaturalist.org/photos/41718067
+📷 Chien Lee https://www.inaturalist.org/photos/41718067
