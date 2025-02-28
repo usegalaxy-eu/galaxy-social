@@ -13,7 +13,7 @@ def main():
     repo = g.get_repo(repo_name)
     for secret in repo.get_secrets():
         secret_name = secret.name
-        if "linkedin" in secret_name:
+        if "linkedin" in secret_name.lower():
             updated_at = secret.updated_at
             today = datetime.now(timezone.utc)
             days_since = (today - updated_at).days
