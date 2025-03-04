@@ -27,8 +27,17 @@ def main():
                     f"The secret **{secret_name}** was last updated **{days_since}** days ago.\n\n"
                     "Please update this secret as soon as possible."
                 )
-                issue = repo.create_issue(title=issue_title, body=issue_body)
-                print(f"Issue created: {issue.html_url}")
+                issues = repo.get_issues(state="open")
+                issue = next(
+                    (i for i in issues if i.title == issue_title),
+                    None,
+                )
+                if issue:
+                    issue.create_comment(issue_body)
+                    print(f"Comment added to issue: {issue.html_url}")
+                else:
+                    issue = repo.create_issue(title=issue_title, body=issue_body)
+                    print(f"Issue created: {issue.html_url}")
             else:
                 print("Secret is up-to-date; no alert needed.")
 
