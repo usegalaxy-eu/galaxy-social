@@ -9,16 +9,8 @@ mentions:
 hashtags:
   mastodon-eu-freiburg:
   - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
   linkedin-galaxyproject:
   - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
 ---
 📝 New blog post Released!
 https://galaxyproject.org/news/2025-03-03-deconvo-project/
