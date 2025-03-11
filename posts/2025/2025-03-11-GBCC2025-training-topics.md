@@ -1,17 +1,10 @@
 ---
 media:
  - mastodon-galaxyproject
- - bluesky-galaxyproject
  - linkedin-galaxyproject
 
 hashtags:
  mastodon-galaxyproject:
-  - GBCC2025
-  - Bioconductor
-  - DataScience
-  - OpenScience
-  - UseGalaxy
- bluesky-galaxyproject:
   - GBCC2025
   - Bioconductor
   - DataScience
