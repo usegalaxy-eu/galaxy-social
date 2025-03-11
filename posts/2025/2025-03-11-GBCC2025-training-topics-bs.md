@@ -14,12 +14,11 @@ hashtags:
 
 GBCC2025 is coming soon! We want to hear from you:
 
-- Topics you're interested in learning about
+- Topics you're interested in
 - Interest in leading a session
 
+Fill out the form by Mar 21 to help shape our training schedule!
 
-Fill out the form by March 21st to help shape our training schedule!
+https://forms.gle/i34Ag8SHMtBAmpPh7 
 
-🔗 https://forms.gle/i34Ag8SHMtBAmpPh7 
-
-Thanks! 🙏 
+Thanks!
