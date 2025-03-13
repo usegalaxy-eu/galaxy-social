@@ -51,7 +51,7 @@ mentions:
 The Zonotrichia albicollis (white-throated sparrow), bZonAlb1 genome assembly has been released on NCBI: https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_047830755.1/. 
 
 
-The white-throated sparrow has a unique "supergene" that causes a large chromosomal rearrangement, affecting both their appearance and behavior. Nick Audet, Melanie Couture, et al. at the Millbrook Field Research Center are investigating how this "supergene", and this new genome will be an essential tool for their investigations.
+Nik Audet, Melanie Couture, et al. at the Millbrook Field Research Center are investigating a unique "supergene" that causes a large chromosomal rearrangement, affecting both their appearance and behavior. This new genome will be an essential tool for their investigations.
 
 
 Assembly by Sasha Denisova on Galaxy
