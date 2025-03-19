@@ -214,6 +214,7 @@ if __name__ == "__main__":
                 logging.info("All validations passed successfully.")
         else:
             plugins_contents = pr.head.repo.get_contents(plugins_file, ref=pr.head.sha)
+            # This needs to be a list to fix the type issue
             if isinstance(plugins_contents, list):
                 logging.error(f"Failed to load {plugins_file} from PR head branch.")
                 sys.exit(1)
