@@ -7,6 +7,7 @@ from fnmatch import filter
 from importlib import import_module
 from typing import Any, Dict
 
+import emoji
 import requests
 from jsonschema import validate
 from yaml import safe_load as yaml
@@ -129,6 +130,10 @@ class galaxy_social:
         images = image_pattern.findall(text)
         plain_content = re.sub(image_pattern, "", text).strip()
 
+        # convert github emoji to unicode
+        plain_content = emoji.emojize(plain_content, language="alias")
+
+        # Check if all images are valid
         for _, image in images:
             response = requests.get(image)
             if response.status_code != 200:
