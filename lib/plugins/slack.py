@@ -59,8 +59,10 @@ class slack_client:
         uploaded_files = []
         for image in images:
             filename = image["url"].split("/")[-1]
-
-            with requests.get(image["url"]) as response:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+            with requests.get(image["url"], headers=headers) as response:
                 if response.status_code != 200 or not response.headers.get(
                     "Content-Type", ""
                 ).startswith("image/"):

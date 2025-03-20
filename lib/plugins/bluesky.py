@@ -15,7 +15,10 @@ from .base import strip_markdown_formatting
 def compress_image_to_limit(image_url):
     if not isinstance(image_url, str) or not image_url.startswith(("http", "https")):
         return None
-    response = requests.get(image_url)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+    response = requests.get(image_url, headers=headers)
     if response.status_code != 200 and not response.headers.get(
         "Content-Type", ""
     ).startswith("image/"):
@@ -265,12 +268,13 @@ class bluesky_client:
                     if img_data
                     else None
                 )
-                embed_images.append(
-                    atproto.models.AppBskyEmbedImages.Image(
-                        alt=image["alt_text"] if "alt_text" in image else "",
-                        image=upload,
+                if upload:
+                    embed_images.append(
+                        atproto.models.AppBskyEmbedImages.Image(
+                            alt=image["alt_text"] if "alt_text" in image else "",
+                            image=upload,
+                        )
                     )
-                )
             embed = (
                 atproto.models.AppBskyEmbedImages.Main(images=embed_images)
                 if embed_images

@@ -121,8 +121,6 @@ class linkedin_client:
             }
             if images:
                 data["content"] = self.linkedin_upload_images(images)
-                if not data["content"]:
-                    return None
             headers = self.headers
             headers["Content-Type"] = "application/json"
             response = requests.post(
@@ -149,7 +147,10 @@ class linkedin_client:
                 value = response.json().get("value")
                 upload_url = value["uploadUrl"]
                 filename = os.path.basename(image["url"])
-                with requests.get(image["url"], stream=True) as r:
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                }
+                with requests.get(image["url"], stream=True, headers=headers) as r:
                     r.raise_for_status()
                     with open(filename, "wb") as f:
                         for chunk in r.iter_content(chunk_size=8192):
