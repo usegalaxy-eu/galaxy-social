@@ -1,0 +1,32 @@
+name: Validate Social Media Plugin PR
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, closed]
+    paths:
+      - "plugins.yml"
+      - ".github/workflows/galaxy_social.yml"
+      - "README.md"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pyyaml PyGithub
+
+      - name: Run Validation Script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python .github/scripts/validate_plugins.py
