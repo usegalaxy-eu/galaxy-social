@@ -2,16 +2,6 @@
 media:
  - mastodon-vgp
  - bluesky-vgp
-
-mentions:
- bluesky-vgp:
-  - gformenti.bsky.social
-  - sergek.bsky.social
-  - arhie.bsky.social
-  - jack-a-medico.bsky.social
-  - mbiegler.bsky.socialerichjarvis.bsky.social
-  - erichjarvis.bsky.social
-
 ---
 ![Taeniopygia guttata: The zebra finch, a widely studied Australian songbird known for its vocal learning and significance as a model organism, now has its first fully-phased, telomere-to-telomere (T2T) diploid genome.](https://genomeark.s3.amazonaws.com/species/Taeniopygia_guttata/bTaeGut7/img/bTaeGut7_1.jpg)
 
