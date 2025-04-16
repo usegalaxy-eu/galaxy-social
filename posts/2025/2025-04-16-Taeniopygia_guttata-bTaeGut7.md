@@ -18,7 +18,7 @@ Fifteen years after the initial draft was published, the Vertebrate Genomes Proj
 Compared to the previous high-quality reference bTaeGut1.4, this new reference closes nearly all gaps in euchromatic and heterochromatic regions, including all microchromosomes and the sex chromosomes.
 
 
-This genome was sequenced using a combination of PacBio HiFi long reads, Oxford Nanopore Technology ultra-long reads, Arima Genomics Hi-C read for chromosome scaffolding, and Illumina parental short reads for haplotype phasing.
+This genome was sequenced using PacBio HiFi long reads, Oxford Nanopore Technology ultra-long reads, Arima Genomics Hi-C read for chromosome scaffolding, and Illumina parental short reads for haplotype phasing.
 Assembly was done using Verkko followed by manual graph curation.
 
 
