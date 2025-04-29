@@ -12,5 +12,5 @@ hashtags:
   - EOSC
   - EuroScienceGateway
 ---
-Bring data to Galaxy straight from the lab.
+Bring data to Galaxy straight from the lab with our new #eLabFTW integration.
 http://galaxyproject.org/news/2025-04-02-elabftw-integration/
