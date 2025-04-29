@@ -1,16 +1,10 @@
 ---
 media:
-- matrix-eu-announce
 - mastodon-eu-freiburg
 mentions:
   mastodon-eu-freiburg:
-  - galaxyproject@mstdn.science
-hashtags:
-  mastodon-eu-freiburg:
-  - UseGalaxy
-  - GalaxyProject
-  - EOSC
-  - EuroScienceGateway
+  - unifreiburg@bawü.social
+
 ---
-Work condition improvement and efficiency boost due to renovated university infrastructure at Galaxy Europe
+Work condition improvement and efficiency boost for our team due to renovated university infrastructure 🍴
 http://galaxyproject.org/news/2025-04-07-mensa-tf-open/
