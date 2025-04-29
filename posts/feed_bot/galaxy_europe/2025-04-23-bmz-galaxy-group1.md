@@ -44,4 +44,4 @@ By combining rich model repositories with user-friendly, FAIR workflows, this in
 
 Try the tutorial developed by Diana and Leonid here: [Using BioImage.IO models for image analysis in Galaxy](https://training.galaxyproject.org/training-material/topics/imaging/tutorials/process-image-bioimageio/tutorial.html).
 
-![Galaxy tool to run BMZ models](./BMZ-Galaxy.png)]
+![Galaxy tool to run BMZ models](https://galaxyproject.org/news/2025-04-23-bmz-galaxy/BMZ-Galaxy.png)]
