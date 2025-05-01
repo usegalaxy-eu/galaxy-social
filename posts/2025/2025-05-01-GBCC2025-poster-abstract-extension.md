@@ -17,7 +17,7 @@ hashtags:
   - DataScience
   - OpenScience
   - UseGalaxy
- bluesky-galaxyproject
+ bluesky-galaxyproject:
   - Bioconductor
   - DataScience
   - OpenScience 
