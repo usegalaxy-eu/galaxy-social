@@ -2,7 +2,6 @@
 media:
  - mastodon-galaxyproject
  - linkedin-galaxyproject
- - bluesky-galaxyproject
 
 hashtags:
  mastodon-galaxyproject:
@@ -17,12 +16,6 @@ hashtags:
   - DataScience
   - OpenScience
   - UseGalaxy
- bluesky-galaxyproject:
-  - Bioconductor
-  - DataScience
-  - OpenScience 
-  - UseGalaxy
-  - OpenScience
 ---
 (GBCC poster deadline panner)[https://galaxyproject.org/images/GBCC_poster_abstract_extended.png]
 📣 GBCC2025 Poster Abstracts Deadline Extended
@@ -31,4 +24,4 @@ Good news! The deadline for submitting your abstract for a poster presentation a
 
 We’re looking forward to seeing your work!
 
-🔗 Submit here: https://gbcc2025.bioconductor.org/abstracts/submission_guidelines/
+🔗 Submit here: https://gxy.io/GBCC-abstracts
