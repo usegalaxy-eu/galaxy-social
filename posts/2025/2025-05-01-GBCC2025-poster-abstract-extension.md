@@ -17,7 +17,7 @@ hashtags:
   - OpenScience
   - UseGalaxy
 ---
-(GBCC poster deadline panner)[https://galaxyproject.org/images/GBCC_poster_abstract_extended.png]
+![GBCC2025 poster abstract banner](https://galaxyproject.org/images/GBCC_poster_abstract_extended.png)
 📣 GBCC2025 Poster Abstracts Deadline Extended
 
 Good news! The deadline for submitting your abstract for a poster presentation at GBCC2025 has been extended to May 9th. Join us at Cold Spring Harbor, June 23–26.
