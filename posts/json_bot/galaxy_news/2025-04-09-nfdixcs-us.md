@@ -12,4 +12,4 @@ hashtags:
   - EuroScienceGateway
 ---
 Advancing FAIR and Reproducible Research
-http://galaxyproject.org/news/2025-04-09-nfdixcs/
+https://nfdi4plants.github.io/news/2025-04-04-arc-nfdixcs-potsdam/
