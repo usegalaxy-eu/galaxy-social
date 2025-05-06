@@ -9,9 +9,9 @@
 
 To create a post on Galaxy Social, follow these steps:
 
-1. **Create a Branch:** Begin by [creating a branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository#creating-a-branch) in this repository or [your forked repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository).
+1. **Create a Branch:** Begin by [creating a branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository#creating-a-branch) in this repository or [your forked repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository). Do not commit directly to the main branch. All changes must go through a pull request.
 
-2. **Add a New File:** Within the "posts" folder (or sub-folders), create a new file with the extension ".md" and [commit it to your branch](https://docs.github.com/en/repositories/working-with-files/managing-files/creating-new-files).
+2. **Add a New File:** Within the "posts" folder (or sub-folders), create a new file with the extension ".md" and [commit it to your branch](https://docs.github.com/en/repositories/working-with-files/managing-files/creating-new-files). Do not edit an existing or older file. Always create a new one for your content.
 
 3. **Use the Post Template:** Utilize the following template for the post content:
 
@@ -144,8 +144,8 @@ Remember to add the env variable that needed for each social media seperatly.
 
 ## Social media implemented
 
-- Bluesky
-- Mastodon
-- Matrix: hashtags are included in the post but have no special function in matrix.
-- Slack: mentions and hashtags are not working!
-- Linkedin: mentions are not working!
+- Bluesky: If using the default handle, mentions should be in the format `username.bsky.social`.
+- Mastodon Mentions should be in the format `username@server-domain`.
+- Matrix: Hashtags can be included in the post but have no special function. Mentions should be in the format `username:server-domain`.
+- Slack: Mentions and hashtags are not working!
+- Linkedin: Mentions are not working!
