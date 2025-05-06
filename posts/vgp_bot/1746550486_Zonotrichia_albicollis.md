@@ -36,9 +36,11 @@ mentions:
 ![The White-throated Sparrow](https://genomeark.s3.amazonaws.com/species/Zonotrichia_albicollis/bZonAlb1/img/bZonAlb1_1.png)
 ![These birds follow a unique mating pattern - white morphs exclusively pair with tan mates and vice versa. This unusual system has earned them the nickname 'the bird with four sexes'](https://genomeark.s3.amazonaws.com/species/Zonotrichia_albicollis/bZonAlb1/img/bZonAlb1_3.png)
 
-🚨 Exciting News from the Vertebrate Genome Lab! 🚨 We are thrilled to announce the successful sequencing of the **100MB genome of the White-throated Sparrow (Zonotrichia albicollis)**! 🎉 This comprehensive genome was meticulously assembled and annotated using the powerful tools available at [Galaxy](https://usegalaxy.org). 
+🚨 Exciting News! 🚨 The Vertebrate Genome Lab has successfully sequenced the 100MB genome of the White-throated Sparrow (Zonotrichia albicollis)! 🎉 This remarkable achievement was made possible using the powerful tools available at https://usegalaxy.org. 
 
-Did you know that White-throated Sparrows exhibit fascinating behavioral differences based on their color morphs? The tan-striped and white-striped varieties have distinct traits, influencing their mating and social behaviors! 🌟 Stay tuned for more updates as we unravel the genetic mysteries of this remarkable species! 🐦💚 #Genomics #WhiteThroatedSparrow #BirdsOfAFeather #DNASequencing #ScienceRocks
+Did you know? The White-throated Sparrow is known for its stunning vocal display and unique color morphs—some individuals have white throats while others have tan, contributing to their fascinating social dynamics. 🐦✨ 
+
+Stay tuned for more insights as we explore the genetic secrets of this beautiful bird! #Genomics #BirdWatching #WhiteThroatedSparrow #ZonotrichiaAlbicollis
 
 Annotated by me
 Assembled by them
