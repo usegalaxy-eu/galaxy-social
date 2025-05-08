@@ -2,7 +2,6 @@
 media:
  - mastodon-vgp
  - bluesky-vgp
-
 ---
 ![African penguin image from Wikipedia](https://en.wikipedia.org/wiki/African_penguin#/media/File:Wikimania_2018,_Cape_Town_(_1050602),_crop.jpg)
 
