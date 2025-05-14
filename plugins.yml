@@ -7,7 +7,6 @@ plugins:
       access_token: $MASTODON_ACCESS_TOKEN
       max_content_length: 500
       account_url: "https://mstdn.science/@galaxyproject"
-      
 
   - name: bluesky-galaxyproject
     class: bluesky.bluesky_client
