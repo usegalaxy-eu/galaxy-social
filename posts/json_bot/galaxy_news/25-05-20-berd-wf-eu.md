@@ -13,4 +13,4 @@ hashtags:
   - NFDI
   - UniFreiburg
 ---
-Find out how to explore your Data from the NFDI BERD Data Portal directly in Galaxy: https://github.com/galaxyproject/galaxy-hub/pull/3129
+Find out how to explore your Data from the NFDI BERD Data Portal directly in Galaxy: https://galaxyproject.org/news/25-05-20-berd-wf/
