@@ -147,5 +147,5 @@ Remember to add the env variable that needed for each social media seperatly.
 - Bluesky: If using the default handle, mentions should be in the format `username.bsky.social`.
 - Mastodon: Mentions should be in the format `username@server-domain`.
 - Matrix: Hashtags can be included in the post but have no special function. Mentions should be in the format `username:server-domain`.
-- Slack: Mentions and hashtags are not working!
-- Linkedin: Mentions are not working!
+- Slack: Mentions and hashtags are not supported!
+- Linkedin: Mentions are not supported!
