@@ -10,6 +10,7 @@ hashtags:
   - UseGalaxy
   - GalaxyProject
   - EOSC
+  - NFDI
   - UniFreiburg
 ---
-Find out how to research your Data from the BERD Data Portal directly in Galaxy
+Find out how to explore your Data from the NFDI BERD Data Portal directly in Galaxy: https://github.com/galaxyproject/galaxy-hub/pull/3129
