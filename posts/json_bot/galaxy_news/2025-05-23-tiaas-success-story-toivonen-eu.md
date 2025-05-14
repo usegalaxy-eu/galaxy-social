@@ -13,3 +13,4 @@ hashtags:
   - EuroScienceGateway
 ---
 Thanks to TIaaS, our RNA-Seq workshops run smoothly—no more delays, just effective hands-on learning.
+https://galaxyproject.org/news/2025-05-23-tiaas-success-story-toivonen/
