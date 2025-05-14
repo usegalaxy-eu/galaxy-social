@@ -13,3 +13,4 @@ hashtags:
   - EuroScienceGateway
 ---
 No more setup headaches—TIaaS lets us deliver scalable, hands-on bioinformatics training that just works.
+https://galaxyproject.org/news/2025-05-15-tiaas-success-story-davila/
