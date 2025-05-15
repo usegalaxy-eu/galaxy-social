@@ -6,6 +6,10 @@
     <title>Galaxy Social Post Creator</title>
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"
+    ></script>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css"
@@ -62,6 +66,15 @@
         <div>
           <label class="block font-medium">Content</label>
           <textarea id="post-content"></textarea>
+          <p style="font-size: 0.875rem; color: #555; margin-top: 0.5rem">
+            ⚠️ <strong>Note:</strong> Most
+            <strong>Markdown formatting</strong> is
+            <strong>not supported</strong> on <strong>Bluesky</strong>,
+            <strong>Mastodon</strong>, or <strong>LinkedIn</strong>. <br />
+            Only <strong>images</strong> and <strong>links</strong> written in
+            Markdown syntax will be preserved and correctly processed for those
+            platforms.
+          </p>
         </div>
         <div id="warnings" class="p-4 rounded bg-yellow-100 hidden"></div>
       </div>
@@ -214,6 +227,51 @@
         easyMDE = new EasyMDE({
           element: document.getElementById("post-content"),
           spellChecker: false,
+          toolbar: [
+            "bold",
+            "italic",
+            "heading",
+            "|",
+            "quote",
+            "unordered-list",
+            "ordered-list",
+            "|",
+            "link",
+            "image",
+            "table",
+            "horizontal-rule",
+            {
+              name: "emoji",
+              action: function customFunction(editor) {
+                const picker = document.getElementById("emoji-picker");
+                const cm = editor.codemirror;
+                const { left, top } = cm
+                  .getWrapperElement()
+                  .getBoundingClientRect();
+                picker.style.left = `${left + 20}px`;
+                picker.style.top = `${top + 40}px`;
+                picker.style.display = "block";
+
+                picker.addEventListener(
+                  "emoji-click",
+                  function handler(event) {
+                    cm.replaceSelection(event.detail.unicode);
+                    picker.style.display = "none";
+                    picker.removeEventListener("emoji-click", handler);
+                  },
+                  { once: true }
+                );
+              },
+              className: "fa fa-smile-o",
+              title: "Insert Emoji",
+            },
+            "|",
+            "preview",
+            "side-by-side",
+            "fullscreen",
+            "|",
+            "guide",
+          ],
         });
         easyMDE.codemirror.on("change", updateAll);
         document
@@ -338,5 +396,9 @@
         }
       });
     </script>
+    <emoji-picker
+      id="emoji-picker"
+      style="position: absolute; z-index: 1000; display: none"
+    ></emoji-picker>
   </body>
 </html>
