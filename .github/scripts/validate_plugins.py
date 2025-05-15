@@ -122,10 +122,9 @@ def update_readme_link(readme_content):
     new_link = f"../../new/main/?filename=posts/{datetime.now().year}/<your-path>.md&value={encoded_yaml}"
 
     updated_readme = re.sub(
-        r'(<div align="center">.*?<kbd><a href=")([^"]+)(".*?</kbd>\s*</div>)',
-        rf"\1{new_link}\3",
+        r'(<a href=")\.\./\.\./new/main/\?filename=posts/\d{4}/[^"]+(")',
+        rf"\1{new_link}\2",
         readme_content,
-        flags=re.DOTALL,
     )
 
     return updated_readme
