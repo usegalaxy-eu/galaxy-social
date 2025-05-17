@@ -5,6 +5,7 @@ media:
 mentions:
   mastodon-eu-freiburg:
   - galaxyproject@mstdn.science
+  - nfdi4bioimage@nfdi.social
 hashtags:
   mastodon-eu-freiburg:
   - UseGalaxy
@@ -12,9 +13,9 @@ hashtags:
   - EOSC
   - UniFreiburg
 ---
-Use AnyLabeling in the European Galaxy Server as an interactive tool
+AnyLabeling - an effortless AI-assisted data labeling with AI support from YOLO and Segment Anything (SAM+SAM2) is now available in Galaxy as an Interactive Tool.
+
 https://galaxyproject.org/news/2025-05-15-anylabeling-it/
+
 ![AnyLabeling](https://galaxyproject.org/images/galaxy-anylabeling.png)
 ![AnyLabeling tasks](https://galaxyproject.org/images/galaxy-anylabeling-tasks.png)
-![AnyLabeling results ](https://galaxyproject.org/images/galaxy-anylabeling-results.png)
-![logo NFDI4BIOIMAGE](https://galaxyproject.org/images/logos/nfdi4bioimage.png)
