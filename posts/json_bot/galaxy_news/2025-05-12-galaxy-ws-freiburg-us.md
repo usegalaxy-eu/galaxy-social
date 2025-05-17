@@ -7,7 +7,7 @@ mentions:
 hashtags:
   mastodon-galaxyproject:
   - UseGalaxy
-  - GalaxyProject
+  - NFDI
   - EOSC
 ---
 Join us for a week of Training about Metagenomics and RNA-Seq in Freiburg

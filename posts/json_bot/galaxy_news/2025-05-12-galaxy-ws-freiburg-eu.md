@@ -8,7 +8,7 @@ mentions:
 hashtags:
   mastodon-eu-freiburg:
   - UseGalaxy
-  - GalaxyProject
+  - NFDI
   - EOSC
   - UniFreiburg
 ---
