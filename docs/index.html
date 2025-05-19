@@ -491,7 +491,7 @@
 
             const tagContainer = document.createElement("div");
             tagContainer.className = "space-y-2 hidden";
-            if (!name.includes("slack") && !name.includes("linkedin")) {
+            if (!name.includes("slack")) {
               const mIn = document.createElement("input");
               mIn.id = `mention-${name}`;
               mIn.placeholder = "Mentions";
@@ -506,14 +506,16 @@
               let validator = null;
 
               if (name.includes("bluesky")) {
-                format = "username.server";
+                format = "username.server (e.g. galaxyproject.bsky.social)";
                 validator = (tag) => /^[^@:\s]+\.[^@:\s]+$/.test(tag.value);
               } else if (name.includes("mastodon")) {
-                format = "username@server";
+                format = "username@server (e.g. galaxyproject@mstdn.science)";
                 validator = (tag) => /^[^@:\s]+@[^@:\s]+$/.test(tag.value);
               } else if (name.includes("matrix")) {
-                format = "username:server";
+                format = "username:server (e.g. bgruening:matrix.org)";
                 validator = (tag) => /^[^@:\s]+:[^@:\s]+$/.test(tag.value);
+                } else if (name.includes("linkedin")) {
+                  format = "vanityName (e.g. galaxy-project)";
               }
 
               if (format) {
