@@ -14,15 +14,109 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css"
     />
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css"
     />
+    <style>
+      .editor-preview,
+      .editor-preview-side {
+        padding: 1rem;
+        font-family: inherit;
+        line-height: 1.6;
+        background: white;
+        color: black;
+        overflow-wrap: break-word;
+      }
+      .editor-preview h1,
+      .editor-preview-side h1 {
+        font-size: 2em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview h2,
+      .editor-preview-side h2 {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview h3,
+      .editor-preview-side h3 {
+        font-size: 1.25em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview h4,
+      .editor-preview-side h4 {
+        font-size: 1.125em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview h5,
+      .editor-preview-side h5 {
+        font-size: 1em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview h6,
+      .editor-preview-side h6 {
+        font-size: 0.875em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview p,
+      .editor-preview-side p {
+        margin: 1rem 0;
+        line-height: 1.6;
+      }
+      .editor-preview ul,
+      .editor-preview-side ul {
+        list-style-type: disc;
+        padding-left: 2rem;
+      }
+      .editor-preview ol,
+      .editor-preview-side ol {
+        list-style-type: decimal;
+        padding-left: 2rem;
+      }
+      .editor-preview blockquote,
+      .editor-preview-side blockquote {
+        border-left: 4px solid #ccc;
+        padding-left: 1rem;
+        color: #555;
+        font-style: italic;
+      }
+      .editor-preview code,
+      .editor-preview-side code {
+        background-color: #f3f4f6;
+        padding: 0.2em 0.4em;
+        border-radius: 4px;
+        font-family: monospace;
+      }
+      .editor-preview a,
+      .editor-preview-side a {
+        color: #2563eb;
+        text-decoration: underline;
+        word-break: break-all;
+        transition: color 0.2s;
+      }
+      .editor-preview a:hover,
+      .editor-preview-side a:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+      }
+      .editor-preview img,
+      .editor-preview-side img {
+        max-width: 35%;
+        height: auto;
+        display: block;
+        margin: 1rem 0;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+    </style>
   </head>
 
   <body class="bg-gray-100 text-gray-900">
@@ -121,6 +215,10 @@
         </p>
       </div>
     </div>
+    <emoji-picker
+      id="emoji-picker"
+      style="position: absolute; z-index: 1000; display: none"
+    ></emoji-picker>
     <script>
       let easyMDE;
       const tagInstances = {};
@@ -249,6 +347,37 @@
         document.getElementById("output-container").classList.add("hidden");
       }
 
+      const emojiPicker = document.getElementById("emoji-picker");
+      let isEmojiOpen = false;
+      let currentEditor = null;
+      let emojiBtn = null;
+      function handleEmojiSelect(e) {
+        currentEditor.codemirror.replaceSelection(e.detail.unicode);
+        closeEmojiPicker();
+      }
+      function closeEmojiPicker() {
+        if (!isEmojiOpen) return;
+        emojiPicker.style.display = "none";
+        emojiPicker.removeEventListener("emoji-click", handleEmojiSelect);
+        isEmojiOpen = false;
+      }
+      function onPageClick(e) {
+        if (
+          isEmojiOpen &&
+          !emojiPicker.contains(e.target) &&
+          !emojiBtn.contains(e.target)
+        ) {
+          closeEmojiPicker();
+        }
+      }
+      function onPageKey(e) {
+        if (isEmojiOpen && e.key === "Escape") {
+          closeEmojiPicker();
+        }
+      }
+      document.addEventListener("click", onPageClick);
+      document.addEventListener("keydown", onPageKey);
+
       window.addEventListener("DOMContentLoaded", async () => {
         easyMDE = new EasyMDE({
           element: document.getElementById("post-content"),
@@ -268,25 +397,25 @@
             "horizontal-rule",
             {
               name: "emoji",
-              action: function customFunction(editor) {
-                const picker = document.getElementById("emoji-picker");
-                const cm = editor.codemirror;
-                const { left, top } = cm
-                  .getWrapperElement()
-                  .getBoundingClientRect();
-                picker.style.left = `${left + 20}px`;
-                picker.style.top = `${top + 40}px`;
-                picker.style.display = "block";
-
-                picker.addEventListener(
-                  "emoji-click",
-                  function handler(event) {
-                    cm.replaceSelection(event.detail.unicode);
-                    picker.style.display = "none";
-                    picker.removeEventListener("emoji-click", handler);
-                  },
-                  { once: true }
-                );
+              action: function (editor) {
+                currentEditor = editor;
+                if (!emojiBtn) {
+                  emojiBtn = Array.from(
+                    document.querySelectorAll(".editor-toolbar button")
+                  ).find((b) => b.getAttribute("title") === "Insert Emoji");
+                  if (!emojiBtn) return;
+                }
+                if (isEmojiOpen) {
+                  return closeEmojiPicker();
+                }
+                const rect = emojiBtn.getBoundingClientRect();
+                emojiPicker.style.left = `${rect.left + window.scrollX}px`;
+                emojiPicker.style.top = `${rect.bottom + window.scrollY}px`;
+                emojiPicker.style.display = "block";
+                isEmojiOpen = true;
+                emojiPicker.addEventListener("emoji-click", handleEmojiSelect, {
+                  once: true,
+                });
               },
               className: "fa fa-smile-o",
               title: "Insert Emoji",
@@ -374,6 +503,8 @@
                 }
 
                 const tagifyInstance = new Tagify(mIn, {
+                  delimiters: ",| ",
+                  trim: false,
                   pattern: /\S+/,
                   transformTag: (tagData) => {
                     tagData.value = tagData.value.replace(/^@/, "");
@@ -399,7 +530,9 @@
                 tagContainer.appendChild(hashtagHint);
 
                 tagInstances[`hashtag-${name}`] = new Tagify(hIn, {
-                  pattern: /^[^#\s]+$/, // disallow `#` in hashtags
+                  delimiters: ",| ",
+                  trim: false,
+                  pattern: /^[A-Za-z0-9_]+$/,
                   transformTag: (tagData) => {
                     tagData.value = tagData.value.replace(/^#/, "");
                   },
@@ -422,9 +555,5 @@
         }
       });
     </script>
-    <emoji-picker
-      id="emoji-picker"
-      style="position: absolute; z-index: 1000; display: none"
-    ></emoji-picker>
   </body>
 </html>
