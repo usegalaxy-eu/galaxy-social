@@ -8,9 +8,7 @@ mentions:
 hashtags:
   mastodon-eu-freiburg:
   - UseGalaxy
-  - GalaxyProject
   - EOSC
-  - UniFreiburg
 ---
 Explore how JupyterGIS supports collaborative geospatial analysis in climate adaptation research.
 https://galaxyproject.org/news/2025-05-20-jupytergis/

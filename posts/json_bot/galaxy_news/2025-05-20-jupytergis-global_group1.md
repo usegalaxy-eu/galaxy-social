@@ -4,7 +4,6 @@ media:
 hashtags:
   linkedin-galaxyproject:
   - UseGalaxy
-  - GalaxyProject
   - EOSC
 ---
 Explore how JupyterGIS supports collaborative geospatial analysis in climate adaptation research.
