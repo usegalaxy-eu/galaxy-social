@@ -170,7 +170,7 @@
         <div>
           <label class="block font-medium">Content</label>
           <textarea id="post-content"></textarea>
-          <p style="font-size: 0.875rem; color: #555; margin-top: 0.5rem">
+          <p class="text-sm text-gray-600 mt-2">
             ⚠️ <strong>Note:</strong> Most
             <strong>Markdown formatting</strong> is
             <strong>not supported</strong> on <strong>Bluesky</strong>,
@@ -178,6 +178,12 @@
             Only <strong>images</strong> and <strong>links</strong> written in
             Markdown syntax will be preserved and correctly processed for those
             platforms.
+          </p>
+          <p class="text-sm text-gray-600 mt-2">
+            🔼 <strong>To upload images:</strong> After clicking
+            <strong>"Continue on GitHub"</strong>, you can drag and drop your
+            image directly into the GitHub editor. This will upload the image
+            and insert it in your post automatically.
           </p>
         </div>
         <div id="warnings" class="p-4 rounded bg-yellow-100 hidden"></div>
@@ -440,115 +446,141 @@
           const data = jsyaml.load(await res.text());
           const container = document.getElementById("media-options");
 
-          data.plugins
+          const plugins = data.plugins
             .filter((p) => p.enabled && p.name !== "markdown")
-            .forEach((plugin) => {
-              const name = plugin.name.toLowerCase();
-              pluginMax[name] = plugin.config?.max_content_length;
+            .sort((a, b) => a.name.localeCompare(b.name));
+          plugins.forEach((plugin) => {
+            const name = plugin.name.toLowerCase();
+            pluginMax[name] = plugin.config?.max_content_length;
+            const wrap = document.createElement("div");
+            wrap.className = "space-y-2";
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.id = `cb-${name}`;
+            cb.value = name;
+            cb.className = "media-checkbox form-checkbox";
+            const lbl = document.createElement("label");
+            lbl.htmlFor = cb.id;
+            lbl.className = "flex items-center space-x-2";
+            lbl.appendChild(cb);
+            const fullName = plugin.name.toLowerCase();
+            const base = fullName.split("-")[0];
+            const icon = document.createElement("img");
+            icon.src = `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${base}.svg`;
+            icon.alt = `${base} logo`;
+            icon.className = "w-5 h-5 inline-block";
+            icon.onerror = () => {
+              icon.onerror = null;
+              icon.src = `https://cdn.simpleicons.org/${base}`;
+            };
+            lbl.appendChild(icon);
 
-              const wrap = document.createElement("div");
-              wrap.className = "space-y-2";
-              const cb = document.createElement("input");
-              cb.type = "checkbox";
-              cb.id = `cb-${name}`;
-              cb.value = name;
-              cb.className = "media-checkbox form-checkbox";
-              const lbl = document.createElement("label");
-              lbl.htmlFor = cb.id;
-              lbl.className = "flex items-center space-x-2";
-              lbl.appendChild(cb);
-              const span = document.createElement("span");
-              span.className = "font-semibold";
-              span.textContent = name;
-              lbl.appendChild(span);
-              if (plugin.config?.account_url) {
-                const link = document.createElement("a");
-                link.href = plugin.config.account_url;
-                link.target = "_blank";
-                link.className = "text-blue-500 text-sm";
-                link.innerHTML = "🔗";
-                lbl.appendChild(link);
-              }
-              wrap.appendChild(lbl);
+            const span = document.createElement("span");
+            span.className = "font-semibold";
+            span.textContent = name;
+            lbl.appendChild(span);
+            if (plugin.config?.account_url) {
+              const link = document.createElement("a");
+              link.href = plugin.config.account_url;
+              link.target = "_blank";
+              link.className = "text-blue-500 text-sm";
+              link.innerHTML = "🔗";
+              lbl.appendChild(link);
+            }
+            wrap.appendChild(lbl);
 
-              const tagContainer = document.createElement("div");
-              tagContainer.className = "space-y-2 hidden";
-              if (!name.includes("slack") && !name.includes("linkedin")) {
-                const mIn = document.createElement("input");
-                mIn.id = `mention-${name}`;
-                mIn.placeholder = "Mentions";
-                mIn.className = "w-full p-2 border rounded";
-                tagContainer.appendChild(mIn);
+            const tagContainer = document.createElement("div");
+            tagContainer.className = "space-y-2 hidden";
+            if (!name.includes("slack") && !name.includes("linkedin")) {
+              const mIn = document.createElement("input");
+              mIn.id = `mention-${name}`;
+              mIn.placeholder = "Mentions";
+              mIn.className = "w-full p-2 border rounded";
+              tagContainer.appendChild(mIn);
 
-                const mentionHint = document.createElement("div");
-                mentionHint.className = "text-xs text-gray-500 italic";
+              const mentionHint = document.createElement("div");
+              mentionHint.className =
+                "text-xs text-gray-500 italic transition-all duration-300";
 
-                let format = null;
-                let validator = null;
+              let format = null;
+              let validator = null;
 
-                if (name.includes("bluesky")) {
-                  format = "username.server";
-                  validator = (tag) => /^[^@:\s]+\.[^@:\s]+$/.test(tag.value);
-                } else if (name.includes("mastodon")) {
-                  format = "username@server";
-                  validator = (tag) => /^[^@:\s]+@[^@:\s]+$/.test(tag.value);
-                } else if (name.includes("matrix")) {
-                  format = "username:server";
-                  validator = (tag) => /^[^@:\s]+:[^@:\s]+$/.test(tag.value);
-                }
-
-                if (format) {
-                  mentionHint.textContent = `Mentions are added without @ symbol. Format: ${format}`;
-                  tagContainer.appendChild(mentionHint);
-                }
-
-                const tagifyInstance = new Tagify(mIn, {
-                  delimiters: ",| ",
-                  trim: false,
-                  pattern: /\S+/,
-                  transformTag: (tagData) => {
-                    tagData.value = tagData.value.replace(/^@/, "");
-                  },
-                  validate: validator,
-                });
-
-                tagInstances[`mention-${name}`] = tagifyInstance;
-                tagifyInstance.on("change", updateAll);
+              if (name.includes("bluesky")) {
+                format = "username.server";
+                validator = (tag) => /^[^@:\s]+\.[^@:\s]+$/.test(tag.value);
+              } else if (name.includes("mastodon")) {
+                format = "username@server";
+                validator = (tag) => /^[^@:\s]+@[^@:\s]+$/.test(tag.value);
+              } else if (name.includes("matrix")) {
+                format = "username:server";
+                validator = (tag) => /^[^@:\s]+:[^@:\s]+$/.test(tag.value);
               }
 
-              if (!name.includes("slack") && !name.includes("matrix")) {
-                const hIn = document.createElement("input");
-                hIn.id = `hashtag-${name}`;
-                hIn.placeholder = "Hashtags";
-                hIn.className = "w-full p-2 border rounded";
-                tagContainer.appendChild(hIn);
-
-                const hashtagHint = document.createElement("div");
-                hashtagHint.className = "text-xs text-gray-500 italic";
-                hashtagHint.textContent =
-                  "Hashtags are added without # symbol.";
-                tagContainer.appendChild(hashtagHint);
-
-                tagInstances[`hashtag-${name}`] = new Tagify(hIn, {
-                  delimiters: ",| ",
-                  trim: false,
-                  pattern: /^[A-Za-z0-9_]+$/,
-                  transformTag: (tagData) => {
-                    tagData.value = tagData.value.replace(/^#/, "");
-                  },
-                });
-
-                tagInstances[`hashtag-${name}`].on("change", updateAll);
+              if (format) {
+                mentionHint.textContent = `Mentions are added without @ symbol. Format: ${format}`;
+                tagContainer.appendChild(mentionHint);
               }
 
-              wrap.appendChild(tagContainer);
-              container.appendChild(wrap);
-
-              cb.addEventListener("change", () => {
-                tagContainer.classList.toggle("hidden", !cb.checked);
-                updateAll();
+              const tagifyInstance = new Tagify(mIn, {
+                delimiters: ",| ",
+                trim: false,
+                pattern: /\S+/,
+                transformTag: (tagData) => {
+                  tagData.value = tagData.value.replace(/^@/, "");
+                },
+                validate: (tag) => {
+                  const isValid = validator ? validator(tag) : true;
+                  if (!isValid) {
+                    mentionHint.classList.add("text-red-500");
+                  } else {
+                    mentionHint.classList.remove("text-red-500");
+                  }
+                  return isValid;
+                },
               });
+
+              tagifyInstance.on("input", (e) => {
+                if (!e.detail.value) {
+                  mentionHint.classList.remove("text-red-500");
+                }
+              });
+
+              tagInstances[`mention-${name}`] = tagifyInstance;
+              tagifyInstance.on("change", updateAll);
+            }
+
+            if (!name.includes("slack") && !name.includes("matrix")) {
+              const hIn = document.createElement("input");
+              hIn.id = `hashtag-${name}`;
+              hIn.placeholder = "Hashtags";
+              hIn.className = "w-full p-2 border rounded";
+              tagContainer.appendChild(hIn);
+
+              const hashtagHint = document.createElement("div");
+              hashtagHint.className = "text-xs text-gray-500 italic";
+              hashtagHint.textContent = "Hashtags are added without # symbol.";
+              tagContainer.appendChild(hashtagHint);
+
+              tagInstances[`hashtag-${name}`] = new Tagify(hIn, {
+                delimiters: ",| ",
+                trim: false,
+                pattern: /^[A-Za-z0-9_]+$/,
+                transformTag: (tagData) => {
+                  tagData.value = tagData.value.replace(/^#/, "");
+                },
+              });
+
+              tagInstances[`hashtag-${name}`].on("change", updateAll);
+            }
+
+            wrap.appendChild(tagContainer);
+            container.appendChild(wrap);
+
+            cb.addEventListener("change", () => {
+              tagContainer.classList.toggle("hidden", !cb.checked);
+              updateAll();
             });
+          });
         } catch (e) {
           console.error(e);
           showError("Failed to load media options");
