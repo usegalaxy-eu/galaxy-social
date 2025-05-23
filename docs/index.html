@@ -481,7 +481,8 @@
                 tagContainer.appendChild(mIn);
 
                 const mentionHint = document.createElement("div");
-                mentionHint.className = "text-xs text-gray-500 italic";
+                mentionHint.className =
+                  "text-xs text-gray-500 italic transition-all duration-300";
 
                 let format = null;
                 let validator = null;
@@ -509,7 +510,21 @@
                   transformTag: (tagData) => {
                     tagData.value = tagData.value.replace(/^@/, "");
                   },
-                  validate: validator,
+                  validate: (tag) => {
+                    const isValid = validator ? validator(tag) : true;
+                    if (!isValid) {
+                      mentionHint.classList.add("text-red-500");
+                    } else {
+                      mentionHint.classList.remove("text-red-500");
+                    }
+                    return isValid;
+                  },
+                });
+
+                tagifyInstance.on("input", (e) => {
+                  if (!e.detail.value) {
+                    mentionHint.classList.remove("text-red-500");
+                  }
                 });
 
                 tagInstances[`mention-${name}`] = tagifyInstance;
