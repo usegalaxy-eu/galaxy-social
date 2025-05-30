@@ -80,10 +80,22 @@ class linkedin_client:
             warnings = ""
 
         # convert markdown formatting because linkedin doesn't support it
+        protected_mentions = {}
+
+        def protect(match):
+            key = f"PROTECTED_MENTION_{len(protected_mentions)}"
+            protected_mentions[key] = match.group(0)
+            return key
+
+        content = re.sub(r"@\[[^\]]+\]\(urn:li:organization:\d+\)", protect, content)
+
         paragraphs = content.split("\n\n\n")
         for i, p in enumerate(paragraphs):
             paragraphs[i] = strip_markdown_formatting(p)
         content = "\n\n\n".join(paragraphs)
+
+        for key, value in protected_mentions.items():
+            content = content.replace(key, value)
 
         content += "\n"
         if mentions:
