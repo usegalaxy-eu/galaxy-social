@@ -163,4 +163,4 @@ Remember to add the env variable that needed for each social media seperatly.
 - Mastodon: Mentions should be in the format `username@server-domain`.
 - Matrix: Hashtags can be included in the post but have no special function. Mentions should be in the format `username:server-domain`.
 - Slack: Mentions and hashtags are not supported!
-- Linkedin: Mentions are not supported!
+- Linkedin: Mentions are only supported for organizations. The vanity name (company URL ID) should be used for this purpose.

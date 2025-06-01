@@ -49,9 +49,29 @@ class linkedin_client:
             final_lines.append(f"{line} ({i}/{len(wrapped_lines)})")
         return final_lines
 
+    def build_organization_mentions(self, mentions):
+        output = []
+        for mention in mentions:
+            vanity_name = mention.strip()
+            urn = None
+            try:
+                response = requests.get(
+                    f"{self.api_base_url}/organizations",
+                    headers=self.headers,
+                    params={"q": "vanityName", "vanityName": vanity_name},
+                )
+                response.raise_for_status()
+                elements = response.json().get("elements", [])
+                if elements and (org_id := elements[0].get("id")):
+                    urn = f"urn:li:organization:{org_id}"
+                    mention = elements[0].get("localizedName")
+            except Exception as e:
+                print(f"[WARN] Failed to resolve @{mention}: {e}")
+            output.append(f"@[{mention}]({urn})" if urn else f"@{mention}")
+        return " ".join(output)
+
     def format_content(self, content, mentions, hashtags, images, **kwargs):
-        # the mentions are not linked to anyone!
-        mentions = " ".join([f"@{v}" for v in mentions])
+        mentions = self.build_organization_mentions(mentions)
         hashtags = " ".join([f"#{v}" for v in hashtags])
         if len(images) > 20:
             warnings = f"A maximum of 20 images, not {len(images)}, can be included in a single linkedin post."
@@ -60,10 +80,22 @@ class linkedin_client:
             warnings = ""
 
         # convert markdown formatting because linkedin doesn't support it
+        protected_mentions = {}
+
+        def protect(match):
+            key = f"PROTECTED_MENTION_{len(protected_mentions)}"
+            protected_mentions[key] = match.group(0)
+            return key
+
+        content = re.sub(r"@\[[^\]]+\]\(urn:li:organization:\d+\)", protect, content)
+
         paragraphs = content.split("\n\n\n")
         for i, p in enumerate(paragraphs):
             paragraphs[i] = strip_markdown_formatting(p)
         content = "\n\n\n".join(paragraphs)
+
+        for key, value in protected_mentions.items():
+            content = content.replace(key, value)
 
         content += "\n"
         if mentions:
