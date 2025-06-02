@@ -51,6 +51,7 @@ class linkedin_client:
 
     def build_organization_mentions(self, mentions):
         output = []
+        warnings = ""
         for mention in mentions:
             vanity_name = mention.strip()
             urn = None
@@ -67,27 +68,32 @@ class linkedin_client:
                     mention = elements[0].get("localizedName")
             except Exception as e:
                 print(f"[WARN] Failed to resolve @{mention}: {e}")
+                warnings += f"Failed to resolve @{mention}: {e}\n"
             output.append(f"@[{mention}]({urn})" if urn else f"@{mention}")
-        return " ".join(output)
+        return " ".join(output), warnings
 
-    def format_content(self, content, mentions, hashtags, images, **kwargs):
-        mentions = self.build_organization_mentions(mentions)
-        hashtags = " ".join([f"#{v}" for v in hashtags])
-        if len(images) > 20:
-            warnings = f"A maximum of 20 images, not {len(images)}, can be included in a single linkedin post."
-            images = images[:20]
-        else:
-            warnings = ""
-
-        # convert markdown formatting because linkedin doesn't support it
+    def protect_mentions(self, content):
         protected_mentions = {}
 
         def protect(match):
-            key = f"PROTECTED_MENTION_{len(protected_mentions)}"
+            key = f"«M{len(protected_mentions)}»"
             protected_mentions[key] = match.group(0)
             return key
 
         content = re.sub(r"@\[[^\]]+\]\(urn:li:organization:\d+\)", protect, content)
+        return content, protected_mentions
+
+    def format_content(self, content, mentions, hashtags, images, **kwargs):
+        warnings = ""
+        mentions, mentions_warnings = self.build_organization_mentions(mentions)
+        warnings += mentions_warnings
+        hashtags = " ".join([f"#{v}" for v in hashtags])
+        if len(images) > 20:
+            warnings += f"A maximum of 20 images, not {len(images)}, can be included in a single linkedin post."
+            images = images[:20]
+
+        # convert markdown formatting because linkedin doesn't support it
+        content, protected_mentions = self.protect_mentions(content)
 
         paragraphs = content.split("\n\n\n")
         for i, p in enumerate(paragraphs):
@@ -118,6 +124,7 @@ class linkedin_client:
 
     def linkedin_post(self, content, images):
         try:
+            content, protected_mentions = self.protect_mentions(content)
             # This is needed to escape special characters in the content
             # https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/little-text-format?view=li-lms-2024-08#text
             for char in [
@@ -138,6 +145,9 @@ class linkedin_client:
                 "~",
             ]:
                 content = content.replace(char, f"\\{char}")
+
+            for key, value in protected_mentions.items():
+                content = content.replace(key, value)
 
             data = {
                 "author": self.organization_urn,
