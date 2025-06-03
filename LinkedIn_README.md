@@ -20,7 +20,7 @@ You need to [set up a company](https://www.linkedin.com/company/setup/new/) befo
   - w_organization_social
   - w_organization_social_feed
   - rw_organization_admin
-  and generate the token.  
+- Generate the token.  
 - Store the Access token securely in repo secrets.
 
 **Note**: Tokens expire every 2 months
