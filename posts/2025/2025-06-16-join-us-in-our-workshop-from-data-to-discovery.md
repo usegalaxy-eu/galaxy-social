@@ -45,4 +45,4 @@ In this course, you will learn how to use [Galaxy](https://usegalaxy.eu/) 🚀 t
 
 You are available **June 30 - July 4** and can join us on site in **Freiburg/Germany**?
 
-Then sign up [HERE](https://forms.gle/HWRH3pduxgHuzwr67). But be quick🏎️💨🔥.  There are **only a few seats left**.
+Then sign up [HERE](https://forms.gle/HWRH3pduxgHuzwr67). But be quick🏎️💨🔥.  There are **only a few spots left**.
