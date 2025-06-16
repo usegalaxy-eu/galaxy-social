@@ -38,7 +38,8 @@ hashtags:
 ---
 Are you interested in learning how to analyse your Metagenomics, RNA-Seq or NGS data? 
 
-Join us in [From Data to Discovery](https://training.galaxyproject.org/training-material/events/2025-06-30-hts-workshop-freiburg.html) to learn how to use [Galaxy](https://usegalaxy.eu/) 🚀 to analyse your data. 
+Join us in [From Data to Discovery](https://training.galaxyproject.org/training-material/events/2025-06-30-hts-workshop-freiburg.html).
+In this course, you will learn how to use [Galaxy](https://usegalaxy.eu/) 🚀 to analyse your data. 
 
 You are available **June 30 - July 4** and can join us on site in **Freiburg/Germany**?
 
