@@ -17,7 +17,7 @@ class linkedin_client:
         self.headers = {
             "Authorization": f"Bearer {self.access_token}",
             "X-Restli-Protocol-Version": "2.0.0",
-            "LinkedIn-Version": "202406",
+            "LinkedIn-Version": "202506",
         }
         self.max_content_length = kwargs.get("max_content_length", 3000)
 
