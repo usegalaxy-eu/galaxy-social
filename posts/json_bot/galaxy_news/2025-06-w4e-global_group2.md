@@ -7,5 +7,5 @@ hashtags:
   - GalaxyProject
   - EOSC
 ---
-Bring your own data Metabolomics Training Recap.
+Our review from the W4E2025 Workshop is online – Empowering Metabolomics Researchers with W4M
 https://galaxyproject.org/news/2025-06-w4e/
