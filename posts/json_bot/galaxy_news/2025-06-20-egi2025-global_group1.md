@@ -1,0 +1,21 @@
+---
+media:
+- linkedin-galaxyproject
+hashtags:
+  linkedin-galaxyproject:
+  - UseGalaxy
+  - GalaxyProject
+  - EOSC
+---
+From June 03rd to 6th, members from the Freiburg Galaxy team travelled to Santander, Spain to participate and present the EuroScienceGateway (ESG) project at the EGI2025 meeting
+https://galaxyproject.org/news/2025-06-20-egi2025/
+![EuroScienceGateway Booth setup](https://galaxyproject.org/assets/static/booth.4ad6c4c.c9e432de488e6ba64d658671fdb24e88.jpg)
+![Presenting the Galaxy platform at the EuroScienceGateway Booth](https://galaxyproject.org/assets/static/booth3.42db587.630f8b02d05773c0f0e7db56c023092b.jpg)
+![Armin pitched EuroScienceGateway's booth](https://galaxyproject.org/assets/static/egi_booth_pitch.4ad6c4c.4d1d9f4f7ec04b6938921dc16c824751.jpg)
+![Sanjay pitched TPV Broker poster](https://galaxyproject.org/assets/static/tpv_broker_pitch.42db587.916a848c98f088414493573d1a1d00a3.jpg)
+![Sanjay presenting ](https://galaxyproject.org/assets/static/egi2025_poster_session.e780801.3cbf21750a57da3047a4ef21f68fe13c.jpg)
+![Smitesh Jain presenting ](https://galaxyproject.org/assets/static/egi2025_sustainability.4e9973b.2c8da95c9b6cfcc2c5afc2a117b1615a.jpg)
+![Sebastián Luna-Valero presenting ](https://galaxyproject.org/assets/static/esg_presentation.42db587.62eb1dd4fead417955ac56daddfd918b.jpg)
+![EGI2025 Group Photo](https://galaxyproject.org/assets/static/group_photo.42db587.a0a3d373a91b1bb3edc1810f27f3ec91.jpg)
+![TPV Broker poster](https://galaxyproject.org/assets/static/egi2025-tpv-broker.42db587.bfa7e1d6b070a6c5142ad6f8c44b1cb6.jpg)
+![ESG poster](https://galaxyproject.org/assets/static/egi2025-esg-poster.42db587.b85ae762d08c9c5e342e572b44288598.jpg)
