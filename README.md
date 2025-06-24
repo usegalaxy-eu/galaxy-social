@@ -1,17 +1,32 @@
 ﻿# Galaxy Social
 
 <div align="center">
-      👇</br>
-      <kbd><a href="../../new/main/?filename=posts/2025/<your-path>.md&value=---%0Amedia:%0A - mastodon-eu-freiburg%0A - matrix-eu-announce%0A - mastodon-galaxyproject%0A - bluesky-galaxyproject%0A - linkedin-galaxyproject%0A%0Amentions:%0A mastodon-eu-freiburg:%0A%20 - galaxyproject@mstdn.science%0A mastodon-galaxyproject:%0A%20 - galaxyfreiburg@baw%C3%BC.social%0A bluesky-galaxyproject:%0A%20 - galaxyproject.bsky.social%0A%0Ahashtags:%0A mastodon-eu-freiburg:%0A%20 - UseGalaxy%0A%20 - GalaxyProject%0A%20 - UniFreiburg%0A%20 - EOSC%0A%20 - EuroScienceGateway%0A mastodon-galaxyproject:%0A%20 - UseGalaxy%0A bluesky-galaxyproject:%0A%20 - UseGalaxy%0A%20 - GalaxyProject%0A%20 - UniFreiburg%0A%20 - EOSC%0A%20 - EuroScienceGateway%0A linkedin-galaxyproject:%0A%20 - UseGalaxy%0A%20 - GalaxyProject%0A%20 - UniFreiburg%0A%20 - EOSC%0A%20 - EuroScienceGateway%0A---%0AYour text content goes here. (Markdown syntax will not pass to Bluesky, Mastodon, and Linkedin!)%0AFor images just drag and drop them here. they will look like this:%0A![A](https://example.com/a.jpg)">Create new post</a></kbd>
+
+**👇 Choose your way to create a post 👇**
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://usegalaxy-eu.github.io/galaxy-social/">
+        <img src="https://img.shields.io/badge/🧩%20Interactive%20Post%20Creator-blueviolet?style=for-the-badge" alt="Interactive Post Creator">
+      </a>
+    </td>
+    <td align="center">
+      <a href="../../new/main/?filename=posts/2025/<your-path>.md&value=---%0Amedia:%0A%20-%20mastodon-eu-freiburg%0A%20-%20matrix-eu-announce%0A%20-%20mastodon-galaxyproject%0A%20-%20bluesky-galaxyproject%0A%20-%20linkedin-galaxyproject%0A%0Amentions:%0A%20mastodon-eu-freiburg:%0A%20%20-%20galaxyproject@mstdn.science%0A%20mastodon-galaxyproject:%0A%20%20-%20galaxyfreiburg@bawü.social%0A%20bluesky-galaxyproject:%0A%20%20-%20galaxyproject.bsky.social%0A%0Ahashtags:%0A%20mastodon-eu-freiburg:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20mastodon-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20bluesky-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20linkedin-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A---%0AYour%20text%20content%20goes%20here.%20(Markdown%20syntax%20will%20not%20pass%20to%20Bluesky,%20Mastodon,%20and%20Linkedin!)%0AFor%20images%20just%20drag%20and%20drop%20them%20here.%20they%20will%20look%20like%20this:%0A![A](https://example.com/a.jpg)">
+        <img src="https://img.shields.io/badge/📝%20Create%20New%20Manual%20Post-green?style=for-the-badge" alt="Create new manual post">
+      </a>
+    </td>
+  </tr>
+</table>
 </div>
+
 
 ## How to Create a Post
 
 To create a post on Galaxy Social, follow these steps:
 
-1. **Create a Branch:** Begin by [creating a branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository#creating-a-branch) in this repository or [your forked repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository).
+1. **Create a Branch:** Begin by [creating a branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository#creating-a-branch) in this repository or [your forked repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository). Do not commit directly to the main branch. All changes must go through a pull request.
 
-2. **Add a New File:** Within the "posts" folder (or sub-folders), create a new file with the extension ".md" and [commit it to your branch](https://docs.github.com/en/repositories/working-with-files/managing-files/creating-new-files).
+2. **Add a New File:** Within the "posts" folder (or sub-folders), create a new file with the extension ".md" and [commit it to your branch](https://docs.github.com/en/repositories/working-with-files/managing-files/creating-new-files). Do not edit an existing or older file. Always create a new one for your content.
 
 3. **Use the Post Template:** Utilize the following template for the post content:
 
@@ -144,8 +159,8 @@ Remember to add the env variable that needed for each social media seperatly.
 
 ## Social media implemented
 
-- Bluesky
-- Mastodon
-- Matrix: hashtags are included in the post but have no special function in matrix.
-- Slack: mentions and hashtags are not working!
-- Linkedin: mentions are not working!
+- Bluesky: If using the default handle, mentions should be in the format `username.bsky.social`.
+- Mastodon: Mentions should be in the format `username@server-domain`.
+- Matrix: Hashtags can be included in the post but have no special function. Mentions should be in the format `username:server-domain`.
+- Slack: Mentions and hashtags are not supported!
+- Linkedin: Mentions are only supported for organizations. The vanity name (company URL ID) should be used for this purpose.

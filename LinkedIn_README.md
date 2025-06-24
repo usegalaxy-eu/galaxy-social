@@ -16,7 +16,11 @@ You need to [set up a company](https://www.linkedin.com/company/setup/new/) befo
 ## 3. Generate & Secure the Token  
 
 - After approval, visit the [Token Generator](https://www.linkedin.com/developers/tools/oauth/token-generator).  
-- Select your app, choose the required scopes (w_organization_social, w_organization_social_feed), and generate the token.  
+- Select your app, choose the required scopes:
+  - w_organization_social
+  - w_organization_social_feed
+  - rw_organization_admin
+- Generate the token.  
 - Store the Access token securely in repo secrets.
 
 **Note**: Tokens expire every 2 months

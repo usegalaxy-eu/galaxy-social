@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Galaxy Social Post Creator</title>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css"
+    />
+    <style>
+      .editor-preview,
+      .editor-preview-side {
+        padding: 1rem;
+        font-family: inherit;
+        line-height: 1.6;
+        background: white;
+        color: black;
+        overflow-wrap: break-word;
+      }
+      .editor-preview h1,
+      .editor-preview-side h1 {
+        font-size: 2em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview h2,
+      .editor-preview-side h2 {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview h3,
+      .editor-preview-side h3 {
+        font-size: 1.25em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview h4,
+      .editor-preview-side h4 {
+        font-size: 1.125em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview h5,
+      .editor-preview-side h5 {
+        font-size: 1em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview h6,
+      .editor-preview-side h6 {
+        font-size: 0.875em;
+        font-weight: bold;
+        margin: 1rem 0;
+      }
+      .editor-preview p,
+      .editor-preview-side p {
+        margin: 1rem 0;
+        line-height: 1.6;
+      }
+      .editor-preview ul,
+      .editor-preview-side ul {
+        list-style-type: disc;
+        padding-left: 2rem;
+      }
+      .editor-preview ol,
+      .editor-preview-side ol {
+        list-style-type: decimal;
+        padding-left: 2rem;
+      }
+      .editor-preview blockquote,
+      .editor-preview-side blockquote {
+        border-left: 4px solid #ccc;
+        padding-left: 1rem;
+        color: #555;
+        font-style: italic;
+      }
+      .editor-preview code,
+      .editor-preview-side code {
+        background-color: #f3f4f6;
+        padding: 0.2em 0.4em;
+        border-radius: 4px;
+        font-family: monospace;
+      }
+      .editor-preview a,
+      .editor-preview-side a {
+        color: #2563eb;
+        text-decoration: underline;
+        word-break: break-all;
+        transition: color 0.2s;
+      }
+      .editor-preview a:hover,
+      .editor-preview-side a:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+      }
+      .editor-preview img,
+      .editor-preview-side img {
+        max-width: 35%;
+        height: auto;
+        display: block;
+        margin: 1rem 0;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100 text-gray-900">
+    <div
+      class="max-w-3xl mx-auto p-6 bg-white shadow-xl mt-10 mb-10 rounded-xl"
+    >
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">Galaxy Social Post Creator</h1>
+        <a
+          href="https://github.com/usegalaxy-eu/galaxy-social"
+          target="_blank"
+          class="text-blue-600 hover:underline flex items-center space-x-1"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 inline"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.41-5.25 5.7.42.36.79 1.09.79 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.68.8.56C20.71 21.39 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z"
+            />
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+      <div
+        class="bg-blue-50 border border-blue-200 text-blue-900 text-sm rounded p-4 mb-4 flex items-start space-x-2"
+      >
+        This is a simple interface for writing and submitting posts to the
+        Galaxy Social media channels. Give your post a title, choose the media
+        you want to share, add mentions and hashtags, and use the editor below
+        to compose your message in Markdown. When you're ready, click "Continue
+        on GitHub" to propose it as a pull request to our repository. It’s the
+        easiest way to contribute to our community updates!
+      </div>
+      <div id="error-message" class="text-red-500 mb-4 hidden"></div>
+      <div class="space-y-6">
+        <div>
+          <label class="block font-medium">Title</label>
+          <input
+            type="text"
+            id="post-title"
+            class="w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label class="block font-medium mb-2">Select Media Platforms</label>
+          <div id="media-options" class="flex flex-col gap-4"></div>
+        </div>
+        <div>
+          <label class="block font-medium">Content</label>
+          <textarea id="post-content"></textarea>
+          <p class="text-sm text-gray-600 mt-2">
+            ⚠️ <strong>Note:</strong> Most
+            <strong>Markdown formatting</strong> is
+            <strong>not supported</strong> on <strong>Bluesky</strong>,
+            <strong>Mastodon</strong>, or <strong>LinkedIn</strong>. <br />
+            Only <strong>images</strong> and <strong>links</strong> written in
+            Markdown syntax will be preserved and correctly processed for those
+            platforms.
+          </p>
+          <p class="text-sm text-gray-600 mt-2">
+            🔼 <strong>To upload images:</strong> After clicking
+            <strong>"Continue on GitHub"</strong>, you can drag and drop your
+            image directly into the GitHub editor. This will upload the image
+            and insert it in your post automatically.
+          </p>
+        </div>
+        <div id="warnings" class="p-4 rounded bg-yellow-100 hidden"></div>
+      </div>
+      <div id="output-container" class="mt-8 hidden">
+        <h2 id="output-heading" class="text-xl font-semibold mb-2"></h2>
+        <pre
+          id="output"
+          class="bg-gray-100 p-4 rounded overflow-auto whitespace-pre-wrap"
+          style="max-height: 300px"
+        ></pre>
+        <div class="mt-4 flex space-x-2">
+          <a
+            id="pr-button"
+            target="_blank"
+            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 hidden flex items-center space-x-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.41-5.25 5.7.42.36.79 1.09.79 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.68.8.56C20.71 21.39 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z"
+              />
+            </svg>
+            <span>Continue on GitHub</span>
+          </a>
+        </div>
+        <p class="text-sm text-gray-500 mt-2 italic">
+          Note: Clicking the button will open GitHub in a new tab with your post
+          draft. No changes are committed automatically. you’ll need to review
+          and submit the post from github as next step.
+        </p>
+      </div>
+    </div>
+    <emoji-picker
+      id="emoji-picker"
+      style="position: absolute; z-index: 1000; display: none"
+    ></emoji-picker>
+    <script>
+      let easyMDE;
+      const tagInstances = {};
+      const pluginMax = {};
+
+      function showError(msg) {
+        const errorDiv = document.getElementById("error-message");
+        errorDiv.textContent = msg;
+        errorDiv.classList.remove("hidden");
+      }
+
+      function clearError() {
+        const errorDiv = document.getElementById("error-message");
+        errorDiv.textContent = "";
+        errorDiv.classList.add("hidden");
+      }
+
+      function updateAll() {
+        clearError();
+        const title = document.getElementById("post-title").value.trim();
+        const content = easyMDE.value().trim();
+        const selected = Array.from(
+          document.querySelectorAll("input.media-checkbox:checked")
+        ).map((cb) => cb.value);
+
+        // Validation
+        if (!title) {
+          hideOutput();
+          return showError("Title is required.");
+        }
+        if (selected.length === 0) {
+          hideOutput();
+          return showError("Select at least one media platform.");
+        }
+        if (!content) {
+          hideOutput();
+          return showError("Content cannot be empty.");
+        }
+
+        // split warnings under content
+        const warnDiv = document.getElementById("warnings");
+        const warnings = [];
+        selected.forEach((name) => {
+          const maxLen = pluginMax[name];
+          if (maxLen && content.length > maxLen) {
+            const parts = Math.ceil(content.length / maxLen);
+            warnings.push(
+              `⚠️ Will split into ${parts} posts on ${name} (max ${maxLen} chars each)`
+            );
+          }
+        });
+        if (warnings.length > 0) {
+          warnDiv.innerHTML = warnings.map((w) => `<div>${w}</div>`).join("");
+          warnDiv.classList.remove("hidden");
+        } else {
+          warnDiv.classList.add("hidden");
+          warnDiv.innerHTML = "";
+        }
+
+        // Generate metadata
+        const mentions = {};
+        const hashtags = {};
+        selected.forEach((name) => {
+          mentions[name] = [];
+          hashtags[name] = [];
+          const mInst = tagInstances[`mention-${name}`];
+          if (mInst) {
+            mentions[name] = mInst.value.map((t) => t.value);
+          }
+          const hInst = tagInstances[`hashtag-${name}`];
+          if (hInst) {
+            hashtags[name] = hInst.value.map((t) => t.value);
+          }
+        });
+        const year = new Date().getFullYear();
+        const date = new Date().toISOString().split("T")[0];
+        const slug = `${date}-${title
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9\-]/g, "")}`;
+
+        let meta = `---\nmedia:\n${selected.map((m) => ` - ${m}`).join("\n")}`;
+        if (Object.values(mentions).some((a) => a.length)) {
+          meta +=
+            `\nmentions:` +
+            Object.entries(mentions)
+              .filter(([, vs]) => vs.length)
+              .map(
+                ([k, vs]) => `\n ${k}:\n${vs.map((v) => `  - ${v}`).join("\n")}`
+              )
+              .join("");
+        }
+        if (Object.values(hashtags).some((a) => a.length)) {
+          meta +=
+            `\nhashtags:` +
+            Object.entries(hashtags)
+              .filter(([, vs]) => vs.length)
+              .map(
+                ([k, vs]) => `\n ${k}:\n${vs.map((v) => `  - ${v}`).join("\n")}`
+              )
+              .join("");
+        }
+        meta += `\n---`;
+        const full = `${meta}\n${content}\n`;
+
+        // Update PR link
+        const prBtn = document.getElementById("pr-button");
+        prBtn.href =
+          `https://github.com/usegalaxy-eu/galaxy-social/new/main/?filename=posts/${year}/${slug}.md&value=` +
+          encodeURIComponent(full);
+
+        // Show output
+        showOutputContent(full);
+      }
+
+      function showOutputContent(md) {
+        const container = document.getElementById("output-container");
+        document.getElementById("output-heading").textContent =
+          "Generated Markdown Content";
+        document.getElementById("output").textContent = md;
+        document.getElementById("pr-button").classList.remove("hidden");
+        container.classList.remove("hidden");
+      }
+
+      function hideOutput() {
+        document.getElementById("output-container").classList.add("hidden");
+      }
+
+      const emojiPicker = document.getElementById("emoji-picker");
+      let isEmojiOpen = false;
+      let currentEditor = null;
+      let emojiBtn = null;
+      function handleEmojiSelect(e) {
+        currentEditor.codemirror.replaceSelection(e.detail.unicode);
+        closeEmojiPicker();
+      }
+      function closeEmojiPicker() {
+        if (!isEmojiOpen) return;
+        emojiPicker.style.display = "none";
+        emojiPicker.removeEventListener("emoji-click", handleEmojiSelect);
+        isEmojiOpen = false;
+      }
+      function onPageClick(e) {
+        if (
+          isEmojiOpen &&
+          !emojiPicker.contains(e.target) &&
+          !emojiBtn.contains(e.target)
+        ) {
+          closeEmojiPicker();
+        }
+      }
+      function onPageKey(e) {
+        if (isEmojiOpen && e.key === "Escape") {
+          closeEmojiPicker();
+        }
+      }
+      document.addEventListener("click", onPageClick);
+      document.addEventListener("keydown", onPageKey);
+
+      window.addEventListener("DOMContentLoaded", async () => {
+        easyMDE = new EasyMDE({
+          element: document.getElementById("post-content"),
+          spellChecker: false,
+          toolbar: [
+            "bold",
+            "italic",
+            "heading",
+            "|",
+            "quote",
+            "unordered-list",
+            "ordered-list",
+            "|",
+            "link",
+            "image",
+            "table",
+            "horizontal-rule",
+            {
+              name: "emoji",
+              action: function (editor) {
+                currentEditor = editor;
+                if (!emojiBtn) {
+                  emojiBtn = Array.from(
+                    document.querySelectorAll(".editor-toolbar button")
+                  ).find((b) => b.getAttribute("title") === "Insert Emoji");
+                  if (!emojiBtn) return;
+                }
+                if (isEmojiOpen) {
+                  return closeEmojiPicker();
+                }
+                const rect = emojiBtn.getBoundingClientRect();
+                emojiPicker.style.left = `${rect.left + window.scrollX}px`;
+                emojiPicker.style.top = `${rect.bottom + window.scrollY}px`;
+                emojiPicker.style.display = "block";
+                isEmojiOpen = true;
+                emojiPicker.addEventListener("emoji-click", handleEmojiSelect, {
+                  once: true,
+                });
+              },
+              className: "fa fa-smile-o",
+              title: "Insert Emoji",
+            },
+            "|",
+            "preview",
+            "side-by-side",
+            "fullscreen",
+            "|",
+            "guide",
+          ],
+        });
+        easyMDE.codemirror.on("change", updateAll);
+        document
+          .getElementById("post-title")
+          .addEventListener("input", updateAll);
+
+        try {
+          const res = await fetch(
+            "https://raw.githubusercontent.com/usegalaxy-eu/galaxy-social/main/plugins.yml"
+          );
+          const data = jsyaml.load(await res.text());
+          const container = document.getElementById("media-options");
+
+          const plugins = data.plugins
+            .filter((p) => p.enabled && p.name !== "markdown")
+            .sort((a, b) => a.name.localeCompare(b.name));
+          plugins.forEach((plugin) => {
+            const name = plugin.name.toLowerCase();
+            pluginMax[name] = plugin.config?.max_content_length;
+            const wrap = document.createElement("div");
+            wrap.className = "space-y-2";
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.id = `cb-${name}`;
+            cb.value = name;
+            cb.className = "media-checkbox form-checkbox";
+            const lbl = document.createElement("label");
+            lbl.htmlFor = cb.id;
+            lbl.className = "flex items-center space-x-2";
+            lbl.appendChild(cb);
+            const fullName = plugin.name.toLowerCase();
+            const base = fullName.split("-")[0];
+            const icon = document.createElement("img");
+            icon.src = `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${base}.svg`;
+            icon.alt = `${base} logo`;
+            icon.className = "w-5 h-5 inline-block";
+            icon.onerror = () => {
+              icon.onerror = null;
+              icon.src = `https://cdn.simpleicons.org/${base}`;
+            };
+            lbl.appendChild(icon);
+
+            const span = document.createElement("span");
+            span.className = "font-semibold";
+            span.textContent = name;
+            lbl.appendChild(span);
+            if (plugin.config?.account_url) {
+              const link = document.createElement("a");
+              link.href = plugin.config.account_url;
+              link.target = "_blank";
+              link.className = "text-blue-500 text-sm";
+              link.innerHTML = "🔗";
+              lbl.appendChild(link);
+            }
+            wrap.appendChild(lbl);
+
+            const tagContainer = document.createElement("div");
+            tagContainer.className = "space-y-2 hidden";
+            if (!name.includes("slack")) {
+              const mIn = document.createElement("input");
+              mIn.id = `mention-${name}`;
+              mIn.placeholder = "Mentions";
+              mIn.className = "w-full p-2 border rounded";
+              tagContainer.appendChild(mIn);
+
+              const mentionHint = document.createElement("div");
+              mentionHint.className =
+                "text-xs text-gray-500 italic transition-all duration-300";
+
+              let format = null;
+              let validator = null;
+
+              if (name.includes("bluesky")) {
+                format = "username.server (e.g. galaxyproject.bsky.social)";
+                validator = (tag) => /^[^@:\s]+\.[^@:\s]+$/.test(tag.value);
+              } else if (name.includes("mastodon")) {
+                format = "username@server (e.g. galaxyproject@mstdn.science)";
+                validator = (tag) => /^[^@:\s]+@[^@:\s]+$/.test(tag.value);
+              } else if (name.includes("matrix")) {
+                format = "username:server (e.g. bgruening:matrix.org)";
+                validator = (tag) => /^[^@:\s]+:[^@:\s]+$/.test(tag.value);
+                } else if (name.includes("linkedin")) {
+                  format = "vanityName (e.g. galaxy-project)";
+              }
+
+              if (format) {
+                mentionHint.textContent = `Mentions are added without @ symbol. Format: ${format}`;
+                tagContainer.appendChild(mentionHint);
+              }
+
+              const tagifyInstance = new Tagify(mIn, {
+                delimiters: ",| ",
+                trim: false,
+                pattern: /\S+/,
+                transformTag: (tagData) => {
+                  tagData.value = tagData.value.replace(/^@/, "");
+                },
+                validate: (tag) => {
+                  const isValid = validator ? validator(tag) : true;
+                  if (!isValid) {
+                    mentionHint.classList.add("text-red-500");
+                  } else {
+                    mentionHint.classList.remove("text-red-500");
+                  }
+                  return isValid;
+                },
+              });
+
+              tagifyInstance.on("input", (e) => {
+                if (!e.detail.value) {
+                  mentionHint.classList.remove("text-red-500");
+                }
+              });
+
+              tagInstances[`mention-${name}`] = tagifyInstance;
+              tagifyInstance.on("change", updateAll);
+            }
+
+            if (!name.includes("slack") && !name.includes("matrix")) {
+              const hIn = document.createElement("input");
+              hIn.id = `hashtag-${name}`;
+              hIn.placeholder = "Hashtags";
+              hIn.className = "w-full p-2 border rounded";
+              tagContainer.appendChild(hIn);
+
+              const hashtagHint = document.createElement("div");
+              hashtagHint.className = "text-xs text-gray-500 italic";
+              hashtagHint.textContent = "Hashtags are added without # symbol.";
+              tagContainer.appendChild(hashtagHint);
+
+              tagInstances[`hashtag-${name}`] = new Tagify(hIn, {
+                delimiters: ",| ",
+                trim: false,
+                pattern: /^[A-Za-z0-9_]+$/,
+                transformTag: (tagData) => {
+                  tagData.value = tagData.value.replace(/^#/, "");
+                },
+              });
+
+              tagInstances[`hashtag-${name}`].on("change", updateAll);
+            }
+
+            wrap.appendChild(tagContainer);
+            container.appendChild(wrap);
+
+            cb.addEventListener("change", () => {
+              tagContainer.classList.toggle("hidden", !cb.checked);
+              updateAll();
+            });
+          });
+        } catch (e) {
+          console.error(e);
+          showError("Failed to load media options");
+        }
+      });
+    </script>
+  </body>
+</html>
