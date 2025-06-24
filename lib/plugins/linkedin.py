@@ -2,6 +2,7 @@ import os
 import re
 import textwrap
 import traceback
+from string import Template
 from urllib.parse import quote
 
 import requests
@@ -76,9 +77,9 @@ class linkedin_client:
         protected_mentions = {}
 
         def protect(match):
-            key = f"«M{len(protected_mentions)}»"
+            key = f"M{len(protected_mentions)}"
             protected_mentions[key] = match.group(0)
-            return key
+            return f"${key}"
 
         content = re.sub(r"@\[[^\]]+\]\(urn:li:organization:\d+\)", protect, content)
         return content, protected_mentions
@@ -100,8 +101,7 @@ class linkedin_client:
             paragraphs[i] = strip_markdown_formatting(p)
         content = "\n\n\n".join(paragraphs)
 
-        for key, value in protected_mentions.items():
-            content = content.replace(key, value)
+        content = Template(content).safe_substitute(protected_mentions)
 
         content += "\n"
         if mentions:
@@ -127,27 +127,8 @@ class linkedin_client:
             content, protected_mentions = self.protect_mentions(content)
             # This is needed to escape special characters in the content
             # https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/little-text-format?view=li-lms-2024-08#text
-            for char in [
-                "\\",
-                "|",
-                "{",
-                "}",
-                "@",
-                "[",
-                "]",
-                "(",
-                ")",
-                "<",
-                ">",
-                "#",
-                "*",
-                "_",
-                "~",
-            ]:
-                content = content.replace(char, f"\\{char}")
-
-            for key, value in protected_mentions.items():
-                content = content.replace(key, value)
+            content = content.translate({ord(c): f"\\{c}" for c in "\\|{}@[]()<>#*_~"})
+            content = Template(content).safe_substitute(protected_mentions)
 
             data = {
                 "author": self.organization_urn,
