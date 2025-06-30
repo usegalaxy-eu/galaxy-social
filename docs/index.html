@@ -515,7 +515,7 @@
                 format = "username:server (e.g. bgruening:matrix.org)";
                 validator = (tag) => /^[^@:\s]+:[^@:\s]+$/.test(tag.value);
                 } else if (name.includes("linkedin")) {
-                  format = "vanityName (e.g. galaxy-project)";
+                  format = "the part after /in/ in the organization’s LinkedIn URL (e.g. galaxy-project)";
               }
 
               if (format) {
