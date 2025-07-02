@@ -1,16 +1,6 @@
 ---
 media:
 - matrix-eu-announce
-- mastodon-eu-freiburg
-mentions:
-  mastodon-eu-freiburg:
-  - galaxyproject@mstdn.science
-hashtags:
-  mastodon-eu-freiburg:
-  - UseGalaxy
-  - GalaxyProject
-  - EOSC
-  - UniFreiburg
 ---
 New panel allocated for interactive tools on Galaxy
 https://galaxyproject.org/news/2025-06-25-it-icons/
