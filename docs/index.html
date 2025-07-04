@@ -30,6 +30,12 @@
         color: black;
         overflow-wrap: break-word;
       }
+      
+      :root.dark .editor-preview,
+      :root.dark .editor-preview-side {
+        background: #374151;
+        color: #f9fafb;
+      }
       .editor-preview h1,
       .editor-preview-side h1 {
         font-size: 2em;
@@ -88,12 +94,25 @@
         color: #555;
         font-style: italic;
       }
+      
+      :root.dark .editor-preview blockquote,
+      :root.dark .editor-preview-side blockquote {
+        border-left: 4px solid #6b7280;
+        color: #9ca3af;
+      }
+      
       .editor-preview code,
       .editor-preview-side code {
         background-color: #f3f4f6;
         padding: 0.2em 0.4em;
         border-radius: 4px;
         font-family: monospace;
+      }
+      
+      :root.dark .editor-preview code,
+      :root.dark .editor-preview-side code {
+        background-color: #4b5563;
+        color: #e5e7eb;
       }
       .editor-preview a,
       .editor-preview-side a {
@@ -119,17 +138,54 @@
     </style>
   </head>
 
-  <body class="bg-gray-100 text-gray-900">
+  <body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
     <div
-      class="max-w-3xl mx-auto p-6 bg-white shadow-xl mt-10 mb-10 rounded-xl"
+      class="max-w-3xl mx-auto p-6 bg-white shadow-xl mt-10 mb-10 rounded-xl dark:bg-gray-800 dark:shadow-2xl"
     >
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">Galaxy Social Post Creator</h1>
-        <a
-          href="https://github.com/usegalaxy-eu/galaxy-social"
-          target="_blank"
-          class="text-blue-600 hover:underline flex items-center space-x-1"
-        >
+        <div class="flex items-center space-x-4">
+          <button
+            id="theme-toggle"
+            class="p-2 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+            title="Toggle dark/light mode"
+          >
+            <svg
+              id="sun-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+            <svg
+              id="moon-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 hidden"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+              />
+            </svg>
+          </button>
+          <a
+            href="https://github.com/usegalaxy-eu/galaxy-social"
+            target="_blank"
+            class="text-blue-600 hover:underline flex items-center space-x-1 dark:text-blue-400"
+          >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="h-5 w-5 inline"
@@ -142,9 +198,10 @@
           </svg>
           <span>GitHub</span>
         </a>
+        </div>
       </div>
       <div
-        class="bg-blue-50 border border-blue-200 text-blue-900 text-sm rounded p-4 mb-4 flex items-start space-x-2"
+        class="bg-blue-50 border border-blue-200 text-blue-900 text-sm rounded p-4 mb-4 flex items-start space-x-2 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-200"
       >
         This is a simple interface for writing and submitting posts to the
         Galaxy Social media channels. Give your post a title, choose the media
@@ -160,7 +217,7 @@
           <input
             type="text"
             id="post-title"
-            class="w-full p-2 border rounded"
+            class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
           />
         </div>
         <div>
@@ -170,7 +227,7 @@
         <div>
           <label class="block font-medium">Content</label>
           <textarea id="post-content"></textarea>
-          <p class="text-sm text-gray-600 mt-2">
+          <p class="text-sm text-gray-600 mt-2 dark:text-gray-400">
             ⚠️ <strong>Note:</strong> Most
             <strong>Markdown formatting</strong> is
             <strong>not supported</strong> on <strong>Bluesky</strong>,
@@ -186,20 +243,20 @@
             and insert it in your post automatically.
           </p>
         </div>
-        <div id="warnings" class="p-4 rounded bg-yellow-100 hidden"></div>
+        <div id="warnings" class="p-4 rounded bg-yellow-100 hidden dark:bg-yellow-900/20 dark:text-yellow-200"></div>
       </div>
       <div id="output-container" class="mt-8 hidden">
         <h2 id="output-heading" class="text-xl font-semibold mb-2"></h2>
         <pre
           id="output"
-          class="bg-gray-100 p-4 rounded overflow-auto whitespace-pre-wrap"
+          class="bg-gray-100 p-4 rounded overflow-auto whitespace-pre-wrap dark:bg-gray-700 dark:text-gray-100"
           style="max-height: 300px"
         ></pre>
         <div class="mt-4 flex space-x-2">
           <a
             id="pr-button"
             target="_blank"
-            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 hidden flex items-center space-x-2"
+            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 hidden flex items-center space-x-2 dark:bg-green-700 dark:hover:bg-green-600"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -214,7 +271,7 @@
             <span>Continue on GitHub</span>
           </a>
         </div>
-        <p class="text-sm text-gray-500 mt-2 italic">
+        <p class="text-sm text-gray-500 mt-2 italic dark:text-gray-400">
           Note: Clicking the button will open GitHub in a new tab with your post
           draft. No changes are committed automatically. you’ll need to review
           and submit the post from github as next step.
@@ -226,6 +283,46 @@
       style="position: absolute; z-index: 1000; display: none"
     ></emoji-picker>
     <script>
+      // Theme management
+      function initTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (systemDark ? 'dark' : 'light');
+        setTheme(theme);
+      }
+      
+      function setTheme(theme) {
+        const root = document.documentElement;
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+        
+        if (theme === 'dark') {
+          root.classList.add('dark');
+          sunIcon.classList.add('hidden');
+          moonIcon.classList.remove('hidden');
+        } else {
+          root.classList.remove('dark');
+          sunIcon.classList.remove('hidden');
+          moonIcon.classList.add('hidden');
+        }
+        
+        localStorage.setItem('theme', theme);
+      }
+      
+      function toggleTheme() {
+        const isDark = document.documentElement.classList.contains('dark');
+        setTheme(isDark ? 'light' : 'dark');
+      }
+      
+      // Initialize theme on page load
+      initTheme();
+      
+      // Add event listener for theme toggle
+      document.addEventListener('DOMContentLoaded', () => {
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('click', toggleTheme);
+      });
+
       let easyMDE;
       const tagInstances = {};
       const pluginMax = {};
@@ -495,12 +592,12 @@
               const mIn = document.createElement("input");
               mIn.id = `mention-${name}`;
               mIn.placeholder = "Mentions";
-              mIn.className = "w-full p-2 border rounded";
+              mIn.className = "w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100";
               tagContainer.appendChild(mIn);
 
               const mentionHint = document.createElement("div");
               mentionHint.className =
-                "text-xs text-gray-500 italic transition-all duration-300";
+                "text-xs text-gray-500 italic transition-all duration-300 dark:text-gray-400";
 
               let format = null;
               let validator = null;
@@ -555,11 +652,11 @@
               const hIn = document.createElement("input");
               hIn.id = `hashtag-${name}`;
               hIn.placeholder = "Hashtags";
-              hIn.className = "w-full p-2 border rounded";
+              hIn.className = "w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100";
               tagContainer.appendChild(hIn);
 
               const hashtagHint = document.createElement("div");
-              hashtagHint.className = "text-xs text-gray-500 italic";
+              hashtagHint.className = "text-xs text-gray-500 italic dark:text-gray-400";
               hashtagHint.textContent = "Hashtags are added without # symbol.";
               tagContainer.appendChild(hashtagHint);
 
