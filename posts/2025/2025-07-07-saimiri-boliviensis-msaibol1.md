@@ -31,10 +31,10 @@ hashtags:
 ![Luis Stevens via iNaturalist](https://inaturalist-open-data.s3.amazonaws.com/photos/185448797/large.jpg)
 
 
-🐒 We are thrilled to announce the completion of an annotated reference assembly for the Bolivian squirrel monkey, Saimiri boliviensis! Congratulations to our collaborators at the Allen Institute for Brain Science 🧠 and special thanks to the sample providers at the Keeling Center for Comparative Medicine and Research at The University of Texas MD Anderson Cancer Center!
+🐒 We are thrilled to announce the completion of an annotated reference assembly for the Bolivian squirrel monkey, Saimiri boliviensis! The genome was sequenced and assembled at the Rockefeller University Vertebrate Genome Lab, with assembly done on Galaxy, and annotation by NCBI 🧬
 
 
-🧬 The genome was sequenced and assembled at the Rockefeller University Vertebrate Genome Lab, with assembly done on Galaxy, and annotation by NCBI.
+🧠 Congratulations to our collaborators at the Allen Institute for Brain Science and special thanks to the sample providers at the Keeling Center for Comparative Medicine and Research at The University of Texas MD Anderson Cancer Center!
 
 
 Data available on NCBI's RefSeq: 
