@@ -10,30 +10,30 @@ media:
 hashtags:
   mastodon-brc:
   - UseGalaxy
-  - BC-BRC
+  - BCBRC
 
   linkedin-brc:
   - UseGalaxy
-  - BV-BRC
+  - BVBRC
 
   bluesky-brc:
   - UseGalaxy
-  - BV-BRC
+  - BVBRC
 
   linkedin-galaxyproject:
   - BRCAnalytics
   - UseGalaxy
-  - BV-BRC
+  - BVBRC
 
   bluesky-galaxyproject:
   - BRCAnalytics
   - UseGalaxy
-  - BV-BRC
+  - BVBRC
 
   mastodon-galaxyproject:
   - BRCAnalytics
   - UseGalaxy
-  - BV-BRC
+  - BVBRC
 ---
 ![BRC Measles infographic](https://galaxyproject.org/events/2025-08-05-brc-measles-webinar/1752585196937.png)
 
