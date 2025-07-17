@@ -10,7 +10,7 @@ media:
 hashtags:
   mastodon-brc:
   - UseGalaxy
-  - BCBRC
+  - BVBRC
 
   linkedin-brc:
   - UseGalaxy
