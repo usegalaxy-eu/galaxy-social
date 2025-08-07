@@ -25,10 +25,6 @@ hashtags:
 ---
 ![from David Cook Wildlife Photography via iNaturalist (CC BY-NC)](https://inaturalist-open-data.s3.amazonaws.com/photos/5220/medium.jpg)
 
-
-![from Tomaz Nascimento de Melo via iNaturalist (CC BY-NC-ND)](https://inaturalist-open-data.s3.amazonaws.com/photos/112402858/medium.jpeg)
-
-
 ![from Ben Zerante via iNaturalist (CC BY-NC-ND)](https://inaturalist-open-data.s3.amazonaws.com/photos/60989651/large.jpeg)
 
 
@@ -39,5 +35,4 @@ hashtags:
 
 
 📷️ (1) David Cook Wildlife Photography (https://www.inaturalist.org/photos/5220)
-(2) Tomaz Nascimento de Melo (https://www.inaturalist.org/photos/112402858)
-(3) Ben Zerante (https://www.inaturalist.org/observations/38379920)
+(2) Ben Zerante (https://www.inaturalist.org/observations/38379920)
