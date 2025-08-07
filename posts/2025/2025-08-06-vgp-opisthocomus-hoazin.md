@@ -23,13 +23,13 @@ hashtags:
  mastodon-vgp:
   - UseGalaxy
 ---
-[from David Cook Wildlife Photography via iNaturalist - CC BY-NC](https://inaturalist-open-data.s3.amazonaws.com/photos/5220/medium.jpg)
+![from David Cook Wildlife Photography via iNaturalist (CC BY-NC)](https://inaturalist-open-data.s3.amazonaws.com/photos/5220/medium.jpg)
 
 
-[from Tomaz Nascimento de Melo via iNaturalist - CC BY-NC-ND](https://inaturalist-open-data.s3.amazonaws.com/photos/112402858/medium.jpeg)
+![from Tomaz Nascimento de Melo via iNaturalist (CC BY-NC-ND)](https://inaturalist-open-data.s3.amazonaws.com/photos/112402858/medium.jpeg)
 
 
-[from Ben Zerante via iNaturalist - CC BY-NC-ND](https://inaturalist-open-data.s3.amazonaws.com/photos/60989651/large.jpeg)
+![from Ben Zerante via iNaturalist (CC BY-NC-ND)](https://inaturalist-open-data.s3.amazonaws.com/photos/60989651/large.jpeg)
 
 
 🪽 We are excited to announce an annotated genome assembly for the hoatzin (Opisthocomus hoazin), found in swamps, riparian forests, and mangroves of the Amazon and the Orinoco basins in South America. Special thanks to our collaborator Andrew Crawford!
