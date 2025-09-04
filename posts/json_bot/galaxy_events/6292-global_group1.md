@@ -1,0 +1,17 @@
+---
+media:
+- linkedin-galaxyproject
+hashtags:
+  linkedin-galaxyproject:
+  - UseGalaxy
+  - GalaxyProject
+  - EOSC
+  - EuroScienceGateway
+---
+📣 Galaxy: The Open Source Platform as an entry point to Digital Humanities and Research Data Management
+
+Are you new to digital history? Do you want to learn ways to analyse your sources with digital tools from your browser without any programming skills? Do you want to get an idea of research data management? Register for our course at the Historikertag 2025 in Bonn to find out more
+
+📍 Bonn, Germany
+📅 17 September 2025
+🔗 More info & registration: https://digigw.hypotheses.org/6292
