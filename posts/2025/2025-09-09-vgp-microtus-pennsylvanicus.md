@@ -31,7 +31,10 @@ hashtags:
 ![A photo of a meadow vole chewing on a twig, taken by Liam Ragan (iNaturalist)](https://inaturalist-open-data.s3.amazonaws.com/photos/31643139/original.jpg)
 
 
-🐭 Thanks to the RefSeq team at NCBI, we now have an annotated genome assembly for the meadow vole (Microtus pennsylvanicus), found throughout eastern North America! Lauren O'Connell and her colleagues at the Stanford Laboratory of Organismal Biology will be using the genome to help answer fundamental questions in neuroscience and physiology. 🧠
+🐭 Thanks to the RefSeq team at NCBI, we now have an annotated genome assembly for the meadow vole (Microtus pennsylvanicus), found throughout eastern North America! 
+
+
+🧠 Lauren O'Connell and her colleagues at the Stanford Laboratory of Organismal Biology will be using the genome to help answer fundamental questions in neuroscience and physiology.
 
 
 🧬 The genome was sequenced and assembled at the Vertebrate Genome Lab, with assembly done on Galaxy, and annotation done by NCBI. Data available on NCBI's RefSeq: https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_037038515.1/
