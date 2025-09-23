@@ -19,15 +19,12 @@ hashtags:
 
   linkedin-galaxyproject:
   - BRCAnalytics
-  - UseGalaxy
 
   bluesky-galaxyproject:
   - BRCAnalytics
-  - UseGalaxy
 
   mastodon-galaxyproject:
   - BRCAnalytics
-  - UseGalaxy
 ---
 ![BRC AI codeathon infographic](https://galaxyproject.org/images/BRC-NIAID-AI-Codeathon.png)
 
