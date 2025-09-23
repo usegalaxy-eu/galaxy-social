@@ -30,4 +30,4 @@ hashtags:
 
 Join us for a three-day hands-on AI Codeathon uniting experts to tackle critical challenges in infectious disease research using artificial intelligence (AI) and large language models (LLMs), sponsored by the NIAID BRCs.
 
-[Register here](https://www.bv-brc.org/brc-niaid-ai-codeathon-2025)
+[Register](https://www.bv-brc.org/brc-niaid-ai-codeathon-2025)
