@@ -2,6 +2,11 @@
 media:
   - bluesky-brc
   - bluesky-galaxyproject
+mentions:
+  bluesky-galaxyproject:
+  - bvbrc.bsky.social
+  bluesky-brc:
+  - bvbrc.bsky.social
 ---
 ![BRC webinar infographic](https://galaxyproject.org/images/brc_webinar_banner.png)
 
