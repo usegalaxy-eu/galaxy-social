@@ -8,15 +8,21 @@ media:
 hashtags:
   mastodon-brc:
   - UseGalaxy
-
+  - BVBRC
+  - PDN
   linkedin-brc:
   - UseGalaxy
-
   linkedin-galaxyproject:
   - BRCAnalytics
-
   mastodon-galaxyproject:
   - BRCAnalytics
+  - BVBRC
+  - PDN
+mentions:
+  linkedin-galaxyproject:
+  - bv-brc
+  linkedin-brc
+  - bv-brc
 ---
 ![BRC webinar infographic](https://galaxyproject.org/images/brc_webinar_banner.png)
 
