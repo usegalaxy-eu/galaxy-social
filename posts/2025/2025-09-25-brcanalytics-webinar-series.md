@@ -21,7 +21,7 @@ hashtags:
 mentions:
   linkedin-galaxyproject:
   - bv-brc
-  linkedin-brc
+  linkedin-brc:
   - bv-brc
 ---
 ![BRC webinar infographic](https://galaxyproject.org/images/brc_webinar_banner.png)
