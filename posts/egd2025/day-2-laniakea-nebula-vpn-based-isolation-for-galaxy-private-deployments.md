@@ -1,0 +1,43 @@
+---
+media:
+- bluesky-galaxyproject
+- linkedin-galaxyproject
+- mastodon-galaxyproject
+- matrix-eu-announce
+hashtags:
+  bluesky-galaxyproject:
+  - deployment
+  - EGD2025
+  - vpn \isolation
+  - laniakeanebula
+  - galaxyproject
+  - eosc
+  - fair
+  - open_science
+  linkedin-galaxyproject:
+  - deployment
+  - EGD2025
+  - vpn \isolation
+  - laniakeanebula
+  - galaxyproject
+  - eosc
+  - fair
+  - open_science
+  mastodon-galaxyproject:
+  - deployment
+  - EGD2025
+  - vpn \isolation
+  - laniakeanebula
+  - galaxyproject
+  - eosc
+  - fair
+  - open_science
+mentions:
+  mastodon-galaxyproject:
+  - galaxyfreiburg@xn--baw-joa.social
+---
+
+On Day 2 of European Galaxy Days, Marco Antonio Tangaro presented Laniakea Nebula: VPN-Based Isolation for Galaxy Private Deployments.
+Read more: https://galaxyproject.org/use/laniakea/
+
+![Laniakea Nebula: VPN-Based Isolation for Galaxy Private Deployments](IMAGE_URL_HERE)
