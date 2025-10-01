@@ -39,4 +39,4 @@ mentions:
 
 On Day 1 of European Galaxy Days, John Chilton presented Building More Usable Galaxy Workflows with Improved Dataset Collections.
 
-![Building More Usable Galaxy Workflows with Improved Dataset Collections](IMAGE_URL_HERE)
+![Building More Usable Galaxy Workflows with Improved Dataset Collections](https://github.com/user-attachments/assets/b7c271e2-3aff-45d4-8535-c3eb3037699b)
