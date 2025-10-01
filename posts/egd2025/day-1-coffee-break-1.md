@@ -34,7 +34,7 @@ mentions:
   - galaxyfreiburg@xn--baw-joa.social
 ---
 
-Day 1 of European Galaxy Days, participants at the Morning Coffee Break.
+Day 1 of European Galaxy Days, participants at the Morning Coffee Break. The European Galaxy Days is not just about interesting talks. We have breaks full of interesting exchange of ideas.
 
 ![coffee-break-1](https://github.com/user-attachments/assets/76b509ca-22fc-4dc8-986d-009a875b765f)
 ![coffee-break-2](https://github.com/user-attachments/assets/79f01d45-0a39-487a-81c8-ecec93512d29)
