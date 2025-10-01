@@ -37,4 +37,4 @@ On Day 1 of European Galaxy Days, Paul De Geest presented Dynamic meta-schedulin
 Read more: https://github.com/usegalaxy-eu/tpv-broker
 https://zenodo.org/records/14936846
 
-![Dynamic meta-scheduling in Galaxy with TPV Broker for smarter workload distribution](IMAGE_URL_HERE)
+![Dynamic meta-scheduling in Galaxy with TPV Broker for smarter workload distribution](https://github.com/user-attachments/assets/5cf1417c-95d1-49ad-bd04-d28db5b9d994)
