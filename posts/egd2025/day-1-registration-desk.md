@@ -34,6 +34,6 @@ mentions:
   - galaxyfreiburg@xn--baw-joa.social
 ---
 
-Day 1 of European Galaxy Days, The Registration Desk.
+Day 1 of European Galaxy Days, The Registration Desk opened around 8:30. In addition to the name tags, participants are offered to pick various stickers and leaflets from various Galaxy communities.
 
 ![The Registration Desk](https://github.com/user-attachments/assets/31d7a1de-0123-4c06-a098-2c431f3ad250)
