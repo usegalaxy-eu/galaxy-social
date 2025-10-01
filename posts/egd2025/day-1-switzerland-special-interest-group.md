@@ -37,4 +37,4 @@ mentions:
 On Day 1 of European Galaxy Days, Hans-Rudolf Hotz presented Switzerland (Special Interest Group).
 Read more: https://galaxyproject.org/community/sig/switzerland/
 
-![Switzerland (Special Interest Group)](IMAGE_URL_HERE)
+![Switzerland (Special Interest Group)](https://github.com/user-attachments/assets/e0c3b60b-0cb7-45cb-8650-9f16c1a5de64)
