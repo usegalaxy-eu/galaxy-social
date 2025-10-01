@@ -40,4 +40,4 @@ mentions:
 On Day 1 of European Galaxy Days, Bérénice Batut presented The Microbiology Galaxy Lab and the effort from the microGalaxy to build the first community-driven gateway for reproducible and FAIR analysis of microbial data.
 Read more: https://doi.org/10.1101/2024.12.23.629682
 
-![The Microbiology Galaxy Lab and the effort from the microGalaxy to build the first community-driven gateway for reproducible and FAIR analysis of microbial data](IMAGE_URL_HERE)
+![The Microbiology Galaxy Lab and the effort from the microGalaxy to build the first community-driven gateway for reproducible and FAIR analysis of microbial data](https://github.com/user-attachments/assets/91daf464-3ca0-4de4-8d5e-56aa57604776)
