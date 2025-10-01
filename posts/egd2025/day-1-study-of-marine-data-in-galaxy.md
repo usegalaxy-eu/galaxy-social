@@ -36,4 +36,4 @@ mentions:
 
 On Day 1 of European Galaxy Days, Jérôme Detoc presented Study of marine data in Galaxy.
 
-![Study of marine data in Galaxy](IMAGE_URL_HERE)
+![Study of marine data in Galaxy](https://github.com/user-attachments/assets/e923e81e-a5e9-4cd1-baee-5d2dbd3c1078)
