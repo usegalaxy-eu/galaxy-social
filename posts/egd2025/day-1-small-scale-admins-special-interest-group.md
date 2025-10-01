@@ -27,6 +27,8 @@ mentions:
   mastodon-galaxyproject:
   - hrhotz@genomic.social
   - galaxyfreiburg@xn--baw-joa.social
+  bluesky-galaxyproject:
+  - hrhotz.bsky.social
 ---
 
 On Day 1 of European Galaxy Days, Hans-Rudolf Hotz presented Small Scale Admins (Special Interest Group).
