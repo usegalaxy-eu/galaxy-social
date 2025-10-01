@@ -34,4 +34,4 @@ mentions:
 On Day 1 of European Galaxy Days, Marisa Loach presented Special Interest Groups and Working Groups: the Galaxy Governance Model.
 Read more: https://galaxyproject.org/community/sig/
 
-![Special Interest Groups and Working Groups: the Galaxy Governance Model](IMAGE_URL_HERE)
+![Special Interest Groups and Working Groups: the Galaxy Governance Model](https://github.com/user-attachments/assets/4b792241-c7cd-4f5e-b5c6-980b1c3fe021)
