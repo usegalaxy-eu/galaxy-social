@@ -31,7 +31,7 @@ mentions:
   - hrhotz@genomic.social
   - galaxyfreiburg@xn--baw-joa.social
   bluesky-galaxyproject:
-  - hhrhotz.bsky.social
+  - hrhotz.bsky.social
 ---
 
 On Day 1 of European Galaxy Days, Hans-Rudolf Hotz presented Switzerland (Special Interest Group).
