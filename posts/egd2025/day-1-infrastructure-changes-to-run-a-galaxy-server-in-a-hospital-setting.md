@@ -43,6 +43,6 @@ mentions:
   - galaxyfreiburg@xn--baw-joa.social
 ---
 
-On Day 1 of European Galaxy Days, Giuseppe Profiti presented Infrastructure changes to run a Galaxy server in a hospital setting.
+Giuseppe Profiti presented "Infrastructure changes to run a Galaxy server in a hospital setting" on Day 1 of European Galaxy Days.
 
 ![Infrastructure changes to run a Galaxy server in a hospital setting](https://github.com/user-attachments/assets/97bb3c5e-d696-4189-b06b-2c6c6c95b074)
