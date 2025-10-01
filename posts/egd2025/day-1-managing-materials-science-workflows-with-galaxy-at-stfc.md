@@ -37,4 +37,4 @@ mentions:
 On Day 1 of European Galaxy Days, Leandro Liborio presented Managing materials science workflows with Galaxy at STFC.
 Read more: https://www.sc.stfc.ac.uk/platforms-and-services/materials-galaxy/
 
-![Managing materials science workflows with Galaxy at STFC](https://github.com/user-attachments/assets/26cff7c8-b551-4eb7-9c49-db0cca5fb257)
+![Managing materials science workflows with Galaxy at STFC](https://github.com/user-attachments/assets/7fb3c4c0-626c-462f-8de7-66b45cdf9c25)
