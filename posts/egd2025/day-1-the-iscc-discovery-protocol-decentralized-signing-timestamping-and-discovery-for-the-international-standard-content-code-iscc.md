@@ -43,4 +43,4 @@ mentions:
 On Day 1 of European Galaxy Days, Titusz Pan presented The ISCC Discovery Protocol: Decentralized signing, timestamping, and discovery for the International Standard Content Code (ISCC).
 Read more: https://iscc.foundation/
 
-![The ISCC Discovery Protocol: Decentralized signing, timestamping, and discovery for the International Standard Content Code (ISCC)](IMAGE_URL_HERE)
+![The ISCC Discovery Protocol: Decentralized signing, timestamping, and discovery for the International Standard Content Code (ISCC)](https://github.com/user-attachments/assets/09e6b79d-3e78-4ff7-b455-0e191b435d71)
