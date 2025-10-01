@@ -35,7 +35,7 @@ mentions:
   - hhrhotz.bsky.social
 ---
 
-On Day 1 of European Galaxy Days, Hans-Rudolf Hotz and Björn Grüning presented Welcome, Logistics & General Galaxy and ELIXIR Update.
+On Day 1 of European Galaxy Days, Hans-Rudolf Hotz and Mihail Anton presented Welcome, Logistics & General Galaxy and ELIXIR Update.
 Read more: https://galaxyproject.org/
 
 ![Welcome, Logistics & General Galaxy and ELIXIR Update](https://github.com/user-attachments/assets/7f430ac7-eb85-425a-993d-3de0adec9537)
