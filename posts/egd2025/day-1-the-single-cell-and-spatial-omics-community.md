@@ -45,4 +45,4 @@ mentions:
 On Day 1 of European Galaxy Days, Marisa Loach presented The Single Cell and Spatial Omics Community.
 Read more: https://galaxyproject.org/community/sig/singlecell/
 
-![The Single Cell and Spatial Omics Community](IMAGE_URL_HERE)
+![The Single Cell and Spatial Omics Community](https://github.com/user-attachments/assets/9016c8b6-f49b-40bf-a9f8-53da3f00f524)
