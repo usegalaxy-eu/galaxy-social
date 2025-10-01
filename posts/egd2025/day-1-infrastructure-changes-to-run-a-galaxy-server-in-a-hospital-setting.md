@@ -45,4 +45,5 @@ mentions:
 
 Giuseppe Profiti presented "Infrastructure changes to run a Galaxy server in a hospital setting" on Day 1 of European Galaxy Days.
 
-![Infrastructure changes to run a Galaxy server in a hospital setting](https://github.com/user-attachments/assets/28d97ecc-e565-447d-a259-f9a86b5cf7f0)
+![Infrastructure changes to run a Galaxy server in a hospital setting](https://github.com/user-attachments/assets/29230b49-ba04-4ea5-a2a8-16ea9e1153b8)
+
