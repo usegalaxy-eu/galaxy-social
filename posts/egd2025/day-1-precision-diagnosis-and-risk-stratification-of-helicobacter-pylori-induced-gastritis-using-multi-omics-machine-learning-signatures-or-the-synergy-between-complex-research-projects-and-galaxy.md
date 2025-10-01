@@ -36,4 +36,4 @@ hashtags:
 
 On Day 1 of European Galaxy Days, Paul Zierep presented Precision Diagnosis and Risk Stratification of Helicobacter pylori-Induced Gastritis Using Multi-Omics Machine Learning Signatures Or The Synergy Between Complex Research Projects and Galaxy.
 
-![Precision Diagnosis and Risk Stratification of Helicobacter pylori-Induced Gastritis Using Multi-Omics Machine Learning Signatures Or The Synergy Between Complex Research Projects and Galaxy](IMAGE_URL_HERE)
+![Precision Diagnosis and Risk Stratification of Helicobacter pylori-Induced Gastritis Using Multi-Omics Machine Learning Signatures Or The Synergy Between Complex Research Projects and Galaxy](https://github.com/user-attachments/assets/4584e482-81c1-47f2-a29f-ff9beee7ed8d)
