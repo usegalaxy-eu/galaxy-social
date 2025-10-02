@@ -34,4 +34,4 @@ mentions:
 On Day 2 of European Galaxy Days, Jérôme Detoc presented 'Galaxy Earth-System'.
 Read more: https://earth-system.usegalaxy.eu/
 
-![Galaxy Earth-System](IMAGE_URL_HERE)
+![Galaxy Earth-System](https://github.com/user-attachments/assets/2927bf82-ba66-487b-ad92-7c67e380fc69)
