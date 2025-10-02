@@ -34,6 +34,6 @@ mentions:
   - galaxyfreiburg@xn--baw-joa.social
 ---
 
-On Day 2 of European Galaxy Days, Nikolay Vazov presented A 'trivial' task : how to access my files and projects on the HPC filesystem from galaxy?.
+Nikolay Vazov presented 'A 'trivial' task: how to access my files and projects on the HPC filesystem from Galaxy?' on Day 2 of European Galaxy Days.
 
-![A 'trivial' task : how to access my files and projects on the HPC filesystem from galaxy?](https://github.com/user-attachments/assets/12d08f73-e042-499f-8cab-c79227a4599f)
+![A 'trivial' task: how to access my files and projects on the HPC filesystem from galaxy?](https://github.com/user-attachments/assets/12d08f73-e042-499f-8cab-c79227a4599f)
