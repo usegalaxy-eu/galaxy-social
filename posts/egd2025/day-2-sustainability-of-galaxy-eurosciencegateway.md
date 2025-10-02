@@ -40,4 +40,4 @@ mentions:
 On Day 2 of European Galaxy Days, Jain Smitesh presented Sustainability of Galaxy (EuroScienceGateway).
 Read more: https://doi.org/10.5281/zenodo.16030329
 
-![Sustainability of Galaxy (EuroScienceGateway)](IMAGE_URL_HERE)
+![Sustainability of Galaxy (EuroScienceGateway)](https://github.com/user-attachments/assets/0fb137ef-8d31-4905-9890-1b613d3bac45)
