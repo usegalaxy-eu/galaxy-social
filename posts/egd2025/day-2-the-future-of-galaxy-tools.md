@@ -37,4 +37,4 @@ mentions:
 On Day 2 of European Galaxy Days, Marius van den Beek presented The Future of Galaxy Tools.
 Read more: https://sci-scale.net/
 
-![The Future of Galaxy Tools](IMAGE_URL_HERE)
+![The Future of Galaxy Tools](https://github.com/user-attachments/assets/925b3dcb-848d-4d9a-a65b-d5ed76c776a7)
