@@ -39,4 +39,4 @@ mentions:
 
 On Day 2 of European Galaxy Days, Alireza Heidari presented Simple and Secure Credential Handling for Tools in Galaxy.
 
-![Simple and Secure Credential Handling for Tools in Galaxy](IMAGE_URL_HERE)
+![Simple and Secure Credential Handling for Tools in Galaxy](https://github.com/user-attachments/assets/8d71f9ce-940f-4051-b3c8-1dc9e3bf261c)
