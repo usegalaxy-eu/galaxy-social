@@ -1,0 +1,41 @@
+---
+media:
+- bluesky-galaxyproject
+- linkedin-galaxyproject
+- mastodon-galaxyproject
+- matrix-eu-announce
+hashtags:
+  bluesky-galaxyproject:
+  - EGD2025
+  - galaxyproject
+  - eosc
+  - fair
+  - elixir
+  - open_science
+  linkedin-galaxyproject:
+  - EGD2025
+  - galaxyproject
+  - eosc
+  - fair
+  - elixir
+  - open_science
+  mastodon-galaxyproject:
+  - EGD2025
+  - galaxyproject
+  - eosc
+  - fair
+  - elixir
+  - open_science
+mentions:
+  mastodon-galaxyproject:
+  - hrhotz@genomic.social
+  - bgruening@fosstodon.org
+  - galaxyfreiburg@xn--baw-joa.social
+  bluesky-galaxyproject:
+  - hhrhotz.bsky.social
+---
+
+On Day 1 of European Galaxy Days, Hans-Rudolf Hotz and Mihail Anton presented Welcome, Logistics & General Galaxy and ELIXIR Update.
+Read more: https://galaxyproject.org/events/2025-10-01-egd2025/#schedule
+
+![Welcome, Logistics & General Galaxy and ELIXIR Update](https://github.com/user-attachments/assets/6b03f676-53c8-4f3f-b0fa-5ff8a8840af8)
