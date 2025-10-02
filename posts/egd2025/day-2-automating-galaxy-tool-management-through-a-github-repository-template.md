@@ -40,4 +40,4 @@ mentions:
 
 On Day 2 of European Galaxy Days, Martin Cech presented Automating Galaxy Tool Management Through a GitHub Repository Template.
 
-![Automating Galaxy Tool Management Through a GitHub Repository Template](IMAGE_URL_HERE)
+![Automating Galaxy Tool Management Through a GitHub Repository Template](https://github.com/user-attachments/assets/21973470-0e12-4eba-b02f-d90f308e9db6)
