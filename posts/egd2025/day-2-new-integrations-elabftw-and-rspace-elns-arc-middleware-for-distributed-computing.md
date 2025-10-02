@@ -51,7 +51,7 @@ mentions:
   - nsoranzo.bsky.social
 ---
 
-On Day 2 of European Galaxy Days, José Manuel Domínguez presented New integrations: eLabFTW and RSpace ELNs, ARC middleware for distributed computing.
+On Day 2 of European Galaxy Days, José Manuel Domínguez presented 'New integrations: eLabFTW and RSpace ELNs, ARC middleware for distributed computing'.
 Read more: https://galaxyproject.org/news/2025-04-02-elabftw-integration/
 https://galaxyproject.org/news/2025-06-23-rspace-integration/
 
