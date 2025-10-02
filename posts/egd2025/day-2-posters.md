@@ -28,7 +28,7 @@ mentions:
   - galaxyfreiburg@xn--baw-joa.social
 ---
 
-Lively Day 2 poster session—buzzing debates and fresh Galaxy workflows to boost research FAIRness across disciplines.
+Lively Day 2 poster session started with buzzing debates and novel Galaxy usecases to boost research and teaching FAIRness across disciplines.
 
 ![poster-1](https://github.com/user-attachments/assets/67b8604e-2bfd-46b8-b688-71676b9b54e0)
 ![poster-2](https://github.com/user-attachments/assets/37c539b4-3e35-4e4f-bb21-18ab99c86ee3)
