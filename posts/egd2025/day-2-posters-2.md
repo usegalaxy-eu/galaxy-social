@@ -28,7 +28,7 @@ mentions:
   - galaxyfreiburg@xn--baw-joa.social
 ---
 
-Day 2 posters sparked sharp discussions and practical Galaxy ideas to make research more FAIR in different fields.
+Day 2 posters sparked discussions and practical Galaxy solutions to make research more FAIR in different fields.
 
 ![poster-1](https://github.com/user-attachments/assets/b6966bc8-38b5-48d2-b58f-438f4258b452)
 ![poster-2](https://github.com/user-attachments/assets/608d7925-6677-4219-ae75-ae34aae5349e)
