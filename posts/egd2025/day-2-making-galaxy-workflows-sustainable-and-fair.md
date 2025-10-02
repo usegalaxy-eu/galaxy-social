@@ -41,4 +41,4 @@ mentions:
 On Day 2 of European Galaxy Days, Nicola Soranzo presented Making Galaxy workflows sustainable and FAIR.
 Read more: https://www.earlham.ac.uk/research-project/elixir-uk
 
-![Making Galaxy workflows sustainable and FAIR](IMAGE_URL_HERE)
+![Making Galaxy workflows sustainable and FAIR](https://github.com/user-attachments/assets/0f0e40e3-3747-44c8-9906-ecbb8e625866)
