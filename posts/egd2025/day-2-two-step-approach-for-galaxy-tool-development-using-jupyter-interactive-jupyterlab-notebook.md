@@ -42,4 +42,4 @@ mentions:
 
 On Day 2 of European Galaxy Days, Arthur Barreau presented Two-Step Approach for Galaxy Tool Development Using Jupyter (“Interactive JupyterLab Notebook”).
 
-![Two-Step Approach for Galaxy Tool Development Using Jupyter (“Interactive JupyterLab Notebook”)](IMAGE_URL_HERE)
+![Two-Step Approach for Galaxy Tool Development Using Jupyter (“Interactive JupyterLab Notebook”)](https://github.com/user-attachments/assets/c7e53ba4-3338-4e24-9827-9aebb8a1eb7f)
