@@ -31,7 +31,7 @@ mentions:
   - galaxyfreiburg@xn--baw-joa.social
 ---
 
-On Day 2 of European Galaxy Days, Pauline Seguineau and Marie Jossé presented Galaxy Earth-System.
+On Day 2 of European Galaxy Days, Jérôme Detoc presented 'Galaxy Earth-System'.
 Read more: https://earth-system.usegalaxy.eu/
 
 ![Galaxy Earth-System](IMAGE_URL_HERE)
