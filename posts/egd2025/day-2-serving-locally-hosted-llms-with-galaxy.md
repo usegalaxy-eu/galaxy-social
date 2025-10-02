@@ -37,6 +37,6 @@ mentions:
   - galaxyfreiburg@xn--baw-joa.social
 ---
 
-On Day 2 of European Galaxy Days, Arash Kadkhodaei presented Serving locally hosted LLMs with Galaxy.
+On Day 2 of European Galaxy Days, Arash Kadkhodaei presented 'Serving locally hosted LLMs with Galaxy'.
 
 ![Serving locally hosted LLMs with Galaxy](https://github.com/user-attachments/assets/40154c84-4931-4518-947b-ad140054cd40)
