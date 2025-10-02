@@ -39,4 +39,4 @@ mentions:
 
 On Day 2 of European Galaxy Days, Arash Kadkhodaei presented Serving locally hosted LLMs with Galaxy.
 
-![Serving locally hosted LLMs with Galaxy](https://github.com/user-attachments/assets/2e8b9881-4405-4420-8360-6d2c570fd988)
+![Serving locally hosted LLMs with Galaxy](https://github.com/user-attachments/assets/40154c84-4931-4518-947b-ad140054cd40)
