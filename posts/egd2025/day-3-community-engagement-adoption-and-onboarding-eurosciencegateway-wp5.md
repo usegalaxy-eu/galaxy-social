@@ -43,7 +43,7 @@ mentions:
   - galaxyfreiburg@xn--baw-joa.social
 ---
 
-On Day 3 of European Galaxy Days, Nikolay Vazov presented Community engagement, adoption, and onboarding (EuroScienceGateway WP5).
+On Day 3 of European Galaxy Days, Nikolay Vazov, Volodymyr Savchenko	, Anthony Bretaudeau	, Leandro Liborio	 presented Community engagement, adoption, and onboarding (EuroScienceGateway WP5).
 Read more: https://galaxyproject.org/projects/esg/news/?tag=esg-wp5
 https://zenodo.org/records/16683440
 
