@@ -48,4 +48,4 @@ On Day 3 of European Galaxy Days, Björn Grüning, Anika Erxleben-Eggenhofer, an
 Read more: https://galaxyproject.org/projects/esg/news/?tag=esg-wp1
 https://zenodo.org/records/16909970
 
-![Project management, coordination, and dissemination (EuroScienceGateway WP1)](IMAGE_URL_HERE)
+![Project management, coordination, and dissemination (EuroScienceGateway WP1)](https://github.com/user-attachments/assets/dc2c157d-0726-4571-88c7-56047147503a)
