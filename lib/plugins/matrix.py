@@ -1,4 +1,6 @@
 import asyncio
+import mimetypes
+import os
 import tempfile
 import traceback
 
@@ -88,13 +90,20 @@ class matrix_client:
                 if not mime_type.startswith("image/"):
                     continue
 
+                filename = msg["filename"]
+                correct_ext = mimetypes.guess_extension(mime_type)
+                if correct_ext:
+                    base_name, ext = os.path.splitext(filename)
+                    if ext.lower() != correct_ext.lower():
+                        filename = f"{base_name}{correct_ext}"
+
                 width, height = Image.open(temp.name).size
                 file_stat = await aiofiles.os.stat(temp.name)
                 async with aiofiles.open(temp.name, "r+b") as f:
                     resp, _ = await self.client.upload(
                         f,
                         content_type=mime_type,
-                        filename=msg["filename"],
+                        filename=filename,
                         filesize=file_stat.st_size,
                     )
 
