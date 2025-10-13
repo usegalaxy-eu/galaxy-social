@@ -29,4 +29,5 @@ mentions:
 
 We are pleased to announce a new release of https://BRC-Analytics.org (v0.16.0). This release updates the number of included organisms to 1400+ and a nearly 2000 assemblies, as well as some significant improvements to searching ENA as well as the workflow config UI.
 
+
 Of course, if you have organisms/assemblies you'd like to see added, or have suggestions about funtionality, let us know!
