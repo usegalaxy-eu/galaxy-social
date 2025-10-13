@@ -2,6 +2,9 @@
 media:
 - matrix-eu-announce
 - mastodon-eu-freiburg
+- bluesky-galaxyproject
+- linkedin-galaxyproject
+- mastodon-galaxyproject
 mentions:
   mastodon-eu-freiburg:
   - galaxyproject@mstdn.science
