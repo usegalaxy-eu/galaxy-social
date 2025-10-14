@@ -34,3 +34,4 @@ hashtags:
   - open_science
 ---
 Teaching NGS to wet lab scientists got a whole lot easier once I discovered TIaaS and the Galaxy platform.
+https://galaxyproject.org/news/2025-05-05-empowering-wet-lab-scientists-with-ngs-analysis-skills-without-coding-barriers/
