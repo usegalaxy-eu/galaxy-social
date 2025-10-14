@@ -6,11 +6,38 @@ media:
  - matrix-eu-announce
 hashtags:
  bluesky-galaxyproject:
-  - rocrate
+  - OpenScience
+  - ReproducibleResearch
+  - GalaxyProject
+  - ROCrate
+  - WorkflowHub
+  - Bioinformatics
+  - FAIRData
+  - ResearchTools
+  - LifeSciences
+  - EuroScienceGateway
  mastodon-eu-freiburg:
-  - rocrate
+  - OpenScience
+  - ReproducibleResearch
+  - GalaxyProject
+  - ROCrate
+  - WorkflowHub
+  - Bioinformatics
+  - FAIRData
+  - ResearchTools
+  - LifeSciences
+  - EuroScienceGateway
  mastodon-galaxyproject:
-  - rocrate
+  - OpenScience
+  - ReproducibleResearch
+  - GalaxyProject
+  - ROCrate
+  - WorkflowHub
+  - Bioinformatics
+  - FAIRData
+  - ResearchTools
+  - LifeSciences
+  - EuroScienceGateway
 ---
 From the RO-Crate blog: RO-Crate and WorkflowHub at the European Galaxy Days 2025
 
