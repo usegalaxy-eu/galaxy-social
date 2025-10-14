@@ -4,7 +4,6 @@ media:
 - mastodon-eu-freiburg
 - bluesky-galaxyproject
 - linkedin-galaxyproject
-- mastodon-galaxyproject
 mentions:
   mastodon-eu-freiburg:
   - galaxyproject@mstdn.science
@@ -25,7 +24,7 @@ hashtags:
   - fair
   - eosc
   - open_science
-  mastodon-galaxyproject:
+  mastodon-eu-freiburg:
   - eurosciencegateway
   - galaxyproject
   - teaching
