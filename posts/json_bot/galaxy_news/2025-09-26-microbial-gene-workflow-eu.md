@@ -7,11 +7,15 @@ mentions:
   - galaxyproject@mstdn.science
 hashtags:
   mastodon-eu-freiburg:
-  - UseGalaxy
+  - Bioinformatics
+  - GenomeAnalysis
+  - MicrobialGenomics
+  - OpenScience
+  - ReproducibleResearch
   - GalaxyProject
-  - EOSC
-  - UniFreiburg
-  - EuroScienceGateway
+  - OpenSourceTools
+  - LifeSciences
+  - ResearchTools
 ---
-A new Galaxy workflow enables researchers to recover and analyze microbial genes from metagenomic data.
-https://galaxyproject.org/news/2025-09-26-microbial-gene-workflow/
+New workflow from the Galaxy Community!
+A reproducible workflow for microbial gene analysis (open, FAIR, and ready to explore). Explore the power of Galaxy for microbiome and genomics research: https://galaxyproject.org/news/2025-09-26-microbial-gene-workflow/
