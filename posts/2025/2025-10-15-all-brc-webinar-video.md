@@ -26,6 +26,7 @@ mentions:
   - bv-brc
   bluesky-galaxyproject:
   - bvbrc.bsky.social
+  - brcanalytics.bsky.social
   bluesky-brc:
   - bvbrc.bsky.social
 ---
