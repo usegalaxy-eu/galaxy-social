@@ -34,5 +34,5 @@ mentions:
 
 If you missed the inaugural all-BRC webinar last week, a video is available on YouTube: https://youtu.be/DtuD2YTCT30
 
-Presenters introduced the three BRCs: BV-BRC, PDN and BRC-Analytics in a tight 30 minutes.
+Presenters introduced the three BRCs (BV-BRC, PDN and BRC-Analytics) in a tight 30 minutes.
 
