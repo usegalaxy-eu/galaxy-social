@@ -3,9 +3,16 @@ media:
 - linkedin-galaxyproject
 hashtags:
   linkedin-galaxyproject:
-  - UseGalaxy
+  - Bioinformatics
+  - ToolDevelopment
   - GalaxyProject
-  - EOSC
+  - OpenScience
+  - ReproducibleResearch
+  - OpenSourceTools
+  - LifeSciences
+  - ResearchTools
 ---
-Know more about the recent Tool Development workshop organized at Freiburg Galaxy Team
-https://galaxyproject.org/news/2025-07-10-tool-dev-workshop/
+The Galaxy Tool Development Workshop kicked off a new series of events to strengthen our tool ecosystem!
+This inaugural session, held for the Galaxy EU team, focused on best practices, collaboration, and reproducible development.
+
+Catch the recap: https://galaxyproject.org/news/2025-07-10-tool-dev-workshop/
