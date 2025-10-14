@@ -11,6 +11,13 @@ hashtags:
   - OpenSourceTools
   - LifeSciences
   - ResearchTools
+  - workshop
+  - EuroScienceGateway
+  - vscode
+  - best_practice
+  - training
+  - tool
+  - developer
 ---
 The Galaxy Tool Development Workshop kicked off a new series of events to strengthen our tool ecosystem!
 This inaugural session, held for the Galaxy EU team, focused on best practices, collaboration, and reproducible development.
