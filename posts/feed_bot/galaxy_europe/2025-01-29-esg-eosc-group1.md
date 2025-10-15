@@ -32,5 +32,4 @@ This work demonstrated how researchers could easily launch their own Galaxy inst
 
 As 2025 continues to advance open science initiatives, this achievement deserves another look. Building sustainable, interoperable research platforms is a long game — and ESG’s contribution remains a key example of collaboration done right.
 
-Read the original news and watch the deployment demo here:
-🔗 [galaxyproject.org/news/2025-01-29-esg-eosc](https://galaxyproject.org/news/2025-01-29-esg-eosc/)
+🔗 [Read the original news and watch the deployment demo](https://galaxyproject.org/news/2025-01-29-esg-eosc/)
