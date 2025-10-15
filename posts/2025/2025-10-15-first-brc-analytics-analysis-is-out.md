@@ -27,6 +27,6 @@ hashtags:
   - galaxyproject
   - brc_analytics
 ---
-The first paper describing a complete complex analysis perofmed entirely in BRC-analytics (with videos!) is out: https://doi.org/10.1101/2025.10.13.682095
+Our first end-to-end complex analysis conducted entirely in BRC-Analytics—complete with step-by-step videos—is now out on bioRxiv: https://doi.org/10.1101/2025.10.13.682095
 
 ![](https://galaxyproject.org/assets/static/fig3.fdc407b.8c64653cb69802100cabc999a65403c2.png)
