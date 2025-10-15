@@ -9,6 +9,24 @@ hashtags:
   - UseGalaxy
   - GalaxyProject
   - EOSC
+  - SingleCell
+  - SpatialOmics
+  - Omics
+  - Transcriptomics
+  - Bioinformatics
+  - Genomics
+  - ComputationalBiology
+  - EuroScienceGateway
+  - OpenScience
+  - ReproducibleResearch
+  - GalaxyCommunity
+  - SPOC
+  - Training
+  - ScienceCommunity
+  - DataScience
+  - Science
+  - Collaboration
+  - SciComm
 ---
 The Galaxy single-cell and spatial omics community (SPOC) is thrilled to share the latest updates on tools, datasets, and collaborative initiatives driving open and reproducible single-cell and spatial omics research in 2025.
 https://galaxyproject.org/news/2025-10-14-spoc-cellgenomics/
