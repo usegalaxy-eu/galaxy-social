@@ -253,7 +253,7 @@ class bluesky_client:
         }
         preview = formatted_content["body"]
         images_preview = "\n".join(
-            [f'![{image.get("alt_text", "")}]({image["url"]})' for image in images]
+            [f"![{image.get('alt_text', '')}]({image['url']})" for image in images]
         )
         preview += "\n\n" + images_preview
         return formatted_content, preview, warnings
