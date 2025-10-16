@@ -7,6 +7,17 @@ hashtags:
   - GalaxyProject
   - EOSC
   - EuroScienceGateway
+  - OpenScience
+  - AquaINFRA
+  - EOSC
+  - FAIR
+  - data
+  - MarineResearch
+  - Interoperability
+  - DataScience
+  - marine
+  - ocean
 ---
-AquaINFRA project is going to use the Galaxy platform as the central component of their Virtual Research Environment (VRE).
-http://galaxyproject.org/news/2025-04-07-aquainfra-eosc-and-galaxy/
+Open Science dives deep!
+AquaINFRA integrates Galaxy into their ecosystem—empowering researchers to access, analyze, and share aquatic & marine data through FAIR workflows.
+https://galaxyproject.org/news/2025-04-07-aquainfra-eosc-and-galaxy/
