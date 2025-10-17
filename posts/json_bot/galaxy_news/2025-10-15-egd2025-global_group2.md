@@ -6,7 +6,21 @@ hashtags:
   - UseGalaxy
   - GalaxyProject
   - EOSC
+  - EGD2025
+  - Community
+  - ELIXIR
   - EuroScienceGateway
+  - Talks
+  - Workflow
+  - OpenScience
+  - FAIR
+  - Research
+  - Infrastructure
+  - Science
+  - Collaboration
+  - Hackathon
+  - Ecosystem
+  - ScienceCommunity
 ---
 1–3 Oct 2025, Freiburg: European Galaxy Days, ELIXIR Galaxy, and EuroScienceGateway members convened to align roadmaps and turn plans into solutions, tools, and workflows through talks, demos, and a CoFest.
 https://galaxyproject.org/news/2025-10-15-egd2025/
