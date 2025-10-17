@@ -6,6 +6,18 @@ hashtags:
   - UseGalaxy
   - GalaxyProject
   - EOSC
+  - Bioinformatics
+  - OpenScience
+  - OpenEducation
+  - Training
+  - Infrastructure
+  - EuroScienceGateway
+  - Scalable
+  - InfrastructureAsAService
+  - DataScience
+  - Education
+  - ScienceForAll
+  - LearningAtScale
 ---
-Back in September 2024, we ran the Open University Bioinformatics Bootcamp—a free, five-day online course introducing students to the core tools and techniques used in single-cell biology
+Bootcamp success story: see how The Open University trained 80+ learners with TIAAS behind the scenes.
 https://training.galaxyproject.org/training-material/news/2025/07/03/bb-tiaas.html
