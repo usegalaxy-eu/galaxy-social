@@ -130,6 +130,15 @@ class galaxy_social:
         images = image_pattern.findall(text)
         plain_content = re.sub(image_pattern, "", text).strip()
 
+        html_tag_pattern = re.compile(r"<[^>]+>", re.IGNORECASE)
+        html_tags = html_tag_pattern.findall(text)
+        if html_tags:
+            errors += (
+                "- Found HTML tag(s) in the content. HTML tags will not "
+                "render properly in social media posts. Please use "
+                "markdown formatting instead.\n"
+            )
+
         # convert github emoji to unicode
         plain_content = emoji.emojize(plain_content, language="alias")
 
