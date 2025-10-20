@@ -2,6 +2,7 @@ import os
 import re
 import textwrap
 import traceback
+from string import Template
 from urllib.parse import quote
 
 import requests
@@ -17,7 +18,7 @@ class linkedin_client:
         self.headers = {
             "Authorization": f"Bearer {self.access_token}",
             "X-Restli-Protocol-Version": "2.0.0",
-            "LinkedIn-Version": "202406",
+            "LinkedIn-Version": "202506",
         }
         self.max_content_length = kwargs.get("max_content_length", 3000)
 
@@ -51,6 +52,7 @@ class linkedin_client:
 
     def build_organization_mentions(self, mentions):
         output = []
+        warnings = ""
         for mention in mentions:
             vanity_name = mention.strip()
             urn = None
@@ -67,35 +69,39 @@ class linkedin_client:
                     mention = elements[0].get("localizedName")
             except Exception as e:
                 print(f"[WARN] Failed to resolve @{mention}: {e}")
+                warnings += f"Failed to resolve @{mention}: {e}\n"
             output.append(f"@[{mention}]({urn})" if urn else f"@{mention}")
-        return " ".join(output)
+        return " ".join(output), warnings
 
-    def format_content(self, content, mentions, hashtags, images, **kwargs):
-        mentions = self.build_organization_mentions(mentions)
-        hashtags = " ".join([f"#{v}" for v in hashtags])
-        if len(images) > 20:
-            warnings = f"A maximum of 20 images, not {len(images)}, can be included in a single linkedin post."
-            images = images[:20]
-        else:
-            warnings = ""
-
-        # convert markdown formatting because linkedin doesn't support it
+    def protect_mentions(self, content):
         protected_mentions = {}
 
         def protect(match):
-            key = f"PROTECTED_MENTION_{len(protected_mentions)}"
+            key = f"M{len(protected_mentions)}"
             protected_mentions[key] = match.group(0)
-            return key
+            return f"${key}"
 
         content = re.sub(r"@\[[^\]]+\]\(urn:li:organization:\d+\)", protect, content)
+        return content, protected_mentions
+
+    def format_content(self, content, mentions, hashtags, images, **kwargs):
+        warnings = ""
+        mentions, mentions_warnings = self.build_organization_mentions(mentions)
+        warnings += mentions_warnings
+        hashtags = " ".join([f"#{v}" for v in hashtags])
+        if len(images) > 20:
+            warnings += f"A maximum of 20 images, not {len(images)}, can be included in a single linkedin post."
+            images = images[:20]
+
+        # convert markdown formatting because linkedin doesn't support it
+        content, protected_mentions = self.protect_mentions(content)
 
         paragraphs = content.split("\n\n\n")
         for i, p in enumerate(paragraphs):
             paragraphs[i] = strip_markdown_formatting(p)
         content = "\n\n\n".join(paragraphs)
 
-        for key, value in protected_mentions.items():
-            content = content.replace(key, value)
+        content = Template(content).safe_substitute(protected_mentions)
 
         content += "\n"
         if mentions:
@@ -118,26 +124,11 @@ class linkedin_client:
 
     def linkedin_post(self, content, images):
         try:
+            content, protected_mentions = self.protect_mentions(content)
             # This is needed to escape special characters in the content
             # https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/little-text-format?view=li-lms-2024-08#text
-            for char in [
-                "\\",
-                "|",
-                "{",
-                "}",
-                "@",
-                "[",
-                "]",
-                "(",
-                ")",
-                "<",
-                ">",
-                "#",
-                "*",
-                "_",
-                "~",
-            ]:
-                content = content.replace(char, f"\\{char}")
+            content = content.translate({ord(c): f"\\{c}" for c in "\\|{}@[]()<>#*_~"})
+            content = Template(content).safe_substitute(protected_mentions)
 
             data = {
                 "author": self.organization_urn,
