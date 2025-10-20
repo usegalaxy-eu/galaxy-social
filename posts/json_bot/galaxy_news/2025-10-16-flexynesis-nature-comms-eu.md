@@ -11,6 +11,11 @@ hashtags:
   - GalaxyProject
   - EOSC
   - UniFreiburg
+  - NatureCommunications
+  - ScientificResearch
+  - deeplearning
+  - precision_medicine
+  - open_science
 ---
 Flexynesis: bridging multi-omics complexity with transparent AI for Cancer research and beyond
 https://galaxyproject.org/news/2025-10-16-flexynesis-nature-comms/
