@@ -37,7 +37,4 @@ It can efficiently extract deep insights from single-cell RNA sequencing, spatia
 * It provides more advanced analytical functions to gain insights into cellular compositions and deep biology, such as marker gene identification, differential gene expression analysis, and gene set enrichment analysis.
 * It pioneers methods to visualize multi-modal data, such as spatial transcriptomics embedding aligned with histological images and the latest 10x Genomic Multiome dataset.
 
-  
-
-
 Have a look at the [CELLxGENE-VIP Documentation](https://interactivereport.github.io/cellxgene_VIP/tutorial/docs/) for more information.
