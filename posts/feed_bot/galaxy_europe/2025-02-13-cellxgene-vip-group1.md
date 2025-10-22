@@ -29,8 +29,6 @@ https://galaxyproject.org/news/2025-02-13-cellxgene-vip/
 CELLxGENE-VIP (Visualization In Plugin) is an extension of the original [CELLxGENE](https://github.com/chanzuckerberg/cellxgene) tool developed by the Chan Zuckerberg Initiative.
 It can efficiently extract deep insights from single-cell RNA sequencing, spatial transcriptomics, and emerging multiome datasets.
 
-This integration enhances the capabilities of high-throughput data exploration and visualization, bridging the gap between computational power and user-friendly analysis.
-While CELLxGENE focuses on fast and interactive visualization of single-cell data, CELLxGENE-VIP goes a step further by integrating interactive processing and customized visual analytics, providing deeper insights into the data.
 
 * It generates a comprehensive set of over eighteen commonly used quality control and analytical plots in high resolution with highly customizable settings.
 * It provides more advanced analytical functions to gain insights into cellular compositions and deep biology, such as marker gene identification, differential gene expression analysis, and gene set enrichment analysis.
