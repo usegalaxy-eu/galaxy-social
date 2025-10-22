@@ -13,6 +13,9 @@ hashtags:
   - UniFreiburg
   - EOSC
   - EuroScienceGateway
+  - SingleCell
+  - spatial_transcriptomics
+  - CELLxGENE
   linkedin-galaxyproject:
   - UseGalaxy
   - GalaxyProject

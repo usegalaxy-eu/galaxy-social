@@ -11,6 +11,9 @@ hashtags:
   - UniFreiburg
   - EOSC
   - EuroScienceGateway
+  - SingleCell
+  - spatial_transcriptomics
+  - CELLxGENE
 ---
 📝 New blog post Released!
 https://galaxyproject.org/news/2025-02-13-cellxgene-vip/
