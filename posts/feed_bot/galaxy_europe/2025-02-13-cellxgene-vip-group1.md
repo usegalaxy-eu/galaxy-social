@@ -36,35 +36,5 @@ It can efficiently extract deep insights from single-cell RNA sequencing, spatia
 
   
 
-Different QC plots by CELLxGENE in no-time!
-  
-
-![Violin plot](https://galaxyproject.org/news/2025-02-13-cellxgene-vip/static/violin.png)
-  
-
-![Heatmap](https://galaxyproject.org/news/2025-02-13-cellxgene-vip/static/heat.png)
-
-  
-
-![Dot plot](https://galaxyproject.org/news/2025-02-13-cellxgene-vip/static/dot.png)
-
-  
-
-Spatial transcriptomics embedding aligned with histological image on one slice!
-  
-
-![Spatial Transcriptomics Visualization](https://galaxyproject.org/news/2025-02-13-cellxgene-vip/static/ST.png)
-
-  
-
-Multiome data visualization showing the spectral embedding and TSS enrichment score
-  
-
-![Multiome Visualization](https://galaxyproject.org/news/2025-02-13-cellxgene-vip/static/multiome.png)
-
-  
-
-CELLxGENE-VIP helps researchers go beyond visualization, making single-cell analysis more intuitive, reproducible, and insightful.
-Whether you are an experienced programmer or not, with this tool you can generate multiple QC plots fast and deep dive into your data and unlock new discoveries in your research.
 
 Have a look at the [CELLxGENE-VIP Documentation](https://interactivereport.github.io/cellxgene_VIP/tutorial/docs/) for more information.
