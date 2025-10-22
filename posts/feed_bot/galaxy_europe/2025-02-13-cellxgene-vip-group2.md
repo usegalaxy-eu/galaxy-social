@@ -57,9 +57,3 @@ Multiome data visualization showing the spectral embedding and TSS enrichment sc
 
 CELLxGENE-VIP helps researchers go beyond visualization, making single-cell analysis more intuitive, reproducible, and insightful.
 Whether you are an experienced programmer or not, with this tool you can generate multiple QC plots fast and deep dive into your data and unlock new discoveries in your research.
-
-Have a look at the [CELLxGENE-VIP Documentation](https://interactivereport.github.io/cellxgene_VIP/tutorial/docs/) for more information.
-
-Try it out on **Galaxy** today and take your analysis to the next level!
-
-[Start CELLxGENE VIP now](https://usegalaxy.eu/?tool_id=interactive_tool_cellxgene_vip&version=latest)
