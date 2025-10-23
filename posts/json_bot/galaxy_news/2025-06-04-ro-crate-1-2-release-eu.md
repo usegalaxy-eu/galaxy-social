@@ -11,6 +11,12 @@ hashtags:
   - GalaxyProject
   - EOSC
   - UniFreiburg
+  - EuroScienceGateway
+  - ro-crate
+  - fair
+  - research_data
+  - research
+  - data
 ---
 Specification for RO-Crate 1.2 released
 https://galaxyproject.org/news/2025-06-04-ro-crate-1-2-release/
