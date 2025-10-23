@@ -12,7 +12,7 @@ hashtags:
   - EOSC
   - UniFreiburg
   - EuroScienceGateway
-  - ro-crate
+  - rocrate
   - fair
   - research_data
   - research

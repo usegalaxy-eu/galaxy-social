@@ -7,7 +7,7 @@ hashtags:
   - GalaxyProject
   - EOSC
   - EuroScienceGateway
-  - ro-crate
+  - rocrate
   - fair
   - research_data
   - research
