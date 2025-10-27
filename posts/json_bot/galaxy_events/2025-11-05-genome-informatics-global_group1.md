@@ -5,8 +5,6 @@ hashtags:
   linkedin-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  - EOSC
-  - EuroScienceGateway
 ---
 📣 Genome Informatics
 

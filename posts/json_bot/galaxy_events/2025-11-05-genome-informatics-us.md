@@ -1,15 +1,10 @@
 ---
 media:
 - mastodon-galaxyproject
-mentions:
-  mastodon-galaxyproject:
-  - "galaxyfreiburg@baw\xFC.social"
 hashtags:
   mastodon-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  - EOSC
-  - EuroScienceGateway
 ---
 📣 Genome Informatics
 

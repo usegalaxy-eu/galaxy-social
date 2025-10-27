@@ -5,8 +5,6 @@ hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  - EOSC
-  - EuroScienceGateway
 ---
 📣 Genome Informatics
 
