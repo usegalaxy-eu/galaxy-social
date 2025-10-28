@@ -2,7 +2,6 @@
 media:
  - bluesky-galaxyproject
  - linkedin-galaxyproject
- - mastodon-eu-freiburg
  - mastodon-galaxyproject
  - matrix-eu-announce
 ---
