@@ -11,6 +11,9 @@ hashtags:
   - GalaxyProject
   - EOSC
   - UniFreiburg
+  - ELN
+  - RDM
+  - RSpace
 ---
 Analyze data with Galaxy, keep it under control on RSpace
 https://galaxyproject.org/news/2025-06-23-rspace-integration/
