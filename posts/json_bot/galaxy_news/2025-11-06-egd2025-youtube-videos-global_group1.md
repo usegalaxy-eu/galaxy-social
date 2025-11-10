@@ -7,6 +7,12 @@ hashtags:
   - GalaxyProject
   - EOSC
   - EuroScienceGateway
+  - EGD2025
+  - Talks
+  - ScientificTalk
+  - Presentation
+  - Event
 ---
 European Galaxy Days 2025 might be over, but the talks aren’t. Explore our new playlist featuring highlights from EGD2025
-https://galaxyproject.org/news/2025-11-06-egd2025-youtube-videos/
+YouTube Playlist: https://youtube.com/playlist?list=PLNFLKDpdM3B9YxK0suz3VN-dSaKmWAhk-&si=tLCu61CpkgGiplaw
+News Item: https://galaxyproject.org/news/2025-11-06-egd2025-youtube-videos/
