@@ -4,6 +4,7 @@ import re
 import sys
 from argparse import ArgumentParser
 from fnmatch import filter
+from html.parser import HTMLParser
 from importlib import import_module
 from typing import Any, Dict
 
@@ -11,6 +12,28 @@ import emoji
 import requests
 from jsonschema import validate
 from yaml import safe_load as yaml
+
+
+class ImgSyntaxConverter(HTMLParser):
+    """Convert html img tags into markdown image syntax."""
+
+    def reset(self):
+        self.image_markdown = ""
+        super().reset()
+
+    def handle_starttag(self, tag, attrs):
+        alt_text = src = ""
+        for k, v in attrs:
+            if k == "alt":
+                alt_text = v
+            elif k == "src":
+                src = v
+            self.image_markdown = f"![{alt_text}]({src})"
+
+    def convert(self, img_tag):
+        self.reset()
+        self.feed(img_tag)
+        return self.image_markdown
 
 
 class galaxy_social:
@@ -126,9 +149,14 @@ class galaxy_social:
         if hashtags_invalid:
             errors += f"- Hashtags for `{', '.join(hashtags_invalid)}` social medias are not in medias list of metadata.\n"
 
+        # convert html img tags to markdown image syntax
+        converter = ImgSyntaxConverter()
+        text = re.sub(r"<img [^>]+>", lambda x: converter.convert(x[0]), text)
+
+        # extract markdown image syntax elements
         image_pattern = re.compile(r"!\[(.*?)\]\((.*?)\)")
         images = image_pattern.findall(text)
-        plain_content = re.sub(image_pattern, "", text).strip()
+        plain_content = image_pattern.sub("", text).strip()
 
         # convert github emoji to unicode
         plain_content = emoji.emojize(plain_content, language="alias")
