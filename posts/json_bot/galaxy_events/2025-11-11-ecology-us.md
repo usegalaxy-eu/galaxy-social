@@ -1,0 +1,20 @@
+---
+media:
+- mastodon-galaxyproject
+mentions:
+  mastodon-galaxyproject:
+  - "galaxyfreiburg@baw\xFC.social"
+hashtags:
+  mastodon-galaxyproject:
+  - UseGalaxy
+  - GalaxyProject
+  - EOSC
+  - EuroScienceGateway
+---
+📣 Galaxy Ecology training and collabroation fest
+
+As colleagues from CCAMLR / Antarctica conservation from Belgium are coming to Concarneau marine station to work on Galaxy Ecology use in their projects, we propose to create an open event, where colleagues from CCAMLR / Antarctica conservation from UK, New Zealand and others are interested to participate remotely, so people wanted to learn how to use and contribute to Galaxy Ecology European Platform during these 3 days.
+
+📍 None, France
+📅 25 November 2025
+🔗 More info & registration: https://training.galaxyproject.org/training-material/events/2025-11-11_ecology.html
