@@ -10,8 +10,8 @@ hashtags:
 ---
 📣 How can I analyse my texts, media, and data in the humanities and social sciences?
 
-You want to analyse your media, text or data digitally, but do not know how? You only have a laptop but no programming skills or money for expensive programs? Do you want to consider good research data management, but do not know how? Galaxy is here for you!  
-This coffee lecture hosted by FDM Thüringen gives you a quick overview of how you can use the open source platform Galaxy (usegalaxy.eu) for your research
+You want to analyse your data, but do not know how? Do you want to consider good research data management, but do not know how? Galaxy is here for you!  
+This coffee lecture hosted by FDM Thüringen gives you a quick overview of how you can use the open source platform Galaxy for your research.
 
 📍 Online
 📅 26 November 2025
