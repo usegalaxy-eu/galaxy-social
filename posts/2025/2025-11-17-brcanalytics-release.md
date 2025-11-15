@@ -11,7 +11,7 @@ hashtags:
   - UseGalaxy
   bluesky-galaxyproject:
   - BRCAnalytics
-  bluesky-brcanalytics:
+  bluesky-brc:
   - UseGalaxy
   linkedin-brc:
   - UseGalaxy
