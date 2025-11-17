@@ -21,7 +21,7 @@ hashtags:
   - BRCAnalytics
 mentions:
   linkedin-galaxyproject:
-  - brc-analytics 
+  - brc-analytics
   linkedin-brc:
   - galaxy-project
   bluesky-galaxyproject:
