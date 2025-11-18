@@ -6,6 +6,8 @@ hashtags:
   - UseGalaxy
   - GalaxyProject
   - EOSC
+  - Spatial_transcriptomics
+  - MERSCOPE
 ---
 Reprocess and refine the single-cell results of MERSCOPE experiments
 https://galaxyproject.org/news/2025-05-19-vpt/
