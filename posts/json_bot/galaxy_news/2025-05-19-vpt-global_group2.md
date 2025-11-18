@@ -11,6 +11,6 @@ hashtags:
 ---
 Reprocess and refine the single-cell results of MERSCOPE experiments
 https://galaxyproject.org/news/2025-05-19-vpt/
-![Quality control 1](https://galaxyproject.org/assets/static/QC1.2665e34.28402bfb0548dca3cdd2c547dbcac4c4.png)
-![Quality control 2](https://galaxyproject.org/assets/static/QC2.2665e34.f39bb74d39e7be5cf74bf26101b290fd.png)
-![Bellavista IT](https://galaxyproject.org/assets/static/bellavista.2665e34.d50f6a386b25d0a04203fa2289064251.png)
+![Quality control 1](https://galaxyproject.org/assets/static/QC1.2665e34.9ccdc6805e0aa09892620ee13f84cae4.png)
+![Quality control 2](https://galaxyproject.org/assets/static/QC2.2665e34.474a743917cd2042e8ea2ab4c92ee7c4.png)
+![Bellavista IT](https://galaxyproject.org/assets/static/bellavista.2665e34.2c6311bc8126e41dd744a527a8e97f68.png)
