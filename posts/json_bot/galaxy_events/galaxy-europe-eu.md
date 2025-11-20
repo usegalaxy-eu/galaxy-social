@@ -6,18 +6,17 @@ mentions:
   mastodon-eu-freiburg:
   - galaxyproject@mstdn.science
 hashtags:
-   - RDM
-   - FDM
-   - OnlineCourse
-   - UseGalaxy
-   - Humanities
-   - SocialSciences
   mastodon-eu-freiburg:
   - UseGalaxy
   - GalaxyProject
   - EOSC
   - EuroScienceGateway
   - UniFreiburg
+   - RDM
+   - FDM
+   - OnlineCourse
+   - Humanities
+   - SocialSciences
 ---
 📣 Introduction to Galaxy, the Open-Source Platform for FAIR Data Analysis (in German)
 

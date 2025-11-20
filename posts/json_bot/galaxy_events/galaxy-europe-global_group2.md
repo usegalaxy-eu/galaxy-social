@@ -2,17 +2,16 @@
 media:
 - bluesky-galaxyproject
 hashtags:
-   - RDM
-   - FDM
-   - OnlineCourse
-   - UseGalaxy
-   - Humanities
-   - SocialSciences
   bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
   - EOSC
   - EuroScienceGateway
+   - RDM
+   - FDM
+   - OnlineCourse
+   - Humanities
+   - SocialSciences
 ---
 📣 Introduction to Galaxy, the Open-Source Platform for FAIR Data Analysis (in German)
 
