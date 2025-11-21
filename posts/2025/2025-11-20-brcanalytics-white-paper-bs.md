@@ -1,12 +1,6 @@
 ---
 media:
   - bluesky-brc
-hashtags:
-  bluesky-brc:
-  - UseGalaxy
-mentions:
-  bluesky-brc:
-  - galaxyproject.bsky.social
 ---
 ![BRC Analytics logo](https://galaxyproject.org/images/logos/brc.png)
 
