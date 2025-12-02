@@ -2,7 +2,6 @@
 media:
 - matrix-eu-announce
 - mastodon-eu-freiburg
-mentions:
 hashtags:
   mastodon-eu-freiburg:
   - UseGalaxy
