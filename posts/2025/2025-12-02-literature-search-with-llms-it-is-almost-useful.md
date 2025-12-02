@@ -14,7 +14,7 @@ hashtags:
  bluesky-brc:
   - galaxy
   - galaxyproject
-  - clude
+  - claude
   - chatgpt
   - llm
   - anthropic
