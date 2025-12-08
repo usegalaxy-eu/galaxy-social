@@ -1,0 +1,22 @@
+---
+media:
+- mastodon-eu-freiburg
+- matrix-eu-announce
+mentions:
+  mastodon-eu-freiburg:
+  - galaxyproject@mstdn.science
+hashtags:
+  mastodon-eu-freiburg:
+  - UseGalaxy
+  - GalaxyProject
+  - EOSC
+  - EuroScienceGateway
+  - UniFreiburg
+---
+📣 Tools for Tomorrow NIAID BRC Webinar
+
+Using BRC-Analytics to analyze C. auris data
+
+📍 Online
+📅 12 December 2025
+🔗 More info & registration: https://galaxyproject.org/events/2025-12-12-brc-analytics-webinar/
