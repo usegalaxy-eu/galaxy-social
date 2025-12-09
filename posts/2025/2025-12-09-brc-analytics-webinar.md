@@ -10,15 +10,8 @@ hashtags:
   - UseGalaxy
   linkedin-brc:
   - UseGalaxy
-mentions:
-  linkedin-brc:
-  - galaxy-project
-  mastodon-brc:
-  - galaxyproject@mstdn.science
-  linkedin-galaxyproject
-  - brc-analytics
-  mastodon-galaxyproject
-  - brc_analytics@mstdn.science
+  bluesky-brc:
+  - UseGalaxy
 ---
 ![Join us for the webinar logo](https://galaxyproject.org/images/brc-analytics-c-auris-webinar.png)
 
