@@ -4,6 +4,7 @@ media:
   - linkedin-brc
   - linkedin-galaxyproject
   - mastodon-galaxyproject
+  - bluesky-brc
 hashtags:
   mastodon-brc:
   - UseGalaxy
