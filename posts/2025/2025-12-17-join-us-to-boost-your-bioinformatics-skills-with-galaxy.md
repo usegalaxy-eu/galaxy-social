@@ -1,15 +1,8 @@
 ---
 media:
  - linkedin-galaxyproject
- - mastodon-eu-freiburg
  - matrix-eu-announce
 hashtags:
- mastodon-eu-freiburg:
-  - UseGalaxy
-  - HTS
-  - Bioinformatics
-  - Workshop
-  - OpenScience
  linkedin-galaxyproject:
   - UseGalaxy
   - HTS
