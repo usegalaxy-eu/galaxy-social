@@ -1,0 +1,17 @@
+---
+media:
+- bluesky-galaxyproject
+hashtags:
+  bluesky-galaxyproject:
+  - UseGalaxy
+  - GalaxyProject
+  - EOSC
+  - EuroScienceGateway
+---
+📣 PAG 33 Plant and Animal Genome Conference
+
+Join PAG 33 to explore breakthroughs in plant and animal genomics and bioinformatics.
+
+📍 San Diego, CA, USA
+📅 9 January 2026
+🔗 More info & registration: https://intlpag.org/PAG33/
