@@ -53,7 +53,7 @@ hashtags:
 ---
 What a year for Galaxy!
 
-By the numbers:
+📈 By the numbers:
 
 - 650,000+ registered users across all usegalaxy.* instances
 - 186 million+ jobs executed
@@ -62,7 +62,7 @@ By the numbers:
 
 
 
-Highlights:
+✨ Highlights:
 
 - Three major releases (24.2, 25.0, 25.1) with modern card-based interfaces and enhanced tool discovery
 - JupyterLite integration for browser-based notebooks
@@ -71,7 +71,6 @@ Highlights:
 - 3,574 researchers trained through the Global Training Academy
 
 Thank you to our incredible global community of developers, trainers, and researchers who make Galaxy possible!
-
 
 
 
