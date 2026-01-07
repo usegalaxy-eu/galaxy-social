@@ -72,9 +72,9 @@ Highlights:
 
 Thank you to our incredible global community of developers, trainers, and researchers who make Galaxy possible!
 
-
-
 📅 Save the date: GCC2026 in Clermont-Ferrand, France (June 2026)
+
+
 
 🔗 Full recap: https://galaxyproject.org/news/2025-12-22-galaxy-2025-year-in-review/ and https://galaxyproject.org/news/2025-12-12-galaxy-newsletter/
 
