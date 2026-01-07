@@ -69,7 +69,10 @@ Highlights:
 - ChatGXY AI assistant for job error diagnostics
 - 100s of assembled vertebrate genomes via our collaborative VGP effort
 - 3,574 researchers trained through the Global Training Academy
-Thank you to our incredible global community of developers, trainers, and researchers who make Galaxy possible.
+
+Thank you to our incredible global community of developers, trainers, and researchers who make Galaxy possible!
+
+
 
 📅 Save the date: GCC2026 in Clermont-Ferrand, France (June 2026)
 
