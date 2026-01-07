@@ -5,10 +5,7 @@ media:
  - bluesky-vgp
  - linkedin-brc
  - linkedin-galaxyproject
- - mastodon-brc
- - mastodon-eu-freiburg
  - mastodon-galaxyproject
- - mastodon-vgp
  - matrix-eu-announce
 hashtags:
  bluesky-brc:
@@ -46,34 +43,13 @@ hashtags:
   - ComputationalBiology
   - Genomics
   - usegalaxy
- mastodon-brc:
-  - Bioinformatics
-  - OpenScience
-  - OpenSource
-  - ComputationalBiology
-  - Genomics
-  - usegalaxy
- mastodon-eu-freiburg:
-  - Bioinformatics
-  - OpenScience
-  - OpenSource
-  - ComputationalBiology
-  - Genomics
-  - usegalaxy
  mastodon-galaxyproject:
   - Bioinformatics
   - OpenScience
   - OpenSource
   - ComputationalBiology
   - Genomics
-  - usegalaxy
- mastodon-vgp:
-  - Bioinformatics
-  - OpenScience
-  - OpenSource
-  - ComputationalBiology
-  - Genomics
-  - usegalaxy
+  - UseGalaxy
 ---
 What a year for Galaxy!
 
