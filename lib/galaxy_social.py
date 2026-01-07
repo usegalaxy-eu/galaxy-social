@@ -104,7 +104,7 @@ class galaxy_social:
             return (
                 "",
                 {},
-                "Please check your meradata schema.",
+                "There's an issue with your post file format. Please check that it follows the template.",
             )
 
         metadata, text = result
