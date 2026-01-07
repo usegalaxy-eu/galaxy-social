@@ -60,6 +60,8 @@ By the numbers:
 - 22,699 publications citing Galaxy
 - 14,900 commits across the ecosystem
 
+
+
 Highlights:
 
 - Three major releases (24.2, 25.0, 25.1) with modern card-based interfaces and enhanced tool discovery
