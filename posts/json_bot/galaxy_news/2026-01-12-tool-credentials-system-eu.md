@@ -1,16 +1,6 @@
 ---
 media:
 - matrix-eu-announce
-- mastodon-eu-freiburg
-mentions:
-  mastodon-eu-freiburg:
-  - galaxyproject@mstdn.science
-hashtags:
-  mastodon-eu-freiburg:
-  - UseGalaxy
-  - GalaxyProject
-  - EOSC
-  - UniFreiburg
 ---
 Galaxy 25.1 introduces a powerful new credentials system that lets tools securely access external APIs and services with encrypted secret storage and a streamlined user experience.
 https://galaxyproject.org/news/2026-01-12-tool-credentials-system/
