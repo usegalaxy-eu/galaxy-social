@@ -1,0 +1,16 @@
+---
+media:
+  - mastodon-brc
+  - linkedin-brc
+  - bluesky-brc
+hashtags:
+  mastodon-brc:
+  - UseGalaxy
+  linkedin-brc:
+  - UseGalaxy
+  bluesky-brc:
+  - UseGalaxy
+---
+![BRC Analytics logo](https://galaxyproject.org/images/logos/brc.png)
+
+If you're at #Fungal26, stop by my poster about BRC-Analytics; I'll be giving out free UseGalaxy accounts (they're always free!) and free demos of BRC-Analytics.org (those are always free too!). If you can't make it, here's my poster: https://js2.jetstream-cloud.org:8001/brc-analytics/GSA-fungal-2026-poster.pdf
