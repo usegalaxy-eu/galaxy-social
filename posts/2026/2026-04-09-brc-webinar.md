@@ -35,4 +35,4 @@ mentions:
 ---
 ![BRC Analytics logo](https://galaxyproject.org/images/logos/brc.png)
 
-🔬 Join us for Tools for Tomorrow! Marius van den Beek presents on differential gene expression analysis at BRC-Analytics.org in this free BRC webinar. Register [here](https://forms.office.com/pages/responsepage.aspx?id=8WfZJNg-SES6plYOxXKss8gM98-9jH9MgRdwq7CpaB5URVVKRFpaV0tCOUQxSFRQUzlGVEhFVjJHUi4u&route=shorturl)
+🔬 Join us for Tools for Tomorrow! Marius van den Beek presents on differential gene expression analysis at BRC-Analytics.org in this free BRC webinar. Register [here](https://tinyurl.com/NIAIDBRCWebinar)
