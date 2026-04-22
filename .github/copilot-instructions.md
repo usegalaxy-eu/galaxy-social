@@ -14,7 +14,7 @@ Galaxy Social cross-posts announcements to Mastodon, Bluesky, LinkedIn, Matrix, 
 
 ### File Naming
 
-Posts must be placed in `posts/YYYY/YYYY-MM-DD-slug.md` (e.g. `posts/2026/2026-03-20-my-announcement.md`). Flag files not matching this pattern or placed outside the correct year subdirectory.
+Prefer naming posts using the `posts/YYYY/YYYY-MM-DD-slug.md` pattern when appropriate (e.g. `posts/2026/2026-03-20-my-announcement.md`), but do not treat this as a strict requirement if the file is under `posts/` and otherwise follows the repository's documented guidance and existing structure.
 
 ### Frontmatter Structure
 
@@ -81,13 +81,12 @@ Only these enabled plugins are valid in the `media` field:
   - Keys must be a subset of the `media` list
   - Must NOT include `#` prefix — the system adds it
   - Only alphanumeric and underscore characters allowed (no hyphens or spaces)
-- **`images`** (optional): array of `{url, alt_text}` objects; `url` must be a valid URI; supported MIME types: jpeg, png, gif
 
 ### Content Rules
 
 - Body text goes after the closing `---`
 - Markdown formatting (bold, italic, headings, lists) only renders on Matrix. Mastodon, Bluesky, and LinkedIn strip formatting to plain text — only links and images are preserved
-- Images use markdown syntax: `![Alt text](https://example.com/image.jpg)`
+- Images must be included in the Markdown body using image syntax: `![Alt text](https://example.com/image.jpg)`; do not specify images in frontmatter
 - GitHub emoji shortcodes like `:tada:` are converted to Unicode
 - Two consecutive blank lines force a thread split on platforms that support threading
 - Image URLs must be publicly accessible and return a supported MIME type
