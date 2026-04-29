@@ -1,0 +1,16 @@
+---
+media:
+- bluesky-galaxyproject
+hashtags:
+  bluesky-galaxyproject:
+  - UseGalaxy
+  - GalaxyProject
+  - EOSC
+---
+Leverage next-generation TabPFN models on the European Galaxy server to classify complex biomedical datasets with high accuracy.
+https://galaxyproject.org/news/2026-04-28-tabpfn-v2-5/
+![fastq](https://galaxyproject.org/images/news/2026-04-28-tabpfn-v2-5/images/tabpfn_tool.png)
+![confusion_matrix_dna](https://galaxyproject.org/images/news/2026-04-28-tabpfn-v2-5/images/confusion_matrix_dna.png)
+![precision_recall_curve_dna](https://galaxyproject.org/images/news/2026-04-28-tabpfn-v2-5/images/prc_dna.png)
+![confusion_matrix_diabetes](https://galaxyproject.org/images/news/2026-04-28-tabpfn-v2-5/images/confusion_matrix_diabetes.png)
+![precision_recall_curve_diabetes](https://galaxyproject.org/images/news/2026-04-28-tabpfn-v2-5/images/prc_diabetes.png)
