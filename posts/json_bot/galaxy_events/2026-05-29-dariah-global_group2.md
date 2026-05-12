@@ -8,7 +8,7 @@ hashtags:
   - EOSC
   - EuroScienceGateway
 ---
-📣 Galaxy at the DARIAH Annual event
+📣 Galaxy at the Digital Research Infrastructure for the Arts and Humanities (DARIAH) Annual event
 
 📍 Rome, Italy
 📅 27 May 2026
