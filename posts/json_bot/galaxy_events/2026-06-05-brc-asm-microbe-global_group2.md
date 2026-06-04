@@ -5,10 +5,8 @@ media:
 hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
-  - GalaxyProject
   bluesky-brc:
   - UseGalaxy
-  - GalaxyProject
 ---
 📣 BRC-Analytics at ASM-Microbe 2026
 
