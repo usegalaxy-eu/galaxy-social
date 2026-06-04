@@ -1,12 +1,12 @@
 ---
 media:
 - mastodon-galaxyproject
-- mastodon-brcanalytics
+- mastodon-brc
 hashtags:
   mastodon-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  mastodon-brcanalytics:
+  mastodon-brc:
   - UseGalaxy
   - GalaxyProject
 ---
