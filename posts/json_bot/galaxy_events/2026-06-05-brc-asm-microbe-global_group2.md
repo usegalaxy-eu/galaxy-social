@@ -1,12 +1,12 @@
 ---
 media:
 - bluesky-galaxyproject
-- bluesky-brcanalytics
+- bluesky-brc
 hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  bluesky-brcanalytics
+  bluesky-brc:
   - UseGalaxy
   - GalaxyProject
 ---
