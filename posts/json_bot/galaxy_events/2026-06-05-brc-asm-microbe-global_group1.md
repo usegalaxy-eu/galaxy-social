@@ -1,12 +1,12 @@
 ---
 media:
 - linkedin-galaxyproject
-- linkedin-brcanalytics
+- linkedin-brc
 hashtags:
   linkedin-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  linkedin-brcanalytics
+  linkedin-brc:
   - UseGalaxy
   - GalaxyProject
 ---
