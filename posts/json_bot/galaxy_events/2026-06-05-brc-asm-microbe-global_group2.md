@@ -1,16 +1,18 @@
 ---
 media:
 - bluesky-galaxyproject
+- bluesky-brcanalytics
 hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  - EOSC
-  - EuroScienceGateway
+  bluesky-brcanalytics
+  - UseGalaxy
+  - GalaxyProject
 ---
 📣 BRC-Analytics at ASM-Microbe 2026
 
-The annual gathering of the Galaxy Community with opportunities to hear latest developments, get training, and meet everyone involved.
+Open Community Forum to discuss activities at the NIAID BRCs.
 
 📍 Courtyard by Marriott, Washington Downtown/Convention Center, 2nd floor, room Shaw A
 📅 5 June 2026
