@@ -1,15 +1,11 @@
 ---
 media:
 - bluesky-galaxyproject
-hashtags:
-  bluesky-galaxyproject:
-  - UseGalaxy
-  - EOSC
 ---
-📣 BioFAIR Data to Discovery: Single-Cell Analysis with Galaxy
+BioFAIR Data to Discovery: Single-Cell Analysis with Galaxy
 
-Learn how to perform your own single-cell analysis using Galaxy – no programming required.
+Learn how to perform your own single-cell analysis using Galaxy–no programming required
 
-📍 Milton Keynes, United Kingdom
+📍 Milton Keynes, UK
 📅 6 July 2026
-🔗 More info & registration: https://training.galaxyproject.org/training-material/events/2026-07-06-biofair.html
+🔗 More info & reg: https://training.galaxyproject.org/training-material/events/2026-07-06-biofair.html
