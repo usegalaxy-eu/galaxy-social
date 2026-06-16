@@ -4,9 +4,7 @@ media:
 hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
-  - GalaxyProject
   - EOSC
-  - EuroScienceGateway
 ---
 📣 BioFAIR Data to Discovery: Single-Cell Analysis with Galaxy
 
