@@ -4,9 +4,6 @@ media:
 hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
-  - GalaxyProject
-  - EOSC
-  - EuroScienceGateway
 ---
 Profiling of microbial communities using targeted and shotgun metagenomics
 
