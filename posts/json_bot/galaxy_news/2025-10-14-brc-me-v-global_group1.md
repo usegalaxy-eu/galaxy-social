@@ -1,0 +1,17 @@
+---
+media:
+- linkedin-galaxyproject
+hashtags:
+  linkedin-galaxyproject:
+  - UseGalaxy
+  - GalaxyProject
+  - EOSC
+---
+From data to publication in a browser with BRC-Analytics: Evolutionary dynamics of coding overlaps in measles virus
+https://galaxyproject.org/news/2025-10-14-brc-me-v/
+![](https://galaxyproject.org/assets/static/fig1.038268a.37a44ccef3b96a6346ee6ff64fd98edf.png)
+![](https://galaxyproject.org/assets/static/fig2.dd58339.f2d4ac47db46256d404bb1588b0321f4.png)
+![](https://galaxyproject.org/assets/static/fig3.fdc407b.8c64653cb69802100cabc999a65403c2.png)
+![](https://galaxyproject.org/assets/static/fig4.0f7b0fa.e40afdfd33c7172608fc5c2f6d9cf120.png)
+![](https://galaxyproject.org/assets/static/fig5.cbedd17.dcf7b3828c62bb8a1ffd69e2f28d3889.png)
+![](https://galaxyproject.org/assets/static/fig8.6894ace.a19790cd09e962f8d31aa313015500d3.png)
