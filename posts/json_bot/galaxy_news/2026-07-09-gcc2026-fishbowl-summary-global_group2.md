@@ -6,7 +6,7 @@ hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  mastodon-galaxyprojct:
+  mastodon-galaxyproject:
   - UseGalaxy
   - GalaxyProject
 ---
