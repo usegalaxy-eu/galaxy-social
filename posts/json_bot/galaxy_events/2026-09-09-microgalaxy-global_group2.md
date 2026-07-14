@@ -4,7 +4,6 @@ media:
 hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
-  - GalaxyProject
 ---
 📣 microGalaxy / Microbiology Community Meeting
 
