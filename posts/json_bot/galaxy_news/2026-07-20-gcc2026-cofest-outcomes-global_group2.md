@@ -12,9 +12,6 @@ hashtags:
 ---
 A summary of the outcomes and highlights from the CoFest held after the 2026 Galaxy Community Conference in Clermont-Ferrand, France.
 https://galaxyproject.org/news/2026-07-20-gcc2026-cofest-outcomes/
-![CoFest participants working on the Driving Galaxy with Agents project.](https://galaxyproject.org/images/events/gcc2026/cofest/driving_galaxy_with_agents.jpg)
-![CoFest participants collaborating on agentic Galaxy interactions.](https://galaxyproject.org/images/events/gcc2026/cofest/driving_galaxy_with_agents_2.jpg)
-![CoFest participants working on the Galaxy CoDex project.](https://galaxyproject.org/images/events/gcc2026/cofest/codex.jpg)
 ![Galaxy CoDex team collaborating during CoFest.](https://galaxyproject.org/images/events/gcc2026/cofest/codex_2.jpg)
 ![CoFest participants working on GTN admin training.](https://galaxyproject.org/images/events/gcc2026/cofest/gtn_admin_training.jpg)
 ![GTN admin training and TPV debugging session during CoFest.](https://galaxyproject.org/images/events/gcc2026/cofest/gtn_admin_training_2.jpg)
