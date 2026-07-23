@@ -33,20 +33,25 @@ class linkedin_client:
     def wrap_text_with_index(self, content):
         if len(content) <= self.max_content_length:
             return [content]
-        urls = re.findall(r"https?://\S+", content)
-        placeholder_content = re.sub(
-            r"https?://\S+", lambda m: "~" * len(m.group()), content
-        )
+        protected = re.findall(r"https?://\S+|@\S+|#\S+", content)
+        placeholder_content = content
+        placeholders = []
+        for token in protected:
+            placeholder = "~" * len(token)
+            placeholders.append((placeholder, token))
+            placeholder_content = placeholder_content.replace(token, placeholder, 1)
         wrapped_lines = list(
             self.content_in_chunks(placeholder_content, self.max_content_length - 8)
         )
         final_lines = []
-        url_index = 0
+        token_index = 0
         for i, line in enumerate(wrapped_lines, 1):
-            while "~~~~~~~~~~" in line and url_index < len(urls):
-                placeholder = "~" * len(urls[url_index])
-                line = line.replace(placeholder, urls[url_index], 1)
-                url_index += 1
+            for placeholder, original in placeholders[token_index:]:
+                if placeholder in line:
+                    line = line.replace(placeholder, original, 1)
+                    token_index += 1
+                else:
+                    break
             final_lines.append(f"{line} ({i}/{len(wrapped_lines)})")
         return final_lines
 
