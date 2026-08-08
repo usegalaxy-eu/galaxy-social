@@ -50,24 +50,15 @@ mentions:
 hashtags:
  mastodon-eu-freiburg:
   - UseGalaxy
-  - GalaxyProject
   - UniFreiburg
   - EOSC
-  - EuroScienceGateway
+  - NFDI
  mastodon-galaxyproject:
   - UseGalaxy
  bluesky-galaxyproject:
   - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
  linkedin-galaxyproject:
   - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
 ---
 Your text content goes here. (Markdown syntax will not pass to Bluesky, Mastodon, and Linkedin!)
 For images just drag and drop them here. they will look like this:
