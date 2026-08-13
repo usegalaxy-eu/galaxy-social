@@ -11,9 +11,9 @@ hashtags:
   - Bioinformatics
 mentions:
   bluesky-galaxyproject:
-  - @bioconductor.bsky.social
+  - bioconductor.bsky.social
   bluesky-brc:
-  - @bioconductor.bsky.social
+  - bioconductor.bsky.social
 ---
 Are you a https://UseGalaxy.org user? Have you ever been doing an analysis and thought "If I could just run a python script here" and then downloaded the data, ran the script, and then uploaded it back to Galaxy to continue on? Have I got the thing for you: 
 
