@@ -10,7 +10,7 @@ hashtags:
 ---
 The 2nd Galaxy Tool Development Workshop!
 
-Join us in Freiburg to learn how to build, test, and publish your own tools for the Galaxy platform, beginner-friendly; led by experienced Galaxy devs
+Join us to learn how to build and publish your own tools for Galaxy; led by experienced Galaxy devs
 
 📍 Dept of Comp Sci, Uni of Freiburg
 📅 2026-10-07
