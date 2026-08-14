@@ -3,7 +3,7 @@ media:
 - bluesky-galaxyproject
 - mastodon-galaxyproject
 - bluesky-brc
-- mastodon-arc
+- mastodon-brc
 hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
