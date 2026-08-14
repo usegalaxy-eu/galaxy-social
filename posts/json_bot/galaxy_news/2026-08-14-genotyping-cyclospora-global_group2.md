@@ -19,7 +19,7 @@ hashtags:
   - GalaxyProject
 ---
 1st in a 4-part BRC-Analytics series on Cyclospora outbreak analysis: what genomes, genotyping panels and sequencing data exist, and how an open implementation of the 8-marker method is built and validated in Galaxy.
-https://galaxyproject.org/news/2026-08-14-genotyping-cyclospora/
+https://gxy.io/blog/Cyclospora1
 ![Assembly quality across the 49 public C. cayetanensis assemblies. None is chromosome-level and the median assembly is in 1,391 pieces.](https://galaxyproject.org/images/news/2026-08-14-genotyping-cyclospora/figures/genome_quality.png)
 ![The CDC Cyclospora eight-marker genotyping panel: each amplicon with its primers, SNP count and haplotype-calling windows.](https://galaxyproject.org/images/news/2026-08-14-genotyping-cyclospora/figures/panel_tracks.png)
 ![Stage-by-stage comparison of the legacy R implementation and PyEuk.](https://galaxyproject.org/images/news/2026-08-14-genotyping-cyclospora/figures/pipeline_compare.png)
