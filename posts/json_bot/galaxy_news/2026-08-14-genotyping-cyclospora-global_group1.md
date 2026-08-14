@@ -1,6 +1,7 @@
 ---
 media:
 - linkedin-galaxyproject
+- linkedin-brc
 hashtags:
   linkedin-galaxyproject:
   - UseGalaxy
