@@ -29,18 +29,33 @@ class mastodon_client:
         if len(content) <= self.max_content_length:
             return [content]
         # urls always count as 23 chars on mastodon
-        placeholder = "~" * 23
-        urls = re.findall(r"https?://\S+", content)
-        placeholder_content = re.sub(r"https?://\S+", placeholder, content)
+        url_placeholder = "~" * 23
+        url_pattern = r"https?://\S+"
+        mention_hashtag_pattern = r"@\S+|#\S+"
+        urls = re.findall(url_pattern, content)
+        others = re.findall(mention_hashtag_pattern, content)
+        placeholder_content = re.sub(url_pattern, url_placeholder, content)
+        placeholders = []
+        for item in others:
+            placeholder = "~" * len(item)
+            placeholders.append((placeholder, item))
+            placeholder_content = placeholder_content.replace(item, placeholder, 1)
         wrapped_lines = list(
             self.content_in_chunks(placeholder_content, self.max_content_length - 8)
         )
         final_lines = []
         url_index = 0
+        token_index = 0
         for i, line in enumerate(wrapped_lines, 1):
-            while placeholder in line and url_index < len(urls):
-                line = line.replace(placeholder, urls[url_index], 1)
+            while url_placeholder in line and url_index < len(urls):
+                line = line.replace(url_placeholder, urls[url_index], 1)
                 url_index += 1
+            for placeholder, original in placeholders[token_index:]:
+                if placeholder in line:
+                    line = line.replace(placeholder, original, 1)
+                    token_index += 1
+                else:
+                    break
             final_lines.append(f"{line} ({i}/{len(wrapped_lines)})")
         return final_lines
 
