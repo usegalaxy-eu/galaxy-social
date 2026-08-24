@@ -8,10 +8,10 @@ hashtags:
   - EOSC
   - EuroScienceGateway
 ---
-📣 IBSB 2026: Bioimage Analysis with Galaxy (Workshop + Symposium Talk)
+IBSB 2026: Bioimage Analysis with Galaxy (Workshop + Symposium Talk)
 
-Explore open-source bioimage analysis with Galaxy in this hands-on workshop and conference talk at IBSB 2026.
+Explore bioimage analysis with Galaxy in this hands-on workshop and conference talk at IBSB 2026.
 
-📍 Leibniz-HKI
-📅 16 September 2026
-🔗 More info & registration: https://galaxyproject.org/events/2026-09-17-ibsb2026/
+Leibniz-HKI
+16 Sept 2026
+Info & registration: https://galaxyproject.org/events/2026-09-17-ibsb2026
