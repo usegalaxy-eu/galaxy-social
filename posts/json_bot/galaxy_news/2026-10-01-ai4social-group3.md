@@ -1,15 +1,8 @@
 ---
 media:
-- mastodon-eu-freiburg
-mentions:
-  mastodon-eu-freiburg:
-  - galaxyproject@mstdn.science
-hashtags:
-  mastodon-eu-freiburg:
-  - UseGalaxy
-  - GalaxyProject
-  - EOSC
-  - UniFreiburg
+- matrix-eu-announce
+
 ---
-AI4SOCIAL+ project kickoff meeting on 1st October 2026 online
-https://galaxyproject.org/news/2026-10-01-ai4social/
+Today was the kickoff of our new EU project on AI Readiness for Social Impact (AI4SOCIAL+).
+We are excited to be part of this EOSC project with more than 10 partners from all over Europe.
+👉 https://galaxyproject.org/news/2026-10-01-ai4social/
