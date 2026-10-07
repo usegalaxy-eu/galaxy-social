@@ -98,6 +98,7 @@ class mastodon_client:
                             description=(
                                 image["alt_text"] if "alt_text" in image else None
                             ),
+                            synchronous=True,
                         )
                         media_ids.append(media_uploaded["id"])
                     except Exception as e:
