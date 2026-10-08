@@ -17,7 +17,7 @@ class mastodon_client:
             access_token=kwargs.get("access_token"), api_base_url=self.base_url
         )
         self.max_content_length = kwargs.get("max_content_length", 500)
-        self.media_timeout = kwargs.get("media_timeout", 120)
+        self.media_timeout = kwargs.get("media_timeout", 60)
 
     def content_in_chunks(self, content, max_chunk_length):
         paragraphs = content.split("\n\n\n")
