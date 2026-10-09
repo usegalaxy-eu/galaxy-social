@@ -6,7 +6,7 @@ hashtags:
   mastodon-eu-freiburg:
   - UseGalaxy
   - GalaxyProject
-  - EOSC
+  - ESG4Stars
 ---
 📣 Workshop: Sustainable research computing with Galaxy: Workflows, infrastructure and practice
 
