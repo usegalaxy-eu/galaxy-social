@@ -17,4 +17,4 @@ Analyze your data with Galaxy and the Workflow4Metabolomics infrastructure! Duri
 
 📍 Rennes, France
 📅 5 April 2027
-🔗 More info & registration: https://training.galaxyproject.org/training-material/events/2027-04-05-workflow4experimenters-2027.html
+🔗 Info & registration: https://training.galaxyproject.org/training-material/events/2027-04-05-workflow4experimenters-2027.html
