@@ -23,7 +23,11 @@ def parse_schedule(value):
     try:
         date_time, zone = str(value).strip().rsplit(" ", 1)
         local_time = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
-        return local_time.replace(tzinfo=ZoneInfo(zone)).astimezone(timezone.utc)
+        time_zone = ZoneInfo(zone)
+        schedule = local_time.replace(tzinfo=time_zone).astimezone(timezone.utc)
+        if schedule.astimezone(time_zone).replace(tzinfo=None) != local_time:
+            raise ValueError
+        return schedule
     except (ValueError, ZoneInfoNotFoundError):
         raise ValueError(
             f"Invalid schedule `{value}`. Use a date, time and time zone like `schedule: 2026-10-20 07:00 UTC` or `schedule: 2026-10-20 09:00 Europe/Berlin`."
@@ -256,6 +260,8 @@ class galaxy_social:
             return processed_files, message.strip()
 
         if is_future:
+            if not stats:
+                processed_files.pop(file_path, None)
             return (
                 processed_files,
                 f"⏰ This post is scheduled for {describe_schedule(schedule)}:\n`{file_path}`",

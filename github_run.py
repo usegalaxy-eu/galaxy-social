@@ -250,15 +250,22 @@ def publish_scheduled_posts(processed_files_path):
             processed_files_path, ref="processed_files"
         ).decoded_content.decode()
     )
+    errors = []
     for file_path in get_due_scheduled_files():
         if file_path in processed_files:
             continue
-        pulls = repo.get_commits(path=file_path)[0].get_pulls()
-        if not pulls.totalCount:
-            print(f"No pull request found for {file_path}, skipping.")
-            continue
-        print(f"Publishing scheduled post {file_path}")
-        process(github_run(pulls[0].number, processed_files_path), [file_path], False)
+        try:
+            pulls = repo.get_commits(path=file_path)[0].get_pulls()
+            if not pulls.totalCount:
+                print(f"No pull request found for {file_path}, skipping.")
+                continue
+            print(f"Publishing scheduled post {file_path}")
+            process(github_run(pulls[0].number, processed_files_path), [file_path], False)
+        except Exception as e:
+            print(f"Error publishing scheduled post {file_path}: {e}")
+            errors.append(file_path)
+    if errors:
+        raise RuntimeError(f"Failed to publish scheduled posts: {', '.join(errors)}")
 
 
 if __name__ == "__main__":

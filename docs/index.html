@@ -277,6 +277,12 @@
           hideOutput();
           return showError("Content cannot be empty.");
         }
+        if (!document.getElementById("post-schedule").validity.valid) {
+          hideOutput();
+          return showError(
+            "Complete the schedule date and time, or clear it to post after merge."
+          );
+        }
 
         // split warnings under content
         const warnDiv = document.getElementById("warnings");
