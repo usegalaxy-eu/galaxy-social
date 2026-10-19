@@ -7,16 +7,23 @@ on:
     paths:
       - "posts/**"
 
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+
   workflow_dispatch:
     inputs:
       pr_number:
-        description: "The number of the pull request to create preview for"
-        required: true
+        description: "The number of the pull request to create preview for (empty: publish due scheduled posts)"
+        required: false
 
 jobs:
   manage_content:
     name: Manage Content
     runs-on: ubuntu-latest
+    # Runs that can publish wait in one queue so a post is never published twice
+    concurrency:
+      group: ${{ github.event_name == 'pull_request_target' && !github.event.pull_request.merged && format('preview-{0}', github.event.number) || 'publish' }}
+      queue: max
     permissions:
       contents: write
       pull-requests: write

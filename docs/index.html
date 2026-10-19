@@ -186,6 +186,19 @@
             and insert it in your post automatically.
           </p>
         </div>
+        <div>
+          <label class="block font-medium">Schedule (optional)</label>
+          <input
+            type="datetime-local"
+            id="post-schedule"
+            class="p-2 border rounded"
+          />
+          <p class="text-sm text-gray-600 mt-2">
+            ⏰ Leave empty to post right after merge. Otherwise pick the time
+            in your time zone (<span id="post-timezone"></span>), the post
+            will go out around this time after merge.
+          </p>
+        </div>
         <div id="warnings" class="p-4 rounded bg-yellow-100 hidden"></div>
       </div>
       <div id="output-container" class="mt-8 hidden">
@@ -229,6 +242,7 @@
       let easyMDE;
       const tagInstances = {};
       const pluginMax = {};
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       function showError(msg) {
         const errorDiv = document.getElementById("error-message");
@@ -306,7 +320,12 @@
           .replace(/\s+/g, "-")
           .replace(/[^a-z0-9\-]/g, "")}`;
 
-        let meta = `---\nmedia:\n${selected.map((m) => ` - ${m}`).join("\n")}`;
+        let meta = "---";
+        const schedule = document.getElementById("post-schedule").value;
+        if (schedule) {
+          meta += `\nschedule: ${schedule.replace("T", " ")} ${timeZone}`;
+        }
+        meta += `\nmedia:\n${selected.map((m) => ` - ${m}`).join("\n")}`;
         if (Object.values(mentions).some((a) => a.length)) {
           meta +=
             `\nmentions:` +
@@ -438,6 +457,10 @@
         document
           .getElementById("post-title")
           .addEventListener("input", updateAll);
+        document
+          .getElementById("post-schedule")
+          .addEventListener("input", updateAll);
+        document.getElementById("post-timezone").textContent = timeZone;
 
         try {
           const res = await fetch(

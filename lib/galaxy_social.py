@@ -3,15 +3,43 @@ import os
 import re
 import sys
 from argparse import ArgumentParser
+from datetime import datetime, timezone
 from fnmatch import filter
 from html.parser import HTMLParser
 from importlib import import_module
 from typing import Any, Dict
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import emoji
 import requests
 from jsonschema import validate
 from yaml import safe_load as yaml
+
+
+def parse_schedule(value):
+    """Return the scheduled time as a UTC datetime, or None if not scheduled."""
+    if value is None:
+        return None
+    try:
+        date_time, zone = str(value).strip().rsplit(" ", 1)
+        local_time = datetime.strptime(date_time, "%Y-%m-%d %H:%M")
+        return local_time.replace(tzinfo=ZoneInfo(zone)).astimezone(timezone.utc)
+    except (ValueError, ZoneInfoNotFoundError):
+        raise ValueError(
+            f"Invalid schedule `{value}`. Use a date, time and time zone like `schedule: 2026-10-20 07:00 UTC` or `schedule: 2026-10-20 09:00 Europe/Berlin`."
+        )
+
+
+def describe_schedule(schedule):
+    local_times = " / ".join(
+        f"{schedule.astimezone(ZoneInfo(zone)):%H:%M} {city}"
+        for city, zone in [
+            ("Berlin", "Europe/Berlin"),
+            ("New York", "America/New_York"),
+            ("Los Angeles", "America/Los_Angeles"),
+        ]
+    )
+    return f"{schedule:%a %d %b %Y, %H:%M} UTC ({local_times})"
 
 
 class ImgSyntaxConverter(HTMLParser):
@@ -149,6 +177,11 @@ class galaxy_social:
         if hashtags_invalid:
             errors += f"- Hashtags for `{', '.join(hashtags_invalid)}` social medias are not in medias list of metadata.\n"
 
+        try:
+            metadata["schedule"] = parse_schedule(metadata.get("schedule"))
+        except ValueError as e:
+            errors += f"- {e}\n"
+
         # convert html img tags to markdown image syntax
         converter = ImgSyntaxConverter()
         text = re.sub(r"<img [^>]+>", lambda x: converter.convert(x[0]), text)
@@ -198,8 +231,17 @@ class galaxy_social:
 
         stats = processed_files[file_path] if file_path in processed_files else {}
         skipped_media = [media for media in metadata["media"] if stats.get(media)]
+        schedule = metadata["schedule"]
+        is_future = schedule is not None and schedule > datetime.now(timezone.utc)
         if self.preview:
             message = f"👋 Hello! I'm your friendly social media assistant. Below are the previews of this post:\n`{file_path}`"
+            if schedule:
+                message += f"\n\n⏰ Scheduled for {describe_schedule(schedule)}. "
+                message += (
+                    "After merge it will be posted around this time (it can be a bit late)."
+                    if is_future
+                    else "This time has already passed, so it will be posted right after merge."
+                )
             if skipped_media:
                 message += f"\n\nSkipping post to {', '.join(skipped_media)}. because it was already posted."
             for media in set(metadata["media"]) - set(skipped_media):
@@ -209,6 +251,12 @@ class galaxy_social:
                 if warning:
                     message += f"\nWARNING: {warning}"
             return processed_files, message.strip()
+
+        if is_future:
+            return (
+                processed_files,
+                f"⏰ This post is scheduled for {describe_schedule(schedule)}:\n`{file_path}`",
+            )
 
         url = {}
         for media in set(metadata["media"]) - set(skipped_media):
