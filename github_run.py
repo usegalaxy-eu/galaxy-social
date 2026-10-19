@@ -232,8 +232,6 @@ def get_due_scheduled_files():
             try:
                 with open(file_path, "r") as f:
                     content = f.read()
-                if "schedule:" not in content:
-                    continue
                 _, metadata, _ = content.split("---\n", 2)
                 schedule = parse_schedule(yaml.safe_load(metadata).get("schedule"))
             except Exception:

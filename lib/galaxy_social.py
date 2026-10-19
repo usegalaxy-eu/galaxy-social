@@ -216,6 +216,9 @@ class galaxy_social:
     def process_markdown_file(self, file_path: str, processed_files: Dict[str, Any]):
         content, metadata, errors = self.parse_markdown_file(file_path)
         if errors:
+            if not self.preview:
+                # Mark as handled so scheduled runs don't retry a broken post every time
+                processed_files.setdefault(file_path, {})
             return processed_files, f"⚠️ Failed to process `{file_path}`.\n{errors}"
         formatting_results = {}
         for media in metadata["media"]:
