@@ -14,8 +14,10 @@ permissions: {}
 jobs:
   validate:
     runs-on: ubuntu-latest
+    # The script opens a fix PR and comments on the PR
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
