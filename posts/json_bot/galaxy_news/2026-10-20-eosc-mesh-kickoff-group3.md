@@ -1,14 +1,15 @@
 ---
 media:
-- mastodon-galaxyproject
+- mastodon-eu-freiburg
 - matrix-eu-announce
 mentions:
-  mastodon-galaxyproject:
-  - "galaxyfreiburg@baw\xFC.social"
+  mastodon-eu-freiburg:
+  - "galaxyproject@mstdn.science"
 hashtags:
-  mastodon-galaxyproject:
+  mastodon-eu-freiburg:
   - UseGalaxy
   - GalaxyProject
+  - eosc
 ---
 EOSC-MESH kickoff meeting in Ghent: Galaxy helps extend the European Open Science Cloud!
 https://galaxyproject.org/news/2026-10-20-eosc-mesh-kickoff/
