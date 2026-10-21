@@ -2,12 +2,12 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 
 import github
 import yaml
 
-from lib.galaxy_social import galaxy_social, parse_schedule
+from lib.galaxy_social import galaxy_social
 
 
 class github_run:
@@ -221,39 +221,21 @@ def process(github_instance, files_to_process, preview):
         raise e
 
 
-def get_due_scheduled_files():
-    """Find posts on main whose schedule time has passed."""
-    due_files = []
-    for root, _, files in os.walk("posts"):
-        for name in files:
-            file_path = os.path.join(root, name)
-            if not name.endswith(".md"):
-                continue
-            try:
-                with open(file_path, "r") as f:
-                    content = f.read()
-                _, metadata, _ = content.split("---\n", 2)
-                schedule = parse_schedule(yaml.safe_load(metadata).get("schedule"))
-            except Exception:
-                continue
-            if schedule and schedule <= datetime.now(timezone.utc):
-                due_files.append(file_path)
-    return due_files
-
-
 def publish_scheduled_posts(processed_files_path):
     repo = github.Github(os.getenv("GITHUB_TOKEN")).get_repo(
         os.getenv("GITHUB_REPOSITORY")
     )
-    processed_files = json.loads(
-        repo.get_contents(
-            processed_files_path, ref="processed_files"
-        ).decoded_content.decode()
-    )
+    with open(processed_files_path, "w") as f:
+        f.write(
+            repo.get_contents(
+                processed_files_path, ref="processed_files"
+            ).decoded_content.decode()
+        )
     errors = []
-    for file_path in get_due_scheduled_files():
-        if file_path in processed_files:
-            continue
+    due_files = galaxy_social(False).get_due_scheduled_files(
+        "posts", processed_files_path
+    )
+    for file_path in due_files:
         try:
             pulls = repo.get_commits(path=file_path)[0].get_pulls()
             if not pulls.totalCount:

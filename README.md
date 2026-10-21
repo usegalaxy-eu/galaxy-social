@@ -155,7 +155,7 @@ By following these steps, you can effectively duplicate a social media platform 
 
 ## Run locally
 
-You can execute this repository on your machine by running `lib/galaxy_social.py` with the argument `--files Files ...` or `--folder FOLDER` to process files, or add `--preview` to preview the file as markdown. Also there is `--json-out processed_files.json` that could be change where to save the json results output.
+You can execute this repository on your machine by running `lib/galaxy_social.py` with the argument `--files Files ...` or `--folder FOLDER` to process files, or `--scheduled FOLDER` to publish the scheduled posts in a folder whose time has come, or add `--preview` to preview the file as markdown. Also there is `--json-out processed_files.json` that could be change where to save the json results output.
 
 Remember to add the env variable that needed for each social media seperatly.
 

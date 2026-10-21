@@ -290,6 +290,29 @@ class galaxy_social:
         print(f"Processed {file_path}: {stats}")
         return processed_files, message
 
+    def get_due_scheduled_files(self, folder: str, processed_files_path: str):
+        """Return posts in folder whose schedule has passed and that were not processed yet."""
+        processed_files = {}
+        if os.path.exists(processed_files_path):
+            with open(processed_files_path, "r") as file:
+                processed_files = json.load(file)
+        due_files = []
+        for root, _, files in os.walk(folder):
+            for filename in filter(files, "*.md"):
+                file_path = os.path.join(root, filename)
+                if file_path in processed_files:
+                    continue
+                result, status = self.lint_markdown_file(file_path)
+                if not status:
+                    continue
+                try:
+                    schedule = parse_schedule(result[0].get("schedule"))
+                except ValueError:
+                    continue
+                if schedule and schedule <= datetime.now(timezone.utc):
+                    due_files.append(file_path)
+        return due_files
+
     def process_files(self, files_to_process: list, processed_files_path: str):
         processed_files = {}
         messages = ""
@@ -312,6 +335,9 @@ if __name__ == "__main__":
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--files", nargs="+", help="List of files to process")
     group.add_argument("--folder", help="Folder containing files to process")
+    group.add_argument(
+        "--scheduled", help="Folder to publish scheduled posts from that are due"
+    )
     parser.add_argument("--preview", action="store_true", help="Preview the post")
     parser.add_argument(
         "--json-out",
@@ -319,6 +345,7 @@ if __name__ == "__main__":
         default="processed_files.json",
     )
     args = parser.parse_args()
+    gs = galaxy_social(args.preview)
 
     if args.files:
         files_to_process = args.files
@@ -335,10 +362,11 @@ if __name__ == "__main__":
             for root, _, files in os.walk(args.folder)
             for filename in filter(files, "*.md")
         ]
+    elif args.scheduled:
+        files_to_process = gs.get_due_scheduled_files(args.scheduled, args.json_out)
     if not files_to_process:
         print("No files to process.")
         sys.exit()
     print(f"Processing {len(files_to_process)} file(s): {files_to_process}\n")
-    gs = galaxy_social(args.preview)
     message = gs.process_files(files_to_process, args.json_out)
     print(message)
