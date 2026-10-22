@@ -466,6 +466,10 @@
         document
           .getElementById("post-schedule")
           .addEventListener("input", updateAll);
+        // Typing only part of the date fires no input event, so check again on leaving the field
+        document
+          .getElementById("post-schedule")
+          .addEventListener("blur", updateAll);
         document.getElementById("post-timezone").textContent = timeZone;
 
         try {

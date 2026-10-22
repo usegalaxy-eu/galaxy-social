@@ -8,7 +8,7 @@ from fnmatch import filter
 from html.parser import HTMLParser
 from importlib import import_module
 from typing import Any, Dict
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from zoneinfo import ZoneInfo
 
 import emoji
 import requests
@@ -28,7 +28,7 @@ def parse_schedule(value):
         if schedule.astimezone(time_zone).replace(tzinfo=None) != local_time:
             raise ValueError
         return schedule
-    except (ValueError, ZoneInfoNotFoundError):
+    except Exception:
         raise ValueError(
             f"Invalid schedule `{value}`. Use a date, time and time zone like `schedule: 2026-10-20 07:00 UTC` or `schedule: 2026-10-20 09:00 Europe/Berlin`."
         )
@@ -36,7 +36,7 @@ def parse_schedule(value):
 
 def describe_schedule(schedule):
     local_times = " / ".join(
-        f"{schedule.astimezone(ZoneInfo(zone)):%H:%M} {city}"
+        f"{schedule.astimezone(ZoneInfo(zone)):%a %H:%M} {city}"
         for city, zone in [
             ("Berlin", "Europe/Berlin"),
             ("New York", "America/New_York"),
@@ -310,8 +310,8 @@ class galaxy_social:
                 except ValueError:
                     continue
                 if schedule and schedule <= datetime.now(timezone.utc):
-                    due_files.append(file_path)
-        return due_files
+                    due_files.append((schedule, file_path))
+        return [file_path for _, file_path in sorted(due_files)]
 
     def process_files(self, files_to_process: list, processed_files_path: str):
         processed_files = {}

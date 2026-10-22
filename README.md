@@ -26,7 +26,7 @@ To create a post on Galaxy Social, follow these steps:
 
 1. **Create a Branch:** Begin by [creating a branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository#creating-a-branch) in this repository or [your forked repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository). Do not commit directly to the main branch. All changes must go through a pull request.
 
-2. **Add a New File:** Within the "posts" folder (or sub-folders), create a new file with the extension ".md" and [commit it to your branch](https://docs.github.com/en/repositories/working-with-files/managing-files/creating-new-files). Do not edit an existing or older file. Always create a new one for your content.
+2. **Add a New File:** Within the "posts" folder (or sub-folders), create a new file with the extension ".md" and [commit it to your branch](https://docs.github.com/en/repositories/working-with-files/managing-files/creating-new-files). Do not edit an existing or older file. Always create a new one for your content. The only exception is a scheduled post that has not gone out yet (see `schedule` below).
 
 3. **Use the Post Template:** Utilize the following template for the post content:
 
