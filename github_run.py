@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime
 
 import github
 import yaml
@@ -62,7 +63,7 @@ class github_run:
         files_to_process = []
         for file in self.pr.get_files():
             file_path = file.filename
-            if file_path.endswith(".md"):
+            if file_path.endswith(".md") and file.status != "removed":
                 head_branch = self.pr.head
                 pr_content = head_branch.repo.get_contents(
                     file_path, ref=head_branch.sha
@@ -77,7 +78,7 @@ class github_run:
     def new_pr(self, not_posted):
         if not not_posted:
             return
-        branch_name = f"Failed-posts-{self.pr.number}"
+        branch_name = f"Failed-posts-{self.pr.number}-{int(datetime.now().timestamp())}"
         self.repo.create_git_ref(
             ref=f"refs/heads/{branch_name}",
             sha=self.repo.get_branch("main").commit.sha,
@@ -177,25 +178,7 @@ class github_run:
         return json.loads(file_data)
 
 
-if __name__ == "__main__":
-    with open(os.getenv("GITHUB_EVENT_PATH", ""), "r") as f:
-        event_data = json.load(f)
-    pr_number = event_data.get("number") or int(
-        event_data.get("inputs", {}).get("pr_number")
-    )
-    closed = event_data.get("action") == "closed"
-    merged = event_data.get("pull_request", {}).get("merged", False)
-    preview = not merged and not closed
-    if not merged and closed:
-        print("No action to take")
-        sys.exit(0)
-
-    github_instance = github_run(pr_number, "processed_files.json")
-    files_to_process = github_instance.get_files()
-    if not files_to_process:
-        github_instance.comment("No files to process.")
-        sys.exit()
-
+def process(github_instance, files_to_process, preview):
     gs = galaxy_social(preview)
     try:
         github_instance.initialize_processed_files_branch()
@@ -204,7 +187,7 @@ if __name__ == "__main__":
         )
         github_instance.comment(message, preview=preview)
         if preview:
-            sys.exit()
+            return
 
         processed_files = github_instance.commit_processed_files()
         not_posted = {}
@@ -224,4 +207,70 @@ if __name__ == "__main__":
         else:
             not_posted = {file_path: [] for file_path in files_to_process}
             github_instance.new_pr(not_posted)
+            # Mark the files as handled so scheduled runs leave them to the retry PR
+            try:
+                with open(github_instance.processed_files_path, "r") as f:
+                    processed_files = json.load(f)
+                for file_path in files_to_process:
+                    processed_files.setdefault(file_path, {})
+                with open(github_instance.processed_files_path, "w") as f:
+                    json.dump(processed_files, f)
+                github_instance.commit_processed_files()
+            except Exception as commit_error:
+                print(f"Error marking failed files as processed: {commit_error}")
         raise e
+
+
+def publish_scheduled_posts(processed_files_path):
+    repo = github.Github(os.getenv("GITHUB_TOKEN")).get_repo(
+        os.getenv("GITHUB_REPOSITORY")
+    )
+    with open(processed_files_path, "w") as f:
+        f.write(
+            repo.get_contents(
+                processed_files_path, ref="processed_files"
+            ).decoded_content.decode()
+        )
+    errors = []
+    due_files = galaxy_social(False).get_due_scheduled_files(
+        "posts", processed_files_path
+    )
+    for file_path in due_files:
+        try:
+            pulls = repo.get_commits(path=file_path)[0].get_pulls()
+            if not pulls.totalCount:
+                print(f"No pull request found for {file_path}, skipping.")
+                continue
+            print(f"Publishing scheduled post {file_path}")
+            process(github_run(pulls[0].number, processed_files_path), [file_path], False)
+        except Exception as e:
+            print(f"Error publishing scheduled post {file_path}: {e}")
+            errors.append(file_path)
+    if errors:
+        raise RuntimeError(f"Failed to publish scheduled posts: {', '.join(errors)}")
+
+
+if __name__ == "__main__":
+    with open(os.getenv("GITHUB_EVENT_PATH", ""), "r") as f:
+        event_data = json.load(f)
+    pr_number = event_data.get("number") or event_data.get("inputs", {}).get(
+        "pr_number"
+    )
+    if not pr_number:
+        publish_scheduled_posts("processed_files.json")
+        sys.exit()
+
+    closed = event_data.get("action") == "closed"
+    merged = event_data.get("pull_request", {}).get("merged", False)
+    preview = not merged and not closed
+    if not merged and closed:
+        print("No action to take")
+        sys.exit(0)
+
+    github_instance = github_run(int(pr_number), "processed_files.json")
+    files_to_process = github_instance.get_files()
+    if not files_to_process:
+        github_instance.comment("No files to process.")
+        sys.exit()
+
+    process(github_instance, files_to_process, preview)
