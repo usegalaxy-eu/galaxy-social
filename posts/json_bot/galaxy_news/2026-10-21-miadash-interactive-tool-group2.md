@@ -5,7 +5,8 @@ hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  - EOSC
+  - Microbiome
+  - miaDash
 ---
 The miaDash Shiny app from the Bioconductor microbiome team is now an interactive tool on usegalaxy.eu: import, analyse and visualise microbiome data without writing a line of code.
 https://galaxyproject.org/news/2026-10-21-miadash-interactive-tool/
