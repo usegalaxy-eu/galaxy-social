@@ -9,7 +9,7 @@ hashtags:
   - EOSC
   - UniFreiburg
 ---
-📣 Digital Humanities Day at the University of Freiburg
+📣 Meet the Freiburg Galaxy Team at the Digital Humanities Day @unifreiburg
 
 📍 Freiburg
 📅 24 November 2026
