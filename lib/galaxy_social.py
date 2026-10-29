@@ -198,49 +198,64 @@ class galaxy_social:
         # convert github emoji to unicode
         plain_content = emoji.emojize(plain_content, language="alias")
 
-        # Check if all images are valid
-        for _, image in images:
-            response = requests.get(image)
-            if response.status_code != 200:
-                errors += f"- Failed to download image from URL: {image}\n"
-
-            if response.headers["Content-Type"] not in [
-                "image/jpeg",
-                "image/png",
-                "image/gif",
-            ]:
-                errors += f"- URL does not point to a supported image file: {image}\n"
-
         metadata["images"] = [
             {"url": image[1], "alt_text": image[0]} for image in images
         ]
 
         return plain_content, metadata, errors
 
+    def validate_images(self, metadata: Dict[str, Any]):
+        """Download all images of a post and check that they are reachable and supported."""
+        errors = ""
+        for image in metadata["images"]:
+            response = requests.get(image["url"])
+            if response.status_code != 200:
+                errors += f"- Failed to download image from URL: {image['url']}\n"
+
+            if response.headers["Content-Type"] not in [
+                "image/jpeg",
+                "image/png",
+                "image/gif",
+            ]:
+                errors += f"- URL does not point to a supported image file: {image['url']}\n"
+
+        return errors
+
+    def _mark_handled(self, file_path: str, processed_files: Dict[str, Any]):
+        if not self.preview:
+            # Mark as handled so scheduled runs don't retry a broken post every time
+            processed_files.setdefault(file_path, {})
+
+    def _format_for_media(
+        self, file_path: str, media: str, content: str, metadata: Dict[str, Any]
+    ):
+        try:
+            return self.plugins[media].format_content(
+                content=content,
+                mentions=metadata.get("mentions", {}).get(media, []),
+                hashtags=metadata.get("hashtags", {}).get(media, []),
+                images=metadata.get("images", []),
+            )
+        except Exception as e:
+            raise Exception(f"Failed to format post for {file_path}.\n{e}")
+
     def process_markdown_file(self, file_path: str, processed_files: Dict[str, Any]):
         content, metadata, errors = self.parse_markdown_file(file_path)
         if errors:
-            if not self.preview:
-                # Mark as handled so scheduled runs don't retry a broken post every time
-                processed_files.setdefault(file_path, {})
+            self._mark_handled(file_path, processed_files)
             return processed_files, f"⚠️ Failed to process `{file_path}`.\n{errors}"
-        formatting_results = {}
-        for media in metadata["media"]:
-            try:
-                formatting_results[media] = self.plugins[media].format_content(
-                    content=content,
-                    mentions=metadata.get("mentions", {}).get(media, []),
-                    hashtags=metadata.get("hashtags", {}).get(media, []),
-                    images=metadata.get("images", []),
-                )
-            except Exception as e:
-                raise Exception(f"Failed to format post for {file_path}.\n{e}")
 
         stats = processed_files[file_path] if file_path in processed_files else {}
         skipped_media = [media for media in metadata["media"] if stats.get(media)]
+        remaining_media = set(metadata["media"]) - set(skipped_media)
         schedule = metadata["schedule"]
         is_future = schedule is not None and schedule > datetime.now(timezone.utc)
+
         if self.preview:
+            errors += self.validate_images(metadata)
+            if errors:
+                return processed_files, f"⚠️ Failed to process `{file_path}`.\n{errors}"
+
             message = f"👋 Hello! I'm your friendly social media assistant. Below are the previews of this post:\n`{file_path}`"
             if schedule:
                 message += f"\n\n⏰ Scheduled for {describe_schedule(schedule)}. "
@@ -251,13 +266,20 @@ class galaxy_social:
                 )
             if skipped_media:
                 message += f"\n\nSkipping post to {', '.join(skipped_media)}. because it was already posted."
-            for media in set(metadata["media"]) - set(skipped_media):
-                formatted_content, preview, warning = formatting_results[media]
+            for media in remaining_media:
+                formatted_content, preview, warning = self._format_for_media(
+                    file_path, media, content, metadata
+                )
                 message += f"\n\n## {media}\n\n"
                 message += preview
                 if warning:
                     message += f"\nWARNING: {warning}"
             return processed_files, message.strip()
+
+        # two early exit checks that are possible when NOT in preview mode
+        # before doing image validation and formatting for different media
+        if not remaining_media:
+            return processed_files, f"Nothing created for this post:\n`{file_path}`"
 
         if is_future:
             if not stats:
@@ -267,9 +289,16 @@ class galaxy_social:
                 f"⏰ This post is scheduled for {describe_schedule(schedule)}:\n`{file_path}`",
             )
 
+        errors += self.validate_images(metadata)
+        if errors:
+            self._mark_handled(file_path, processed_files)
+            return processed_files, f"⚠️ Failed to process `{file_path}`.\n{errors}"
+
         url = {}
-        for media in set(metadata["media"]) - set(skipped_media):
-            formatted_content, _, _ = formatting_results[media]
+        for media in remaining_media:
+            formatted_content, _, _ = self._format_for_media(
+                file_path, media, content, metadata
+            )
             stats[media], url[media] = self.plugins[media].create_post(
                 formatted_content, file_path=file_path
             )
