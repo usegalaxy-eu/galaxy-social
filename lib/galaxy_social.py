@@ -330,6 +330,7 @@ class galaxy_social:
     @classmethod
     def get_due_scheduled_files(cls, folder: str, processed_files_path: str):
         """Return posts in folder whose schedule has passed and that were not processed yet."""
+        # static so the timer can check for due posts without logging in to every platform
         processed_files = {}
         if os.path.exists(processed_files_path):
             with open(processed_files_path, "r") as file:
