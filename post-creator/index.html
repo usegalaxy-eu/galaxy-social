@@ -9,6 +9,10 @@
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📣</text></svg>"
     />
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/index.js"
+    ></script>
     <style>
       :root {
         --bg: #f4f5f7;
@@ -123,6 +127,44 @@
       textarea {
         min-height: 180px;
         resize: vertical;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .editor {
+        position: relative;
+      }
+      .toolbar {
+        display: flex;
+        gap: 6px;
+        padding: 6px;
+        border: 1px solid var(--border);
+        border-bottom: none;
+        border-radius: 8px 8px 0 0;
+        background: var(--bg);
+      }
+      .toolbar button {
+        padding: 4px 10px;
+        font-size: 0.9rem;
+      }
+      .editor textarea {
+        border-radius: 0 0 8px 8px;
+      }
+      .popover {
+        position: absolute;
+        top: 44px;
+        left: 6px;
+        z-index: 10;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+      }
+      #link-popover {
+        display: flex;
+        gap: 6px;
+        padding: 8px;
+        width: min(420px, calc(100% - 12px));
       }
       input:focus,
       textarea:focus,
@@ -616,7 +658,22 @@
             thread automatically; two empty lines mark where a new part should
             start.
           </p>
-          <textarea id="post-content"></textarea>
+          <div class="editor">
+            <div class="toolbar" role="toolbar" aria-label="Text tools">
+              <button type="button" id="emoji-button" aria-haspopup="true" aria-expanded="false">
+                😊 Emoji
+              </button>
+              <button type="button" id="link-button" aria-haspopup="true" aria-expanded="false">
+                🔗 Link
+              </button>
+            </div>
+            <div id="link-popover" class="popover" hidden>
+              <input id="link-url" type="url" placeholder="https://… paste the link" aria-label="Link to add" />
+              <button type="button" id="link-insert">Add</button>
+            </div>
+            <emoji-picker id="emoji-picker" class="popover" hidden></emoji-picker>
+            <textarea id="post-content"></textarea>
+          </div>
 
           <label class="field">Images (optional)</label>
           <p class="hint">
@@ -1359,6 +1416,70 @@
           });
       }
 
+      // Toolbar: emoji and links are the only formatting that every platform keeps
+      function insertText(text) {
+        const area = $("post-content");
+        const before = area.value.slice(0, area.selectionStart);
+        const after = area.value.slice(area.selectionEnd);
+        if (/^https?:/.test(text)) {
+          if (before && !/\s$/.test(before)) text = " " + text;
+          if (!after || !/^\s/.test(after)) text += " ";
+        }
+        area.setRangeText(text, area.selectionStart, area.selectionEnd, "end");
+        area.focus();
+        update();
+      }
+      function togglePopover(button, popover, open = popover.hidden) {
+        document.querySelectorAll(".editor .popover").forEach((p) => (p.hidden = true));
+        document
+          .querySelectorAll(".toolbar button")
+          .forEach((b) => b.setAttribute("aria-expanded", "false"));
+        popover.hidden = !open;
+        button.setAttribute("aria-expanded", String(open));
+      }
+      function setUpToolbar() {
+        const emojiButton = $("emoji-button");
+        const linkButton = $("link-button");
+        const picker = $("emoji-picker");
+        const linkBox = $("link-popover");
+        const url = $("link-url");
+        emojiButton.onclick = () => togglePopover(emojiButton, picker);
+        picker.addEventListener("emoji-click", (e) => {
+          togglePopover(emojiButton, picker, false);
+          insertText(e.detail.unicode);
+        });
+        linkButton.onclick = () => {
+          togglePopover(linkButton, linkBox);
+          if (!linkBox.hidden) url.focus();
+        };
+        const addLink = () => {
+          const value = url.value.trim();
+          if (!/^https?:\/\/\S+$/.test(value)) {
+            url.setCustomValidity("Paste a link that starts with https://");
+            return url.reportValidity();
+          }
+          url.setCustomValidity("");
+          url.value = "";
+          togglePopover(linkButton, linkBox, false);
+          insertText(value);
+        };
+        $("link-insert").onclick = addLink;
+        url.addEventListener("input", () => url.setCustomValidity(""));
+        url.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            addLink();
+          }
+        });
+        document.addEventListener("click", (e) => {
+          if (!e.target.closest(".editor .popover, .toolbar button"))
+            togglePopover(emojiButton, picker, false);
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") togglePopover(emojiButton, picker, false);
+        });
+      }
+
       // Keep a draft in this browser so a reload doesn't lose the text
       const DRAFT_KEY = "galaxy-social-draft";
       function saveDraft() {
@@ -1404,6 +1525,7 @@
           update();
         };
         $("add-image").onclick = () => addImage();
+        setUpToolbar();
         $("toggle-file").onclick = () => {
           $("file").hidden = !$("file").hidden;
           $("toggle-file").textContent = $("file").hidden ? "Show file" : "Hide file";
