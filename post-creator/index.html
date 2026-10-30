@@ -4,622 +4,1069 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Galaxy Social Post Creator</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📣</text></svg>"
+    />
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-    <script
-      type="module"
-      src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"
-    ></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css"
-    />
     <style>
-      .editor-preview,
-      .editor-preview-side {
-        padding: 1rem;
-        font-family: inherit;
-        line-height: 1.6;
-        background: white;
-        color: black;
-        overflow-wrap: break-word;
+      :root {
+        --bg: #f4f5f7;
+        --card: #ffffff;
+        --text: #1f2430;
+        --muted: #5d6475;
+        --border: #d9dce3;
+        --accent: #2c5bd6;
+        --accent-soft: #e8eefc;
+        --ok: #1a7f37;
+        --warn-bg: #fff6db;
+        --warn: #8a5a00;
+        --error: #c62828;
+        --radius: 12px;
       }
-      .editor-preview h1,
-      .editor-preview-side h1 {
-        font-size: 2em;
-        font-weight: bold;
-        margin: 1rem 0;
+      * {
+        box-sizing: border-box;
       }
-      .editor-preview h2,
-      .editor-preview-side h2 {
-        font-size: 1.5em;
-        font-weight: bold;
-        margin: 1rem 0;
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       }
-      .editor-preview h3,
-      .editor-preview-side h3 {
-        font-size: 1.25em;
-        font-weight: bold;
-        margin: 1rem 0;
+      a {
+        color: var(--accent);
       }
-      .editor-preview h4,
-      .editor-preview-side h4 {
-        font-size: 1.125em;
-        font-weight: bold;
-        margin: 1rem 0;
+      header {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 16px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
       }
-      .editor-preview h5,
-      .editor-preview-side h5 {
-        font-size: 1em;
-        font-weight: bold;
-        margin: 1rem 0;
+      header h1 {
+        margin: 0;
+        font-size: 1.5rem;
       }
-      .editor-preview h6,
-      .editor-preview-side h6 {
-        font-size: 0.875em;
-        font-weight: bold;
-        margin: 1rem 0;
+      header p {
+        margin: 4px 0 0;
+        color: var(--muted);
       }
-      .editor-preview p,
-      .editor-preview-side p {
-        margin: 1rem 0;
-        line-height: 1.6;
+      .layout {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 8px 16px 48px;
+        display: grid;
+        gap: 24px;
+        grid-template-columns: minmax(0, 1fr);
       }
-      .editor-preview ul,
-      .editor-preview-side ul {
-        list-style-type: disc;
-        padding-left: 2rem;
+      @media (min-width: 960px) {
+        .layout {
+          grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+          align-items: start;
+        }
+        .preview-column {
+          position: sticky;
+          top: 16px;
+          max-height: calc(100vh - 32px);
+          overflow-y: auto;
+        }
       }
-      .editor-preview ol,
-      .editor-preview-side ol {
-        list-style-type: decimal;
-        padding-left: 2rem;
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 16px;
       }
-      .editor-preview blockquote,
-      .editor-preview-side blockquote {
-        border-left: 4px solid #ccc;
-        padding-left: 1rem;
-        color: #555;
-        font-style: italic;
+      .card h2 {
+        margin: 0 0 4px;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
-      .editor-preview code,
-      .editor-preview-side code {
-        background-color: #f3f4f6;
-        padding: 0.2em 0.4em;
-        border-radius: 4px;
-        font-family: monospace;
+      .step {
+        display: inline-grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-size: 0.85rem;
+        flex: none;
       }
-      .editor-preview a,
-      .editor-preview-side a {
-        color: #2563eb;
-        text-decoration: underline;
-        word-break: break-all;
-        transition: color 0.2s;
+      .hint {
+        color: var(--muted);
+        font-size: 0.875rem;
+        margin: 4px 0 12px;
       }
-      .editor-preview a:hover,
-      .editor-preview-side a:hover {
-        color: #1d4ed8;
-        text-decoration: underline;
-      }
-      .editor-preview img,
-      .editor-preview-side img {
-        max-width: 35%;
-        height: auto;
+      label.field {
         display: block;
-        margin: 1rem 0;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        font-weight: 600;
+        margin: 12px 0 4px;
+      }
+      input[type="text"],
+      input[type="url"],
+      input[type="datetime-local"],
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font: inherit;
+        color: inherit;
+        background: #fff;
+      }
+      textarea {
+        min-height: 180px;
+        resize: vertical;
+      }
+      input:focus,
+      textarea:focus,
+      button:focus-visible,
+      a:focus-visible {
+        outline: 3px solid var(--accent-soft);
+        outline-offset: 1px;
+        border-color: var(--accent);
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #fff;
+        padding: 8px 14px;
+      }
+      button.link {
+        border: none;
+        background: none;
+        padding: 0;
+        color: var(--accent);
+        text-decoration: underline;
+      }
+      .groups {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      }
+      fieldset.group {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 6px 12px 10px;
+        margin: 0;
+        min-width: 0;
+      }
+      fieldset.group legend {
+        font-weight: 700;
+        padding: 0 4px;
+      }
+      .group-all {
+        font-size: 0.8rem;
+        font-weight: 400;
+        margin-left: 6px;
+      }
+      .account {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 4px;
+        border-radius: 6px;
+      }
+      .account:hover {
+        background: var(--bg);
+      }
+      .account input {
+        flex: none;
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        accent-color: var(--accent);
+      }
+      .account .handle {
+        min-width: 0;
+        color: var(--muted);
+        font-size: 0.8rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .account a {
+        margin-left: auto;
+        font-size: 0.8rem;
+        flex: none;
+      }
+      .icon {
+        width: 18px;
+        height: 18px;
+        flex: none;
+        fill: currentColor;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        padding: 6px 8px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fff;
+        min-height: 44px;
+        cursor: text;
+      }
+      .chips:focus-within {
+        outline: 3px solid var(--accent-soft);
+        border-color: var(--accent);
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--accent-soft);
+        border-radius: 999px;
+        padding: 2px 4px 2px 10px;
+        font-size: 0.9rem;
+      }
+      .chip button {
+        border: none;
+        background: none;
+        padding: 0 6px;
+        line-height: 1;
+        font-size: 1rem;
+      }
+      .chips input {
+        border: none;
+        outline: none;
+        flex: 1;
+        min-width: 120px;
+        padding: 4px;
+        font: inherit;
+      }
+      .mention-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 12px 0 4px;
+        font-weight: 600;
+      }
+      .image-row {
+        display: grid;
+        grid-template-columns: 64px minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: start;
+        margin-bottom: 10px;
+      }
+      .image-row .thumb {
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        object-fit: cover;
+      }
+      .image-row .inputs {
+        display: grid;
+        gap: 6px;
+      }
+      .image-status {
+        font-size: 0.8rem;
+      }
+      .status-ok {
+        color: var(--ok);
+      }
+      .status-error {
+        color: var(--error);
+      }
+      .notice {
+        background: var(--warn-bg);
+        color: var(--warn);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        margin-top: 8px;
+      }
+      #errors {
+        color: var(--error);
+        margin: 0 0 12px;
+        padding-left: 20px;
+      }
+      #errors:empty {
+        display: none;
+      }
+      .preview-card {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 12px;
+        background: #fff;
+      }
+      .preview-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .preview-head .handle {
+        color: var(--muted);
+        font-weight: 400;
+        font-size: 0.85rem;
+      }
+      .bubble {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        background: var(--bg);
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-top: 8px;
+        font-size: 0.95rem;
+      }
+      .bubble .count {
+        display: block;
+        text-align: right;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .bubble .count.over {
+        color: var(--error);
+        font-weight: 600;
+      }
+      .bubble-images {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      .bubble-images img {
+        width: 96px;
+        height: 96px;
+        object-fit: cover;
+        border-radius: 6px;
+      }
+      .empty {
+        color: var(--muted);
+        text-align: center;
+        padding: 24px 8px;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--ok);
+        border-color: var(--ok);
+        color: #fff;
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+      .primary[aria-disabled="true"] {
+        background: #9aa3b5;
+        border-color: #9aa3b5;
+        pointer-events: none;
+      }
+      ol.next {
+        margin: 12px 0 0;
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      pre#file {
+        white-space: pre-wrap;
+        background: var(--bg);
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 0.85rem;
+        overflow-x: auto;
+      }
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
       }
     </style>
   </head>
 
-  <body class="bg-gray-100 text-gray-900">
-    <div
-      class="max-w-3xl mx-auto p-6 bg-white shadow-xl mt-10 mb-10 rounded-xl"
-    >
-      <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold">Galaxy Social Post Creator</h1>
-        <a
-          href="https://github.com/usegalaxy-eu/galaxy-social"
-          target="_blank"
-          class="text-blue-600 hover:underline flex items-center space-x-1"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5 inline"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.41-5.25 5.7.42.36.79 1.09.79 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.68.8.56C20.71 21.39 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z"
-            />
-          </svg>
-          <span>GitHub</span>
-        </a>
-      </div>
-      <div
-        class="bg-blue-50 border border-blue-200 text-blue-900 text-sm rounded p-4 mb-4 flex items-start space-x-2"
-      >
-        This is a simple interface for writing and submitting posts to the
-        Galaxy Social media channels. Give your post a title, choose the media
-        you want to share, add mentions and hashtags, and use the editor below
-        to compose your message in Markdown. When you're ready, click "Continue
-        on GitHub" to propose it as a pull request to our repository. It’s the
-        easiest way to contribute to our community updates!
-      </div>
-      <div id="error-message" class="text-red-500 mb-4 hidden"></div>
-      <div class="space-y-6">
-        <div>
-          <label class="block font-medium">Title</label>
-          <input
-            type="text"
-            id="post-title"
-            class="w-full p-2 border rounded"
-          />
-        </div>
-        <div>
-          <label class="block font-medium mb-2">Select Media Platforms</label>
-          <div id="media-options" class="flex flex-col gap-4"></div>
-        </div>
-        <div>
-          <label class="block font-medium">Content</label>
-          <textarea id="post-content"></textarea>
-          <p class="text-sm text-gray-600 mt-2">
-            ⚠️ <strong>Note:</strong> Most
-            <strong>Markdown formatting</strong> is
-            <strong>not supported</strong> on <strong>Bluesky</strong>,
-            <strong>Mastodon</strong>, or <strong>LinkedIn</strong>. <br />
-            Only <strong>images</strong> and <strong>links</strong> written in
-            Markdown syntax will be preserved and correctly processed for those
-            platforms.
-          </p>
-          <p class="text-sm text-gray-600 mt-2">
-            🔼 <strong>To upload images:</strong> After clicking
-            <strong>"Continue on GitHub"</strong>, you can drag and drop your
-            image directly into the GitHub editor. This will upload the image
-            and insert it in your post automatically.
-          </p>
-        </div>
-        <div>
-          <label class="block font-medium">Schedule (optional)</label>
-          <input
-            type="datetime-local"
-            id="post-schedule"
-            class="p-2 border rounded"
-          />
-          <p class="text-sm text-gray-600 mt-2">
-            ⏰ Leave empty to post right after merge. Otherwise pick the time
-            in your time zone (<span id="post-timezone"></span>), the post
-            will go out around this time after merge.
-          </p>
-        </div>
-        <div id="warnings" class="p-4 rounded bg-yellow-100 hidden"></div>
-      </div>
-      <div id="output-container" class="mt-8 hidden">
-        <h2 id="output-heading" class="text-xl font-semibold mb-2"></h2>
-        <pre
-          id="output"
-          class="bg-gray-100 p-4 rounded overflow-auto whitespace-pre-wrap"
-          style="max-height: 300px"
-        ></pre>
-        <div class="mt-4 flex space-x-2">
-          <a
-            id="pr-button"
-            target="_blank"
-            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 hidden flex items-center space-x-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.41-5.25 5.7.42.36.79 1.09.79 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.68.8.56C20.71 21.39 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z"
-              />
-            </svg>
-            <span>Continue on GitHub</span>
-          </a>
-        </div>
-        <p class="text-sm text-gray-500 mt-2 italic">
-          Note: Clicking the button will open GitHub in a new tab with your post
-          draft. No changes are committed automatically. you’ll need to review
-          and submit the post from github as next step.
+  <body>
+    <svg class="visually-hidden" aria-hidden="true">
+      <symbol id="icon-mastodon" viewBox="0 0 24 24">
+        <path
+          d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 0 0 .023-.043v-1.809a.052.052 0 0 0-.02-.041.053.053 0 0 0-.046-.01 20.282 20.282 0 0 1-4.709.545c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 0 1-.319-1.433.053.053 0 0 1 .066-.054c1.517.363 3.072.546 4.632.546.376 0 .75 0 1.125-.01 1.57-.044 3.224-.124 4.768-.422.038-.008.077-.015.11-.024 2.435-.464 4.753-1.92 4.989-5.604.008-.145.03-1.52.03-1.67.002-.512.167-3.63-.024-5.545zm-3.748 9.195h-2.561V8.29c0-1.309-.55-1.976-1.67-1.976-1.23 0-1.846.79-1.846 2.35v3.403h-2.546V8.663c0-1.56-.617-2.35-1.848-2.35-1.112 0-1.668.668-1.67 1.977v6.218H4.822V8.102c0-1.31.337-2.35 1.011-3.12.696-.77 1.608-1.164 2.74-1.164 1.311 0 2.302.5 2.962 1.498l.638 1.06.638-1.06c.66-.999 1.65-1.498 2.96-1.498 1.13 0 2.043.395 2.74 1.164.675.77 1.012 1.81 1.012 3.12z"
+        />
+      </symbol>
+      <symbol id="icon-bluesky" viewBox="0 0 24 24">
+        <path
+          d="M5.202 2.857C7.954 4.922 10.913 9.11 12 11.358c1.087-2.247 4.046-6.436 6.798-8.501C20.783 1.366 24 .213 24 3.883c0 .732-.42 6.156-.667 7.037-.856 3.061-3.978 3.842-6.755 3.37 4.854.826 6.089 3.562 3.422 6.299-5.065 5.196-7.28-1.304-7.847-2.97-.104-.305-.152-.448-.153-.327 0-.121-.05.022-.153.327-.568 1.666-2.782 8.166-7.847 2.970-2.667-2.737-1.432-5.473 3.422-6.3-2.777.473-5.899-.308-6.755-3.369C.42 10.04 0 4.615 0 3.883c0-3.67 3.217-2.517 5.202-1.026"
+        />
+      </symbol>
+      <symbol id="icon-linkedin" viewBox="0 0 24 24">
+        <path
+          d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+        />
+      </symbol>
+      <symbol id="icon-matrix" viewBox="0 0 24 24">
+        <path
+          d="M.632.55v22.9H2.28V24H0V0h2.28v.55zm7.043 7.26v1.157h.033c.309-.443.683-.784 1.117-1.024.433-.245.936-.365 1.5-.365.54 0 1.033.107 1.481.314.448.208.785.582 1.02 1.108.254-.374.6-.706 1.034-.992.434-.287.95-.43 1.546-.43.453 0 .872.056 1.26.167.388.11.716.286.993.53.276.245.489.559.646.951.152.392.23.863.23 1.417v5.728h-2.349V11.52c0-.286-.01-.559-.032-.812a1.755 1.755 0 0 0-.18-.66 1.106 1.106 0 0 0-.438-.448c-.194-.11-.457-.166-.785-.166-.332 0-.6.064-.803.189a1.38 1.38 0 0 0-.48.499 1.946 1.946 0 0 0-.231.696 5.56 5.56 0 0 0-.06.785v4.768h-2.35v-4.8c0-.254-.004-.503-.018-.752a2.074 2.074 0 0 0-.143-.688 1.052 1.052 0 0 0-.415-.503c-.194-.125-.476-.19-.854-.19-.111 0-.259.024-.439.074-.18.051-.36.143-.53.282-.171.138-.319.337-.439.595-.12.259-.18.6-.18 1.02v4.966H5.46V7.81zm15.693 15.64V.55H21.72V0H24v24h-2.28v-.55z"
+        />
+      </symbol>
+      <symbol id="icon-github" viewBox="0 0 24 24">
+        <path
+          d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.41-5.25 5.7.42.36.79 1.09.79 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.68.8.56C20.71 21.39 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z"
+        />
+      </symbol>
+    </svg>
+
+    <header>
+      <div>
+        <h1>Galaxy Social Post Creator</h1>
+        <p>
+          Write a post once and send it to the Galaxy social media accounts.
+          The team reviews it on GitHub before it goes out.
         </p>
       </div>
-    </div>
-    <emoji-picker
-      id="emoji-picker"
-      style="position: absolute; z-index: 1000; display: none"
-    ></emoji-picker>
+      <a href="https://github.com/usegalaxy-eu/galaxy-social" target="_blank">
+        <svg class="icon"><use href="#icon-github" /></svg>
+        <span class="visually-hidden">GitHub repository</span>
+      </a>
+    </header>
+
+    <main class="layout">
+      <div>
+        <section class="card" aria-labelledby="h-accounts">
+          <h2 id="h-accounts"><span class="step">1</span>Where to post</h2>
+          <p class="hint">Tick the accounts that should share this post.</p>
+          <div id="accounts" class="groups">
+            <p class="hint">Loading accounts…</p>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-write">
+          <h2 id="h-write"><span class="step">2</span>Write your post</h2>
+          <label class="field" for="post-title">Short title</label>
+          <p class="hint">Only used to name the file, not shown in the post.</p>
+          <input id="post-title" type="text" autocomplete="off" />
+
+          <label class="field" for="post-content">Text</label>
+          <p class="hint">
+            Plain text. Links work as they are. Long text is split into a
+            thread automatically; two empty lines mark where a new part should
+            start.
+          </p>
+          <textarea id="post-content"></textarea>
+
+          <label class="field">Images (optional)</label>
+          <p class="hint">
+            Paste a link to an image and describe it for people who can't see
+            it. Up to 4 images.
+          </p>
+          <div id="images"></div>
+          <button type="button" id="add-image">+ Add image</button>
+          <p class="hint">
+            Image on your computer? After "Continue on GitHub", drag it into the
+            text box on GitHub.
+          </p>
+        </section>
+
+        <section class="card" aria-labelledby="h-tags">
+          <h2 id="h-tags"><span class="step">3</span>Hashtags and mentions</h2>
+          <label class="field" for="hashtags-input">Hashtags</label>
+          <p class="hint">
+            Used for every account except Matrix. Type a word and press Enter,
+            without the #.
+          </p>
+          <div class="chips" id="hashtags"></div>
+          <div id="mentions"></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-when">
+          <h2 id="h-when"><span class="step">4</span>When</h2>
+          <p class="hint">
+            Leave empty to post right after the pull request is merged.
+          </p>
+          <label class="field" for="post-schedule">Post at (optional)</label>
+          <input id="post-schedule" type="datetime-local" />
+          <p class="hint">
+            Your time zone: <strong id="post-timezone"></strong>. The post goes
+            out around this time, sometimes a bit later.
+            <button type="button" class="link" id="clear-schedule">Clear</button>
+          </p>
+        </section>
+      </div>
+
+      <aside class="preview-column" aria-labelledby="h-preview">
+        <section class="card">
+          <h2 id="h-preview"><span class="step">5</span>Preview and send</h2>
+          <p class="hint">
+            Approximate preview. The bot posts the exact preview on GitHub.
+          </p>
+          <ul id="errors" aria-live="polite"></ul>
+          <div id="previews">
+            <p class="empty">Pick an account and write something to see it here.</p>
+          </div>
+          <div class="actions">
+            <a id="pr-button" class="primary" target="_blank" aria-disabled="true">
+              <svg class="icon"><use href="#icon-github" /></svg>
+              Continue on GitHub
+            </a>
+            <button type="button" id="toggle-file">Show file</button>
+          </div>
+          <ol class="next">
+            <li>GitHub opens with your post already filled in.</li>
+            <li>Drag in images from your computer, if you have any.</li>
+            <li>Click <strong>Commit changes…</strong>, then <strong>Propose changes</strong>.</li>
+            <li>Click <strong>Create pull request</strong>. The bot replies with a preview.</li>
+          </ol>
+          <pre id="file" hidden></pre>
+        </section>
+      </aside>
+    </main>
+
     <script>
-      let easyMDE;
-      const tagInstances = {};
-      const pluginMax = {};
+      const REPO = "usegalaxy-eu/galaxy-social";
+      const MAX_IMAGES = 4;
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-      function showError(msg) {
-        const errorDiv = document.getElementById("error-message");
-        errorDiv.textContent = msg;
-        errorDiv.classList.remove("hidden");
+      // Grouping and labels for plugins.yml names like "<platform>-<owner>"
+      const OWNERS = {
+        galaxyproject: "Galaxy Project",
+        eu: "Galaxy Europe",
+        brc: "BRC Analytics",
+        vgp: "Vertebrate Genomes Project",
+      };
+      const PLATFORMS = {
+        mastodon: { label: "Mastodon", mention: "user@server, e.g. galaxyproject@mstdn.science", check: /^[^@:\s]+@[^@:\s]+$/ },
+        bluesky: { label: "Bluesky", mention: "handle, e.g. galaxyproject.bsky.social", check: /^[^@:\s]+\.[^@:\s]+$/ },
+        linkedin: { label: "LinkedIn", mention: "the part after /company/ in the LinkedIn link, e.g. galaxy-project", check: /^[^@\s]+$/ },
+        matrix: { label: "Matrix", mention: "user:server, e.g. bgruening:matrix.org", check: /^[^@:\s]+:[^@:\s]+$/ },
+      };
+
+      let accounts = [];
+      const hashtags = [];
+      const mentions = {};
+      const images = [];
+
+      const $ = (id) => document.getElementById(id);
+
+      function platformOf(name) {
+        return name.split("-")[0];
       }
 
-      function clearError() {
-        const errorDiv = document.getElementById("error-message");
-        errorDiv.textContent = "";
-        errorDiv.classList.add("hidden");
+      function icon(platform) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("class", "icon");
+        svg.setAttribute("aria-hidden", "true");
+        const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+        use.setAttribute("href", `#icon-${platform}`);
+        svg.appendChild(use);
+        return svg;
       }
 
-      function updateAll() {
-        clearError();
-        const title = document.getElementById("post-title").value.trim();
-        const content = easyMDE.value().trim();
-        const selected = Array.from(
-          document.querySelectorAll("input.media-checkbox:checked")
-        ).map((cb) => cb.value);
+      function handleOf(account) {
+        const url = account.url || "";
+        const at = url.match(/@[^/?#]+$/);
+        if (at) return at[0];
+        const profile = url.match(/\/(?:profile|company|in)\/([^/?#]+)/);
+        if (profile) return profile[1];
+        return account.name.split("-").slice(2).join(" ");
+      }
 
-        // Validation
-        if (!title) {
-          hideOutput();
-          return showError("Title is required.");
-        }
-        if (selected.length === 0) {
-          hideOutput();
-          return showError("Select at least one media platform.");
-        }
-        if (!content) {
-          hideOutput();
-          return showError("Content cannot be empty.");
-        }
-        if (!document.getElementById("post-schedule").validity.valid) {
-          hideOutput();
-          return showError(
-            "Complete the schedule date and time, or clear it to post after merge."
-          );
-        }
-
-        // split warnings under content
-        const warnDiv = document.getElementById("warnings");
-        const warnings = [];
-        selected.forEach((name) => {
-          const maxLen = pluginMax[name];
-          if (maxLen && content.length > maxLen) {
-            const parts = Math.ceil(content.length / maxLen);
-            warnings.push(
-              `⚠️ Will split into ${parts} posts on ${name} (max ${maxLen} chars each)`
-            );
+      // Python's textwrap.wrap(text, width, replace_whitespace=False), as used by the plugins
+      const WS = "[ \\t\\n\\r\\f\\v]";
+      const NWS = "[^ \\t\\n\\r\\f\\v]";
+      const LT = "[\\p{L}\\p{M}_]";
+      const WP = "[\\p{L}\\p{M}\\p{N}_!\"'&.,?]";
+      const WORDSEP = new RegExp(
+        `(${WS}+|(?<=${WP})-{2,}(?=[\\p{L}\\p{N}_])|${NWS}+?(?:-(?:(?<=${LT}{2}-)|(?<=${LT}-${LT}-))(?=${LT}-?${LT})|(?=${WS}|$)|(?<=${WP})(?=-{2,}[\\p{L}\\p{N}_])))`,
+        "u"
+      );
+      function wrap(text, width) {
+        const chunks = text.split(WORDSEP).filter(Boolean).reverse();
+        const isSpace = (c) => c.trim() === "";
+        const lines = [];
+        while (chunks.length) {
+          const cur = [];
+          let len = 0;
+          if (isSpace(chunks[chunks.length - 1]) && lines.length) chunks.pop();
+          while (chunks.length && len + chunks[chunks.length - 1].length <= width) {
+            len += chunks[chunks.length - 1].length;
+            cur.push(chunks.pop());
           }
+          if (chunks.length && chunks[chunks.length - 1].length > width) {
+            const chunk = chunks[chunks.length - 1];
+            const room = width < 1 ? 1 : width - len;
+            let end = room;
+            const hyphen = chunk.lastIndexOf("-", room - 1);
+            if (chunk.length > room && hyphen > 0 && /[^-]/.test(chunk.slice(0, hyphen)))
+              end = hyphen + 1;
+            cur.push(chunk.slice(0, end));
+            chunks[chunks.length - 1] = chunk.slice(end);
+          }
+          if (cur.length && isSpace(cur[cur.length - 1])) cur.pop();
+          if (cur.length) lines.push(cur.join(""));
+        }
+        return lines;
+      }
+
+      // Mirrors wrap_text_with_index in lib/plugins (mastodon counts every link as 23 characters)
+      function splitPost(content, max, platform) {
+        if (!max || content.length <= max) return [content];
+        const urls = content.match(/https?:\/\/\S+/g) || [];
+        const masked = content.replace(/https?:\/\/\S+/g, (u) =>
+          "~".repeat(platform === "mastodon" ? 23 : u.length)
+        );
+        const parts = masked
+          .split("\n\n\n")
+          .flatMap((p) => wrap(p.replace(/^\n+|\n+$/g, ""), max - 8));
+        let next = 0;
+        return parts.map(
+          (line, i) =>
+            line.replace(/~{10,}/g, (m) => (next < urls.length ? urls[next++] : m)) +
+            ` (${i + 1}/${parts.length})`
+        );
+      }
+
+      function countChars(text, platform) {
+        const counted =
+          platform === "mastodon" ? text.replace(/https?:\/\/\S+/g, "~".repeat(23)) : text;
+        return [...counted].length;
+      }
+
+      function selectedAccounts() {
+        return accounts.filter((a) => a.checkbox.checked);
+      }
+
+      function postText(account) {
+        const platform = platformOf(account.name);
+        let content = $("post-content").value.trim() + "\n";
+        const m = (mentions[platform] || []).map((v) => `@${v}`).join(" ");
+        const h = platform === "matrix" ? "" : hashtags.map((v) => `#${v}`).join(" ");
+        if (m) content += `\n${m}`;
+        if (h) content += `\n${h}`;
+        return content.replace(/^\n+|\n+$/g, "");
+      }
+
+      function buildFile(selected) {
+        const yamlList = (obj) =>
+          Object.entries(obj)
+            .filter(([, vs]) => vs.length)
+            .map(([k, vs]) => `\n  ${k}:\n${vs.map((v) => `    - ${v}`).join("\n")}`)
+            .join("");
+        const mentionMap = {};
+        const hashtagMap = {};
+        selected.forEach((a) => {
+          const platform = platformOf(a.name);
+          mentionMap[a.name] = mentions[platform] || [];
+          hashtagMap[a.name] = platform === "matrix" ? [] : hashtags;
         });
-        if (warnings.length > 0) {
-          warnDiv.innerHTML = warnings.map((w) => `<div>${w}</div>`).join("");
-          warnDiv.classList.remove("hidden");
-        } else {
-          warnDiv.classList.add("hidden");
-          warnDiv.innerHTML = "";
-        }
+        let meta = "---";
+        const schedule = $("post-schedule").value;
+        if (schedule) meta += `\nschedule: ${schedule.replace("T", " ")} ${timeZone}`;
+        meta += `\nmedia:\n${selected.map((a) => `  - ${a.name}`).join("\n")}`;
+        const m = yamlList(mentionMap);
+        if (m) meta += `\nmentions:${m}`;
+        const h = yamlList(hashtagMap);
+        if (h) meta += `\nhashtags:${h}`;
+        meta += "\n---";
+        const imageLines = images
+          .filter((img) => img.url)
+          .map((img) => `![${img.alt.replace(/[\[\]]/g, "")}](${img.url})`)
+          .join("\n");
+        const body = $("post-content").value.trim();
+        return `${meta}\n${body}${imageLines ? `\n\n${imageLines}` : ""}\n`;
+      }
 
-        // Generate metadata
-        const mentions = {};
-        const hashtags = {};
-        selected.forEach((name) => {
-          mentions[name] = [];
-          hashtags[name] = [];
-          const mInst = tagInstances[`mention-${name}`];
-          if (mInst) {
-            mentions[name] = mInst.value.map((t) => t.value);
-          }
-          const hInst = tagInstances[`hashtag-${name}`];
-          if (hInst) {
-            hashtags[name] = hInst.value.map((t) => t.value);
-          }
-        });
-        const year = new Date().getFullYear();
+      function fileName() {
         const date = new Date().toISOString().split("T")[0];
-        const slug = `${date}-${title
+        const slug = $("post-title")
+          .value.trim()
           .toLowerCase()
           .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9\-]/g, "")}`;
+          .replace(/[^a-z0-9-]/g, "");
+        return `posts/${new Date().getFullYear()}/${date}-${slug}.md`;
+      }
 
-        let meta = "---";
-        const schedule = document.getElementById("post-schedule").value;
-        if (schedule) {
-          meta += `\nschedule: ${schedule.replace("T", " ")} ${timeZone}`;
+      function problems(selected) {
+        const list = [];
+        if (!selected.length) list.push("Tick at least one account.");
+        if (!$("post-title").value.trim()) list.push("Add a short title.");
+        if (!$("post-content").value.trim()) list.push("Write the text of the post.");
+        if (!$("post-schedule").validity.valid)
+          list.push("Complete the date and time, or clear it to post after merge.");
+        images.forEach((img, i) => {
+          if (img.url && !/^https?:\/\/\S+$/.test(img.url))
+            list.push(`Image ${i + 1}: the link must start with http:// or https://.`);
+          if (img.url && !img.alt.trim())
+            list.push(`Image ${i + 1}: add a short description.`);
+        });
+        return list;
+      }
+
+      function renderPreviews(selected) {
+        const box = $("previews");
+        box.replaceChildren();
+        if (!selected.length || !$("post-content").value.trim()) {
+          const p = document.createElement("p");
+          p.className = "empty";
+          p.textContent = "Pick an account and write something to see it here.";
+          box.appendChild(p);
+          return;
         }
-        meta += `\nmedia:\n${selected.map((m) => ` - ${m}`).join("\n")}`;
-        if (Object.values(mentions).some((a) => a.length)) {
-          meta +=
-            `\nmentions:` +
-            Object.entries(mentions)
-              .filter(([, vs]) => vs.length)
-              .map(
-                ([k, vs]) => `\n ${k}:\n${vs.map((v) => `  - ${v}`).join("\n")}`
-              )
-              .join("");
+        const shown = images.filter((img) => img.url && img.ok !== false).slice(0, MAX_IMAGES);
+        selected.forEach((a) => {
+          const platform = platformOf(a.name);
+          const card = document.createElement("div");
+          card.className = "preview-card";
+          const head = document.createElement("div");
+          head.className = "preview-head";
+          head.append(icon(platform), `${a.owner} · ${PLATFORMS[platform]?.label || platform}`);
+          const handle = document.createElement("span");
+          handle.className = "handle";
+          handle.textContent = handleOf(a);
+          head.appendChild(handle);
+          card.appendChild(head);
+          splitPost(postText(a), a.max, platform).forEach((part, i) => {
+            const bubble = document.createElement("div");
+            bubble.className = "bubble";
+            bubble.textContent = part;
+            if (i === 0 && shown.length) {
+              const row = document.createElement("div");
+              row.className = "bubble-images";
+              shown.forEach((img) => {
+                const el = document.createElement("img");
+                el.src = img.url;
+                el.alt = img.alt;
+                row.appendChild(el);
+              });
+              bubble.appendChild(row);
+            }
+            if (a.max) {
+              const used = countChars(part, platform);
+              const count = document.createElement("span");
+              count.className = used > a.max ? "count over" : "count";
+              count.textContent = `${used} / ${a.max}`;
+              bubble.appendChild(count);
+            }
+            card.appendChild(bubble);
+          });
+          box.appendChild(card);
+        });
+      }
+
+      function update() {
+        const selected = selectedAccounts();
+        renderMentionInputs(selected);
+        const list = problems(selected);
+        $("errors").replaceChildren(
+          ...list.map((text) => Object.assign(document.createElement("li"), { textContent: text }))
+        );
+        renderPreviews(selected);
+        const file = buildFile(selected);
+        $("file").textContent = file;
+        const button = $("pr-button");
+        if (list.length) {
+          button.setAttribute("aria-disabled", "true");
+          button.removeAttribute("href");
+        } else {
+          button.setAttribute("aria-disabled", "false");
+          button.href =
+            `https://github.com/${REPO}/new/main/?filename=${fileName()}&value=` +
+            encodeURIComponent(file);
         }
-        if (Object.values(hashtags).some((a) => a.length)) {
-          meta +=
-            `\nhashtags:` +
-            Object.entries(hashtags)
-              .filter(([, vs]) => vs.length)
-              .map(
-                ([k, vs]) => `\n ${k}:\n${vs.map((v) => `  - ${v}`).join("\n")}`
-              )
-              .join("");
-        }
-        meta += `\n---`;
-        const full = `${meta}\n${content}\n`;
-
-        // Update PR link
-        const prBtn = document.getElementById("pr-button");
-        prBtn.href =
-          `https://github.com/usegalaxy-eu/galaxy-social/new/main/?filename=posts/${year}/${slug}.md&value=` +
-          encodeURIComponent(full);
-
-        // Show output
-        showOutputContent(full);
+        saveDraft();
       }
 
-      function showOutputContent(md) {
-        const container = document.getElementById("output-container");
-        document.getElementById("output-heading").textContent =
-          "Generated Markdown Content";
-        document.getElementById("output").textContent = md;
-        document.getElementById("pr-button").classList.remove("hidden");
-        container.classList.remove("hidden");
+      // A small tag input: Enter, comma or space adds a tag, Backspace removes the last one
+      function chipInput(container, values, { placeholder, strip, check, label }) {
+        container.replaceChildren();
+        const input = document.createElement("input");
+        input.placeholder = placeholder;
+        input.setAttribute("aria-label", label);
+        if (container.id === "hashtags") input.id = "hashtags-input";
+        const render = () => {
+          container.querySelectorAll(".chip").forEach((c) => c.remove());
+          values.forEach((value, i) => {
+            const chip = document.createElement("span");
+            chip.className = "chip";
+            chip.textContent = value;
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.textContent = "×";
+            remove.setAttribute("aria-label", `Remove ${value}`);
+            remove.onclick = () => {
+              values.splice(i, 1);
+              render();
+              update();
+            };
+            chip.appendChild(remove);
+            container.insertBefore(chip, input);
+          });
+        };
+        const add = () => {
+          input.value
+            .split(/[\s,]+/)
+            .map((v) => v.replace(strip, ""))
+            .filter((v) => v && (!check || check.test(v)) && !values.includes(v))
+            .forEach((v) => values.push(v));
+          input.value = "";
+          render();
+          update();
+        };
+        input.addEventListener("keydown", (e) => {
+          if (["Enter", ",", " "].includes(e.key)) {
+            e.preventDefault();
+            add();
+          } else if (e.key === "Backspace" && !input.value && values.length) {
+            values.pop();
+            render();
+            update();
+          }
+        });
+        input.addEventListener("blur", add);
+        container.onclick = () => input.focus();
+        container.appendChild(input);
+        render();
       }
 
-      function hideOutput() {
-        document.getElementById("output-container").classList.add("hidden");
+      let mentionPlatforms = "";
+      function renderMentionInputs(selected) {
+        const platforms = [...new Set(selected.map((a) => platformOf(a.name)))].filter(
+          (p) => PLATFORMS[p]
+        );
+        if (platforms.join() === mentionPlatforms) return;
+        mentionPlatforms = platforms.join();
+        const box = $("mentions");
+        box.replaceChildren();
+        platforms.forEach((platform) => {
+          mentions[platform] = mentions[platform] || [];
+          const row = document.createElement("div");
+          row.className = "mention-row";
+          row.append(icon(platform), `Mentions on ${PLATFORMS[platform].label}`);
+          const hint = document.createElement("p");
+          hint.className = "hint";
+          hint.textContent = `Without the @. Format: ${PLATFORMS[platform].mention}.`;
+          const chips = document.createElement("div");
+          chips.className = "chips";
+          box.append(row, hint, chips);
+          chipInput(chips, mentions[platform], {
+            placeholder: "Add a mention",
+            strip: /^@/,
+            check: PLATFORMS[platform].check,
+            label: `Mentions on ${PLATFORMS[platform].label}`,
+          });
+        });
       }
 
-      const emojiPicker = document.getElementById("emoji-picker");
-      let isEmojiOpen = false;
-      let currentEditor = null;
-      let emojiBtn = null;
-      function handleEmojiSelect(e) {
-        currentEditor.codemirror.replaceSelection(e.detail.unicode);
-        closeEmojiPicker();
+      function addImage(url = "", alt = "") {
+        if (images.length >= MAX_IMAGES) return;
+        const img = { url, alt, ok: undefined };
+        images.push(img);
+        const row = document.createElement("div");
+        row.className = "image-row";
+        const thumb = document.createElement("img");
+        thumb.className = "thumb";
+        thumb.alt = "";
+        const inputs = document.createElement("div");
+        inputs.className = "inputs";
+        const urlInput = Object.assign(document.createElement("input"), {
+          type: "url",
+          placeholder: "https://… link to the image",
+          value: url,
+        });
+        urlInput.setAttribute("aria-label", "Image link");
+        const altInput = Object.assign(document.createElement("input"), {
+          type: "text",
+          placeholder: "Describe the image",
+          value: alt,
+        });
+        altInput.setAttribute("aria-label", "Image description");
+        const status = document.createElement("span");
+        status.className = "image-status";
+        inputs.append(urlInput, altInput, status);
+        const remove = Object.assign(document.createElement("button"), {
+          type: "button",
+          textContent: "Remove",
+        });
+        const check = () => {
+          img.url = urlInput.value.trim();
+          img.ok = undefined;
+          status.textContent = "";
+          if (!/^https?:\/\/\S+$/.test(img.url)) {
+            thumb.removeAttribute("src");
+            return update();
+          }
+          thumb.onload = () => {
+            img.ok = true;
+            status.textContent = "✓ Image found";
+            status.className = "image-status status-ok";
+            update();
+          };
+          thumb.onerror = () => {
+            img.ok = false;
+            status.textContent = "Couldn't load this image. Check that the link opens the image itself.";
+            status.className = "image-status status-error";
+            update();
+          };
+          thumb.src = img.url;
+          update();
+        };
+        urlInput.addEventListener("change", check);
+        altInput.addEventListener("input", () => {
+          img.alt = altInput.value;
+          update();
+        });
+        remove.onclick = () => {
+          images.splice(images.indexOf(img), 1);
+          row.remove();
+          $("add-image").disabled = false;
+          update();
+        };
+        row.append(thumb, inputs, remove);
+        $("images").appendChild(row);
+        $("add-image").disabled = images.length >= MAX_IMAGES;
+        if (url) check();
       }
-      function closeEmojiPicker() {
-        if (!isEmojiOpen) return;
-        emojiPicker.style.display = "none";
-        emojiPicker.removeEventListener("emoji-click", handleEmojiSelect);
-        isEmojiOpen = false;
+
+      function renderAccounts(plugins) {
+        const box = $("accounts");
+        box.replaceChildren();
+        const groups = {};
+        plugins.forEach((p) => {
+          const name = p.name.toLowerCase();
+          const ownerKey = name.split("-")[1];
+          const owner = OWNERS[ownerKey] || "Other";
+          const account = { name, owner, url: p.config?.account_url, max: p.config?.max_content_length };
+          (groups[owner] = groups[owner] || []).push(account);
+          accounts.push(account);
+        });
+        const order = [...Object.values(OWNERS), "Other"].filter((o, i, a) => a.indexOf(o) === i);
+        order
+          .filter((owner) => groups[owner])
+          .forEach((owner) => {
+            const set = document.createElement("fieldset");
+            set.className = "group";
+            const legend = document.createElement("legend");
+            legend.textContent = owner;
+            const all = Object.assign(document.createElement("button"), {
+              type: "button",
+              className: "link group-all",
+              textContent: "Select all",
+            });
+            all.onclick = () => {
+              const turnOn = groups[owner].some((a) => !a.checkbox.checked);
+              groups[owner].forEach((a) => (a.checkbox.checked = turnOn));
+              update();
+            };
+            legend.appendChild(all);
+            set.appendChild(legend);
+            groups[owner]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .forEach((account) => {
+                const platform = platformOf(account.name);
+                const label = document.createElement("label");
+                label.className = "account";
+                const cb = Object.assign(document.createElement("input"), {
+                  type: "checkbox",
+                  value: account.name,
+                });
+                cb.addEventListener("change", update);
+                account.checkbox = cb;
+                const text = document.createElement("span");
+                text.textContent = PLATFORMS[platform]?.label || platform;
+                const handle = document.createElement("span");
+                handle.className = "handle";
+                handle.textContent = handleOf(account);
+                label.append(cb, icon(platform), text, handle);
+                if (account.url) {
+                  const link = Object.assign(document.createElement("a"), {
+                    href: account.url,
+                    target: "_blank",
+                    textContent: "Open",
+                    title: `Open ${account.name}`,
+                  });
+                  label.appendChild(link);
+                }
+                set.appendChild(label);
+              });
+            box.appendChild(set);
+          });
       }
-      function onPageClick(e) {
-        if (
-          isEmojiOpen &&
-          !emojiPicker.contains(e.target) &&
-          !emojiBtn.contains(e.target)
-        ) {
-          closeEmojiPicker();
-        }
+
+      // Keep a draft in this browser so a reload doesn't lose the text
+      const DRAFT_KEY = "galaxy-social-draft";
+      function saveDraft() {
+        try {
+          localStorage.setItem(
+            DRAFT_KEY,
+            JSON.stringify({
+              title: $("post-title").value,
+              content: $("post-content").value,
+              schedule: $("post-schedule").value,
+              accounts: selectedAccounts().map((a) => a.name),
+              hashtags,
+              mentions,
+              images: images.map(({ url, alt }) => ({ url, alt })),
+            })
+          );
+        } catch (e) {}
       }
-      function onPageKey(e) {
-        if (isEmojiOpen && e.key === "Escape") {
-          closeEmojiPicker();
-        }
+      function loadDraft() {
+        let draft = null;
+        try {
+          draft = JSON.parse(localStorage.getItem(DRAFT_KEY));
+        } catch (e) {}
+        if (!draft) return;
+        $("post-title").value = draft.title || "";
+        $("post-content").value = draft.content || "";
+        $("post-schedule").value = draft.schedule || "";
+        accounts.forEach((a) => (a.checkbox.checked = (draft.accounts || []).includes(a.name)));
+        hashtags.push(...(draft.hashtags || []));
+        Object.assign(mentions, draft.mentions || {});
+        (draft.images || []).forEach((img) => addImage(img.url, img.alt));
       }
-      document.addEventListener("click", onPageClick);
-      document.addEventListener("keydown", onPageKey);
 
       window.addEventListener("DOMContentLoaded", async () => {
-        easyMDE = new EasyMDE({
-          element: document.getElementById("post-content"),
-          spellChecker: false,
-          toolbar: [
-            "bold",
-            "italic",
-            "heading",
-            "|",
-            "quote",
-            "unordered-list",
-            "ordered-list",
-            "|",
-            "link",
-            "image",
-            "table",
-            "horizontal-rule",
-            {
-              name: "emoji",
-              action: function (editor) {
-                currentEditor = editor;
-                if (!emojiBtn) {
-                  emojiBtn = Array.from(
-                    document.querySelectorAll(".editor-toolbar button")
-                  ).find((b) => b.getAttribute("title") === "Insert Emoji");
-                  if (!emojiBtn) return;
-                }
-                if (isEmojiOpen) {
-                  return closeEmojiPicker();
-                }
-                const rect = emojiBtn.getBoundingClientRect();
-                emojiPicker.style.left = `${rect.left + window.scrollX}px`;
-                emojiPicker.style.top = `${rect.bottom + window.scrollY}px`;
-                emojiPicker.style.display = "block";
-                isEmojiOpen = true;
-                emojiPicker.addEventListener("emoji-click", handleEmojiSelect, {
-                  once: true,
-                });
-              },
-              className: "fa fa-smile-o",
-              title: "Insert Emoji",
-            },
-            "|",
-            "preview",
-            "side-by-side",
-            "fullscreen",
-            "|",
-            "guide",
-          ],
-        });
-        easyMDE.codemirror.on("change", updateAll);
-        document
-          .getElementById("post-title")
-          .addEventListener("input", updateAll);
-        document
-          .getElementById("post-schedule")
-          .addEventListener("input", updateAll);
+        $("post-timezone").textContent = timeZone;
+        ["post-title", "post-content", "post-schedule"].forEach((id) =>
+          $(id).addEventListener("input", update)
+        );
         // Typing only part of the date fires no input event, so check again on leaving the field
-        document
-          .getElementById("post-schedule")
-          .addEventListener("blur", updateAll);
-        document.getElementById("post-timezone").textContent = timeZone;
-
+        $("post-schedule").addEventListener("blur", update);
+        $("clear-schedule").onclick = () => {
+          $("post-schedule").value = "";
+          update();
+        };
+        $("add-image").onclick = () => addImage();
+        $("toggle-file").onclick = () => {
+          $("file").hidden = !$("file").hidden;
+          $("toggle-file").textContent = $("file").hidden ? "Show file" : "Hide file";
+        };
         try {
-          const res = await fetch(
-            "https://raw.githubusercontent.com/usegalaxy-eu/galaxy-social/main/plugins.yml"
-          );
+          const res = await fetch(`https://raw.githubusercontent.com/${REPO}/main/plugins.yml`);
           const data = jsyaml.load(await res.text());
-          const container = document.getElementById("media-options");
-
-          const plugins = data.plugins
-            .filter((p) => p.enabled && p.name !== "markdown")
-            .sort((a, b) => a.name.localeCompare(b.name));
-          plugins.forEach((plugin) => {
-            const name = plugin.name.toLowerCase();
-            pluginMax[name] = plugin.config?.max_content_length;
-            const wrap = document.createElement("div");
-            wrap.className = "space-y-2";
-            const cb = document.createElement("input");
-            cb.type = "checkbox";
-            cb.id = `cb-${name}`;
-            cb.value = name;
-            cb.className = "media-checkbox form-checkbox";
-            const lbl = document.createElement("label");
-            lbl.htmlFor = cb.id;
-            lbl.className = "flex items-center space-x-2";
-            lbl.appendChild(cb);
-            const fullName = plugin.name.toLowerCase();
-            const base = fullName.split("-")[0];
-            const icon = document.createElement("img");
-            icon.src = `https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${base}.svg`;
-            icon.alt = `${base} logo`;
-            icon.className = "w-5 h-5 inline-block";
-            icon.onerror = () => {
-              icon.onerror = null;
-              icon.src = `https://cdn.simpleicons.org/${base}`;
-            };
-            lbl.appendChild(icon);
-
-            const span = document.createElement("span");
-            span.className = "font-semibold";
-            span.textContent = name;
-            lbl.appendChild(span);
-            if (plugin.config?.account_url) {
-              const link = document.createElement("a");
-              link.href = plugin.config.account_url;
-              link.target = "_blank";
-              link.className = "text-blue-500 text-sm";
-              link.innerHTML = "🔗";
-              lbl.appendChild(link);
-            }
-            wrap.appendChild(lbl);
-
-            const tagContainer = document.createElement("div");
-            tagContainer.className = "space-y-2 hidden";
-            if (!name.includes("slack")) {
-              const mIn = document.createElement("input");
-              mIn.id = `mention-${name}`;
-              mIn.placeholder = "Mentions";
-              mIn.className = "w-full p-2 border rounded";
-              tagContainer.appendChild(mIn);
-
-              const mentionHint = document.createElement("div");
-              mentionHint.className =
-                "text-xs text-gray-500 italic transition-all duration-300";
-
-              let format = null;
-              let validator = null;
-
-              if (name.includes("bluesky")) {
-                format = "username.server (e.g. galaxyproject.bsky.social)";
-                validator = (tag) => /^[^@:\s]+\.[^@:\s]+$/.test(tag.value);
-              } else if (name.includes("mastodon")) {
-                format = "username@server (e.g. galaxyproject@mstdn.science)";
-                validator = (tag) => /^[^@:\s]+@[^@:\s]+$/.test(tag.value);
-              } else if (name.includes("matrix")) {
-                format = "username:server (e.g. bgruening:matrix.org)";
-                validator = (tag) => /^[^@:\s]+:[^@:\s]+$/.test(tag.value);
-                } else if (name.includes("linkedin")) {
-                  format = "the part after /in/ in the organization’s LinkedIn URL (e.g. galaxy-project)";
-              }
-
-              if (format) {
-                mentionHint.textContent = `Mentions are added without @ symbol. Format: ${format}`;
-                tagContainer.appendChild(mentionHint);
-              }
-
-              const tagifyInstance = new Tagify(mIn, {
-                delimiters: ",| ",
-                trim: false,
-                pattern: /\S+/,
-                transformTag: (tagData) => {
-                  tagData.value = tagData.value.replace(/^@/, "");
-                },
-                validate: (tag) => {
-                  const isValid = validator ? validator(tag) : true;
-                  if (!isValid) {
-                    mentionHint.classList.add("text-red-500");
-                  } else {
-                    mentionHint.classList.remove("text-red-500");
-                  }
-                  return isValid;
-                },
-              });
-
-              tagifyInstance.on("input", (e) => {
-                if (!e.detail.value) {
-                  mentionHint.classList.remove("text-red-500");
-                }
-              });
-
-              tagInstances[`mention-${name}`] = tagifyInstance;
-              tagifyInstance.on("change", updateAll);
-            }
-
-            if (!name.includes("slack") && !name.includes("matrix")) {
-              const hIn = document.createElement("input");
-              hIn.id = `hashtag-${name}`;
-              hIn.placeholder = "Hashtags";
-              hIn.className = "w-full p-2 border rounded";
-              tagContainer.appendChild(hIn);
-
-              const hashtagHint = document.createElement("div");
-              hashtagHint.className = "text-xs text-gray-500 italic";
-              hashtagHint.textContent = "Hashtags are added without # symbol.";
-              tagContainer.appendChild(hashtagHint);
-
-              tagInstances[`hashtag-${name}`] = new Tagify(hIn, {
-                delimiters: ",| ",
-                trim: false,
-                pattern: /^[A-Za-z0-9_]+$/,
-                transformTag: (tagData) => {
-                  tagData.value = tagData.value.replace(/^#/, "");
-                },
-              });
-
-              tagInstances[`hashtag-${name}`].on("change", updateAll);
-            }
-
-            wrap.appendChild(tagContainer);
-            container.appendChild(wrap);
-
-            cb.addEventListener("change", () => {
-              tagContainer.classList.toggle("hidden", !cb.checked);
-              updateAll();
-            });
-          });
+          renderAccounts(data.plugins.filter((p) => p.enabled && p.name !== "markdown"));
         } catch (e) {
           console.error(e);
-          showError("Failed to load media options");
+          $("accounts").textContent = "Couldn't load the accounts. Please reload the page.";
         }
+        loadDraft();
+        chipInput($("hashtags"), hashtags, {
+          placeholder: "Add a hashtag",
+          strip: /^#/,
+          check: /^[A-Za-z0-9_]+$/,
+          label: "Hashtags",
+        });
+        update();
       });
     </script>
   </body>
