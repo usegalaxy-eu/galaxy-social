@@ -269,7 +269,16 @@ if __name__ == "__main__":
         pr_number = int(pr_number)
 
     gh_interactor = GithubInteractor(pr_number, "processed_files.json")
-    gh_interactor.load_processed_files()
+    try:
+        gh_interactor.load_processed_files()
+    except Exception:
+        # Some issue with getting the processed_files info.
+        # Failing the workflow run is our only option,
+        # but if we have a PR we can at least the contributor there
+        # with a rather generic comment.
+        if pr_number is not None:
+            gh_interactor.comment_on_pr("Something went wrong, an Admin will take a look.")
+        raise
 
     errors = []
     if pr_number is None:
