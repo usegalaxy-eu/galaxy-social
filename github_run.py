@@ -90,7 +90,7 @@ class GithubInteractor:
 
     def get_due_files(self):
         ret = {}
-        due_files = galaxy_social(False).get_due_scheduled_files(
+        due_files = galaxy_social.get_due_scheduled_files(
             "posts", self.processed_files_path
         )
         errors = []
