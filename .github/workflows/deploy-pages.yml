@@ -6,6 +6,11 @@ on:
     paths:
       - "post-creator/**"
       - ".github/workflows/deploy-pages.yml"
+      - ".github/scripts/build_suggestions.py"
+
+  # Refresh the hashtag and mention suggestions from new posts once a week
+  schedule:
+    - cron: "17 5 * * 1"
 
   workflow_dispatch:
 
@@ -33,6 +38,16 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build hashtag and mention suggestions
+        run: |
+          python -m pip install PyYAML==6.0.1
+          python .github/scripts/build_suggestions.py posts post-creator/suggestions.json
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v6
