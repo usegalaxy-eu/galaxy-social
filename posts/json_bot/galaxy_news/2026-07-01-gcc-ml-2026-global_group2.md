@@ -1,0 +1,17 @@
+---
+media:
+- bluesky-galaxyproject
+hashtags:
+  bluesky-galaxyproject:
+  - UseGalaxy
+  - GalaxyProject
+  - EOSC
+---
+Machine learning at Galaxy Community Conference 2026, Clermont-Ferrand, France
+https://galaxyproject.org/news/2026-07-01-gcc-ml-2026/
+![GCC 2026 ML poster](https://galaxyproject.org/images/news/2026-07-01-gcc-ml-2026/images/gcc-2026-ml-poster.png)
+![GCC 2026 ELIXIR BioHackathon talk](https://galaxyproject.org/images/news/2026-07-01-gcc-ml-2026/images/elixir-start-0.png)
+![GCC 2026 ELIXIR BioHackathon talk](https://galaxyproject.org/images/news/2026-07-01-gcc-ml-2026/images/elixir-talk-biohackathon-2026-1.png)
+![GCC 2026 ELIXIR BioHackathon talk](https://galaxyproject.org/images/news/2026-07-01-gcc-ml-2026/images/elixir-talk-biohackathon-2026-2.png)
+![GCC 2026 ML training](https://galaxyproject.org/images/news/2026-07-01-gcc-ml-2026/images/gcc-ml-training-gleam.png)
+![GalaxyAI reference URLs](https://galaxyproject.org/images/news/2026-07-01-gcc-ml-2026/images/galaxy_ai_ref_urls.png)

@@ -1,6 +1,7 @@
 import re
 import tempfile
 import textwrap
+import time
 import traceback
 
 import requests
@@ -16,6 +17,7 @@ class mastodon_client:
             access_token=kwargs.get("access_token"), api_base_url=self.base_url
         )
         self.max_content_length = kwargs.get("max_content_length", 500)
+        self.media_timeout = kwargs.get("media_timeout", 60)
 
     def content_in_chunks(self, content, max_chunk_length):
         paragraphs = content.split("\n\n\n")
@@ -99,6 +101,17 @@ class mastodon_client:
                                 image["alt_text"] if "alt_text" in image else None
                             ),
                         )
+                        # GIFs/videos are processed in the background; wait until ready
+                        deadline = time.time() + self.media_timeout
+                        while not media_uploaded.get("url"):
+                            if time.time() > deadline:
+                                raise TimeoutError(
+                                    f"Media not processed after {self.media_timeout}s"
+                                )
+                            time.sleep(2)
+                            media_uploaded = self.mastodon_handle.media(
+                                media_uploaded["id"]
+                            )
                         media_ids.append(media_uploaded["id"])
                     except Exception as e:
                         print(f"Mastodon error: {e}")

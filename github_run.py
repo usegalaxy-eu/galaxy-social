@@ -2,6 +2,8 @@ import json
 import os
 import re
 import sys
+import traceback
+from datetime import datetime
 
 import github
 import yaml
@@ -9,17 +11,28 @@ import yaml
 from lib.galaxy_social import galaxy_social
 
 
-class github_run:
+class GithubInteractor:
     def __init__(
         self, pr_number, processed_files_path, processed_files_branch="processed_files"
     ):
         g = github.Github(os.getenv("GITHUB_TOKEN"))
         self.repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
-        self.pr = self.repo.get_pull(pr_number)
+        self.pr = None
+        if pr_number is not None:
+            self.attach_pr(pr_number)
         self.processed_files_path = processed_files_path
         self.processed_files_branch = processed_files_branch
 
-    def comment(self, comment_text, **kwargs):
+    def attach_pr(self, pr_number):
+        if self.pr is None or self.pr.number != pr_number:
+            self.pr = self.repo.get_pull(pr_number)
+
+    def ensure_pr_attached(self):
+        if self.pr is None:
+            raise RuntimeError("Method requires a pre-attached PR. Use attach_pr(pr_number) before calling it.")
+
+    def comment_on_pr(self, comment_text, **kwargs):
+        self.ensure_pr_attached()
         if not comment_text:
             return
         # Hide old comments of the bot
@@ -58,11 +71,12 @@ class github_run:
                 return False
         return True
 
-    def get_files(self):
+    def get_pr_files(self):
+        self.ensure_pr_attached()
         files_to_process = []
         for file in self.pr.get_files():
             file_path = file.filename
-            if file_path.endswith(".md"):
+            if file_path.endswith(".md") and file.status != "removed":
                 head_branch = self.pr.head
                 pr_content = head_branch.repo.get_contents(
                     file_path, ref=head_branch.sha
@@ -72,12 +86,30 @@ class github_run:
                     f.write(pr_content)
                 files_to_process.append(file_path)
 
-        return files_to_process
+        return {self.pr.number: files_to_process} if files_to_process else {}
+
+    def get_due_files(self):
+        ret = {}
+        due_files = galaxy_social.get_due_scheduled_files("posts", self.processed_files_path)
+        errors = []
+        for file_path in due_files:
+            try:
+                pulls = self.repo.get_commits(path=file_path)[0].get_pulls()
+            except Exception as e:
+                print(f"Error getting commit / PR information for scheduled post {file_path}: {e}")
+                errors.append(file_path)
+                continue
+            if not pulls.totalCount:
+                print(f"No pull request found for {file_path}, skipping.")
+                continue
+            ret.setdefault(pulls[0].number, []).append(file_path)
+        return ret, errors
 
     def new_pr(self, not_posted):
+        self.ensure_pr_attached()
         if not not_posted:
             return
-        branch_name = f"Failed-posts-{self.pr.number}"
+        branch_name = f"Failed-posts-{self.pr.number}-{int(datetime.now().timestamp())}"
         self.repo.create_git_ref(
             ref=f"refs/heads/{branch_name}",
             sha=self.repo.get_branch("main").commit.sha,
@@ -127,12 +159,12 @@ class github_run:
             ref="main", inputs={"pr_number": str(new_pr.number)}
         )
 
-        self.comment(
+        self.comment_on_pr(
             f"Unfortunately, there was a problem!\n"
             f"I created a new PR for failed posts: {new_pr.html_url}"
         )
 
-    def initialize_processed_files_branch(self):
+    def load_processed_files(self):
         try:
             branch = self.repo.get_branch(self.processed_files_branch)
         except Exception as e:
@@ -177,34 +209,15 @@ class github_run:
         return json.loads(file_data)
 
 
-if __name__ == "__main__":
-    with open(os.getenv("GITHUB_EVENT_PATH", ""), "r") as f:
-        event_data = json.load(f)
-    pr_number = event_data.get("number") or int(
-        event_data.get("inputs", {}).get("pr_number")
-    )
-    closed = event_data.get("action") == "closed"
-    merged = event_data.get("pull_request", {}).get("merged", False)
-    preview = not merged and not closed
-    if not merged and closed:
-        print("No action to take")
-        sys.exit(0)
-
-    github_instance = github_run(pr_number, "processed_files.json")
-    files_to_process = github_instance.get_files()
-    if not files_to_process:
-        github_instance.comment("No files to process.")
-        sys.exit()
-
+def process(github_instance, files_to_process, preview):
     gs = galaxy_social(preview)
     try:
-        github_instance.initialize_processed_files_branch()
         message = gs.process_files(
             files_to_process, github_instance.processed_files_path
         )
-        github_instance.comment(message, preview=preview)
+        github_instance.comment_on_pr(message, preview=preview)
         if preview:
-            sys.exit()
+            return
 
         processed_files = github_instance.commit_processed_files()
         not_posted = {}
@@ -220,8 +233,72 @@ if __name__ == "__main__":
         github_instance.new_pr(not_posted)
     except Exception as e:
         if preview:
-            github_instance.comment("Something went wrong, an Admin will take a look.")
+            github_instance.comment_on_pr("Something went wrong, an Admin will take a look.")
         else:
             not_posted = {file_path: [] for file_path in files_to_process}
             github_instance.new_pr(not_posted)
+            # Mark the files as handled so scheduled runs leave them to the retry PR
+            try:
+                with open(github_instance.processed_files_path, "r") as f:
+                    processed_files = json.load(f)
+                for file_path in files_to_process:
+                    processed_files.setdefault(file_path, {})
+                with open(github_instance.processed_files_path, "w") as f:
+                    json.dump(processed_files, f)
+                github_instance.commit_processed_files()
+            except Exception as commit_error:
+                print(f"Error marking failed files as processed: {commit_error}")
         raise e
+
+
+if __name__ == "__main__":
+    with open(os.getenv("GITHUB_EVENT_PATH", ""), "r") as f:
+        event_data = json.load(f)
+    pr_number = event_data.get("number") or event_data.get("inputs", {}).get(
+        "pr_number"
+    ) or None
+
+    if pr_number is not None:
+        closed = event_data.get("action") == "closed"
+        merged = event_data.get("pull_request", {}).get("merged", False)
+        if not merged and closed:
+            print("No action to take")
+            sys.exit(0)
+        pr_number = int(pr_number)
+
+    gh_interactor = GithubInteractor(pr_number, "processed_files.json")
+    try:
+        gh_interactor.load_processed_files()
+    except Exception:
+        # Some issue with getting the processed_files info.
+        # Failing the workflow run is our only option,
+        # but if we have a PR we can at least the contributor there
+        # with a rather generic comment.
+        if pr_number is not None:
+            gh_interactor.comment_on_pr("Something went wrong, an Admin will take a look.")
+        raise
+
+    errors = []
+    if pr_number is None:
+        preview = False
+        files_to_process, lookup_errors = gh_interactor.get_due_files()
+        errors.extend(lookup_errors)
+    else:
+        preview = not merged and not closed
+        files_to_process = gh_interactor.get_pr_files()
+
+    if files_to_process:
+        for number, files in files_to_process.items():
+            gh_interactor.attach_pr(number)
+            try:
+                process(gh_interactor, files, preview)
+            except Exception as e:
+                print(f"Error processing {', '.join(files)} for PR #{number} - {type(e).__name__}: {e}")
+                traceback.print_exc()
+                errors.extend(files)
+    else:
+        if pr_number:
+            gh_interactor.comment_on_pr("No files to process.")
+
+    if errors:
+        raise RuntimeError(f"Failed to handle: {', '.join(errors)}")
