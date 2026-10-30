@@ -12,3 +12,4 @@ PyGithub==2.4.0
 numpy==2.2.1
 opencv-python==4.10.0.84
 emoji==2.14.1
+tzdata==2026.5
