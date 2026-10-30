@@ -232,9 +232,7 @@ def publish_scheduled_posts(processed_files_path):
             ).decoded_content.decode()
         )
     errors = []
-    due_files = galaxy_social(False).get_due_scheduled_files(
-        "posts", processed_files_path
-    )
+    due_files = galaxy_social.get_due_scheduled_files("posts", processed_files_path)
     for file_path in due_files:
         try:
             pulls = repo.get_commits(path=file_path)[0].get_pulls()

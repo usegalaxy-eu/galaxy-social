@@ -113,7 +113,8 @@ class galaxy_social:
                 f"Invalid config for {module_path}.{class_name}.\nChange configs in plugins.yml.\n{e}"
             )
 
-    def lint_markdown_file(self, file_path: str):
+    @staticmethod
+    def lint_markdown_file(file_path: str):
         with open(file_path, "r") as file:
             content = file.read()
         try:
@@ -290,8 +291,10 @@ class galaxy_social:
         print(f"Processed {file_path}: {stats}")
         return processed_files, message
 
-    def get_due_scheduled_files(self, folder: str, processed_files_path: str):
+    @staticmethod
+    def get_due_scheduled_files(folder: str, processed_files_path: str):
         """Return posts in folder whose schedule has passed and that were not processed yet."""
+        # static so the timer can check for due posts without logging in to every platform
         processed_files = {}
         if os.path.exists(processed_files_path):
             with open(processed_files_path, "r") as file:
@@ -302,7 +305,7 @@ class galaxy_social:
                 file_path = os.path.join(root, filename)
                 if file_path in processed_files:
                     continue
-                result, status = self.lint_markdown_file(file_path)
+                result, status = galaxy_social.lint_markdown_file(file_path)
                 if not status:
                     continue
                 try:
