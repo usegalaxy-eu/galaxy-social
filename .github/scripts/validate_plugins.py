@@ -123,7 +123,7 @@ def update_readme_link(readme_content):
 
     updated_readme = re.sub(
         r'(<a href=")\.\./\.\./new/main/\?filename=posts/\d{4}/[^"]+(")',
-        rf"\1{new_link}\2",
+        lambda m: f"{m.group(1)}{new_link}{m.group(2)}",
         readme_content,
     )
 
@@ -184,7 +184,7 @@ def update_readme(head_plugins={}):
                     )
             yaml_data["media"] = list(head_plugins)
             updated_yaml_content = yaml.dump(
-                yaml_data, sort_keys=False, default_flow_style=False
+                yaml_data, sort_keys=False, default_flow_style=False, allow_unicode=True
             )
             readme_content = readme_content.replace(yaml_content, updated_yaml_content)
 
