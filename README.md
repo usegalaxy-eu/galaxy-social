@@ -96,7 +96,7 @@ For images just drag and drop them here. they will look like this:
 
 5. **Preview and Review:** After each pull request, the GitHub action will run and will generate previews of the content as it would appear on each platform listed under "media" in a comment to the pull request and highlight any errors that need to be fixed before merging.
 
-6. **Publish Your Content:** Upon merging the pull request, the GitHub action will run. The results will be added to `processed_files.json` in the processed_files branch.
+6. **Publish Your Content:** Upon merging the pull request, the GitHub action will run. The results will be added to `processed_files.json` in the processed_files branch. If posting fails on some platforms, a new pull request is created to retry them. If the bot comments "Something went wrong, an Admin will take a look.", nothing was posted: an admin can open the failed run from the pull request's checks and click "Re-run all jobs".
 
 By following these steps, you can effectively create and publish posts on Galaxy Social.
 
