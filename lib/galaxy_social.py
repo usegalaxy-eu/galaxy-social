@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from fnmatch import filter
 from html.parser import HTMLParser
 from importlib import import_module
-from typing import Any, Dict
+from typing import Any, Dict, Iterable
 from zoneinfo import ZoneInfo
 
 import emoji
