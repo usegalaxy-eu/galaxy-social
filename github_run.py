@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+import traceback
 from datetime import datetime
 
 import github
@@ -285,7 +286,8 @@ if __name__ == "__main__":
             try:
                 process(gh_interactor, files, preview)
             except Exception as e:
-                print(f"Error processing {', '.join(files)} for PR #{number}: {e}")
+                print(f"Error processing {', '.join(files)} for PR #{number} - {type(e).__name__}: {e}")
+                traceback.print_exc()
                 errors.extend(files)
     else:
         if pr_number:
