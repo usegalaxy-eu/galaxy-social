@@ -227,17 +227,21 @@ class galaxy_social:
             processed_files.setdefault(file_path, {})
 
     def _format_for_media(
-        self, file_path: str, media: str, content: str, metadata: Dict[str, Any]
+        self, file_path: str, media: Iterable[str], content: str, metadata: Dict[str, Any]
     ):
-        try:
-            return self.plugins[media].format_content(
-                content=content,
-                mentions=metadata.get("mentions", {}).get(media, []),
-                hashtags=metadata.get("hashtags", {}).get(media, []),
-                images=metadata.get("images", []),
-            )
-        except Exception as e:
-            raise Exception(f"Failed to format post for {file_path}.\n{e}")
+        formatting_results = {}
+        for m in media:
+            try:
+                formatting_results[m] = self.plugins[m].format_content(
+                    content=content,
+                    mentions=metadata.get("mentions", {}).get(m, []),
+                    hashtags=metadata.get("hashtags", {}).get(m, []),
+                    images=metadata.get("images", []),
+                )
+            except Exception as e:
+                raise Exception(f"Failed to format post for {file_path}.\n{e}")
+
+        return formatting_results
 
     def process_markdown_file(self, file_path: str, processed_files: Dict[str, Any]):
         content, metadata, errors = self.parse_markdown_file(file_path)
@@ -266,10 +270,12 @@ class galaxy_social:
                 )
             if skipped_media:
                 message += f"\n\nSkipping post to {', '.join(skipped_media)}. because it was already posted."
+
+            formatting_results = self._format_for_media(
+                file_path, remaining_media, content, metadata
+            )
             for media in remaining_media:
-                formatted_content, preview, warning = self._format_for_media(
-                    file_path, media, content, metadata
-                )
+                formatted_content, preview, warning = formatting_results[media]
                 message += f"\n\n## {media}\n\n"
                 message += preview
                 if warning:
@@ -295,10 +301,11 @@ class galaxy_social:
             return processed_files, f"⚠️ Failed to process `{file_path}`.\n{errors}"
 
         url = {}
+        formatting_results = self._format_for_media(
+            file_path, remaining_media, content, metadata
+        )
         for media in remaining_media:
-            formatted_content, _, _ = self._format_for_media(
-                file_path, media, content, metadata
-            )
+            formatted_content, _, _ = formatting_results[media]
             stats[media], url[media] = self.plugins[media].create_post(
                 formatted_content, file_path=file_path
             )
