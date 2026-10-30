@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Galaxy Social Post Creator</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📣</text></svg>"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/index.js"
+    ></script>
+    <style>
+      :root {
+        --bg: #f4f5f7;
+        --card: #ffffff;
+        --text: #1f2430;
+        --muted: #5d6475;
+        --border: #d9dce3;
+        --accent: #2c5bd6;
+        --accent-soft: #e8eefc;
+        --ok: #1a7f37;
+        --warn-bg: #fff6db;
+        --warn: #8a5a00;
+        --error: #c62828;
+        --radius: 12px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      a {
+        color: var(--accent);
+      }
+      header {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 16px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+      }
+      header p {
+        margin: 4px 0 0;
+        color: var(--muted);
+      }
+      .layout {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 8px 16px 48px;
+        display: grid;
+        gap: 24px;
+        grid-template-columns: minmax(0, 1fr);
+      }
+      @media (min-width: 960px) {
+        .layout {
+          grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+          align-items: start;
+        }
+        .preview-column {
+          position: sticky;
+          top: 16px;
+          max-height: calc(100vh - 32px);
+          overflow-y: auto;
+        }
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 16px;
+      }
+      .card h2 {
+        margin: 0 0 4px;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .step {
+        display: inline-grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-size: 0.85rem;
+        flex: none;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 0.875rem;
+        margin: 4px 0 12px;
+      }
+      label.field {
+        display: block;
+        font-weight: 600;
+        margin: 12px 0 4px;
+      }
+      input[type="text"],
+      input[type="url"],
+      input[type="datetime-local"],
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font: inherit;
+        color: inherit;
+        background: #fff;
+      }
+      textarea {
+        min-height: 180px;
+        resize: vertical;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .editor {
+        position: relative;
+      }
+      .toolbar {
+        display: flex;
+        gap: 6px;
+        padding: 6px;
+        border: 1px solid var(--border);
+        border-bottom: none;
+        border-radius: 8px 8px 0 0;
+        background: var(--bg);
+      }
+      .toolbar button {
+        padding: 4px 10px;
+        font-size: 0.9rem;
+      }
+      .editor textarea {
+        border-radius: 0 0 8px 8px;
+      }
+      .popover {
+        position: absolute;
+        top: 44px;
+        left: 6px;
+        z-index: 10;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+      }
+      #link-popover {
+        display: flex;
+        gap: 6px;
+        padding: 8px;
+        width: min(420px, calc(100% - 12px));
+      }
+      input:focus,
+      textarea:focus,
+      button:focus-visible,
+      a:focus-visible {
+        outline: 3px solid var(--accent-soft);
+        outline-offset: 1px;
+        border-color: var(--accent);
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #fff;
+        padding: 8px 14px;
+      }
+      button.link {
+        border: none;
+        background: none;
+        padding: 0;
+        color: var(--accent);
+        text-decoration: underline;
+      }
+      .groups {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      }
+      fieldset.group {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 6px 12px 10px;
+        margin: 0;
+        min-width: 0;
+      }
+      fieldset.group legend {
+        font-weight: 700;
+        padding: 0 4px;
+      }
+      .group-all {
+        font-size: 0.8rem;
+        font-weight: 400;
+        margin-left: 6px;
+      }
+      .account {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 4px;
+        border-radius: 6px;
+      }
+      .account:hover {
+        background: var(--bg);
+      }
+      .account input {
+        flex: none;
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        accent-color: var(--accent);
+      }
+      .account .handle {
+        min-width: 0;
+        color: var(--muted);
+        font-size: 0.8rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .account a {
+        margin-left: auto;
+        font-size: 0.8rem;
+        flex: none;
+      }
+      .icon {
+        width: 18px;
+        height: 18px;
+        flex: none;
+        fill: currentColor;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        padding: 6px 8px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fff;
+        min-height: 44px;
+        cursor: text;
+      }
+      .chips:focus-within {
+        outline: 3px solid var(--accent-soft);
+        border-color: var(--accent);
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--accent-soft);
+        border-radius: 999px;
+        padding: 2px 4px 2px 10px;
+        font-size: 0.9rem;
+      }
+      .chip button {
+        border: none;
+        background: none;
+        padding: 0 6px;
+        line-height: 1;
+        font-size: 1rem;
+      }
+      .chips input {
+        border: none;
+        outline: none;
+        flex: 1;
+        min-width: 120px;
+        padding: 4px;
+        font: inherit;
+      }
+      .mention-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 12px 0 4px;
+        font-weight: 600;
+      }
+      .image-row {
+        display: grid;
+        grid-template-columns: 64px minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: start;
+        margin-bottom: 10px;
+      }
+      .image-row .thumb {
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        object-fit: cover;
+      }
+      .image-row .inputs {
+        display: grid;
+        gap: 6px;
+      }
+      .image-status {
+        font-size: 0.8rem;
+      }
+      .status-ok {
+        color: var(--ok);
+      }
+      .status-error {
+        color: var(--error);
+      }
+      .notice {
+        background: var(--warn-bg);
+        color: var(--warn);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        margin-top: 8px;
+      }
+      #errors {
+        color: var(--error);
+        margin: 0 0 12px;
+        padding-left: 20px;
+      }
+      #errors:empty {
+        display: none;
+      }
+      .post {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 14px;
+        background: #fff;
+      }
+      .post-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        min-width: 0;
+      }
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex: none;
+        object-fit: cover;
+        background: var(--bg);
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+      }
+      .post-linkedin .avatar {
+        border-radius: 8px;
+      }
+      .who {
+        min-width: 0;
+        line-height: 1.25;
+      }
+      .who strong,
+      .who span {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .who span {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      .platform-badge {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.75rem;
+        color: var(--muted);
+        flex: none;
+      }
+      .part {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-size: 0.95rem;
+      }
+      .part + .part {
+        margin-top: 12px;
+        padding: 10px 0 0 14px;
+        border-left: 2px solid var(--border);
+      }
+      .post-linkedin .part + .part {
+        border-left: none;
+        padding: 10px 12px;
+        background: var(--bg);
+        border-radius: 10px;
+      }
+      .comment-label {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 2px;
+        white-space: normal;
+      }
+      .post-matrix .part {
+        background: var(--bg);
+        border-radius: 10px;
+        padding: 8px 12px;
+      }
+      .post-matrix .part + .part {
+        border-left: none;
+        margin-top: 6px;
+        padding: 8px 12px;
+      }
+      .lnk {
+        color: var(--accent);
+      }
+      .auto {
+        color: var(--muted);
+        border-bottom: 1px dashed currentColor;
+        cursor: help;
+      }
+      .lnk.auto {
+        color: var(--accent);
+      }
+      .count {
+        display: block;
+        text-align: right;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 4px;
+        white-space: normal;
+      }
+      .count.over {
+        color: var(--error);
+        font-weight: 600;
+      }
+      .media {
+        display: grid;
+        gap: 4px;
+        margin-top: 8px;
+        border-radius: 10px;
+        overflow: hidden;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 120px;
+        white-space: normal;
+      }
+      .media.n1 {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+      }
+      .media.n3 > :first-child {
+        grid-row: span 2;
+      }
+      .media figure {
+        position: relative;
+        margin: 0;
+        background: var(--bg);
+      }
+      .media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .media.n1 img {
+        max-height: 280px;
+      }
+      .media figcaption {
+        position: absolute;
+        left: 6px;
+        bottom: 6px;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+      .card-link {
+        display: block;
+        margin-top: 8px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        white-space: normal;
+        color: inherit;
+        text-decoration: none;
+      }
+      .card-link img {
+        width: 100%;
+        aspect-ratio: 1.91;
+        object-fit: cover;
+        display: block;
+        background: var(--bg);
+      }
+      .card-link div {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+      }
+      .card-link small {
+        display: block;
+        color: var(--muted);
+      }
+      .card-link b {
+        display: block;
+        margin: 2px 0;
+      }
+      .card-link p {
+        margin: 0;
+        color: var(--muted);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .auto-label {
+        display: block;
+        font-size: 0.7rem;
+        color: var(--muted);
+        padding: 4px 10px;
+        border-top: 1px dashed var(--border);
+      }
+      .chip.ok {
+        background: #e3f4e8;
+      }
+      .chip.missing {
+        background: #fde7e7;
+        color: var(--error);
+      }
+      .chip small {
+        color: var(--muted);
+      }
+      .empty {
+        color: var(--muted);
+        text-align: center;
+        padding: 24px 8px;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--ok);
+        border-color: var(--ok);
+        color: #fff;
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+      .primary[aria-disabled="true"] {
+        background: #9aa3b5;
+        border-color: #9aa3b5;
+        pointer-events: none;
+      }
+      ol.next {
+        margin: 12px 0 0;
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      pre#file {
+        white-space: pre-wrap;
+        background: var(--bg);
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 0.85rem;
+        overflow-x: auto;
+      }
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+    </style>
+  </head>
+
+  <body>
+    <svg class="visually-hidden" aria-hidden="true">
+      <symbol id="icon-mastodon" viewBox="0 0 24 24">
+        <path
+          d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 0 0 .023-.043v-1.809a.052.052 0 0 0-.02-.041.053.053 0 0 0-.046-.01 20.282 20.282 0 0 1-4.709.545c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 0 1-.319-1.433.053.053 0 0 1 .066-.054c1.517.363 3.072.546 4.632.546.376 0 .75 0 1.125-.01 1.57-.044 3.224-.124 4.768-.422.038-.008.077-.015.11-.024 2.435-.464 4.753-1.92 4.989-5.604.008-.145.03-1.52.03-1.67.002-.512.167-3.63-.024-5.545zm-3.748 9.195h-2.561V8.29c0-1.309-.55-1.976-1.67-1.976-1.23 0-1.846.79-1.846 2.35v3.403h-2.546V8.663c0-1.56-.617-2.35-1.848-2.35-1.112 0-1.668.668-1.67 1.977v6.218H4.822V8.102c0-1.31.337-2.35 1.011-3.12.696-.77 1.608-1.164 2.74-1.164 1.311 0 2.302.5 2.962 1.498l.638 1.06.638-1.06c.66-.999 1.65-1.498 2.96-1.498 1.13 0 2.043.395 2.74 1.164.675.77 1.012 1.81 1.012 3.12z"
+        />
+      </symbol>
+      <symbol id="icon-bluesky" viewBox="0 0 24 24">
+        <path
+          d="M5.202 2.857C7.954 4.922 10.913 9.11 12 11.358c1.087-2.247 4.046-6.436 6.798-8.501C20.783 1.366 24 .213 24 3.883c0 .732-.42 6.156-.667 7.037-.856 3.061-3.978 3.842-6.755 3.37 4.854.826 6.089 3.562 3.422 6.299-5.065 5.196-7.28-1.304-7.847-2.97-.104-.305-.152-.448-.153-.327 0-.121-.05.022-.153.327-.568 1.666-2.782 8.166-7.847 2.970-2.667-2.737-1.432-5.473 3.422-6.3-2.777.473-5.899-.308-6.755-3.369C.42 10.04 0 4.615 0 3.883c0-3.67 3.217-2.517 5.202-1.026"
+        />
+      </symbol>
+      <symbol id="icon-linkedin" viewBox="0 0 24 24">
+        <path
+          d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+        />
+      </symbol>
+      <symbol id="icon-matrix" viewBox="0 0 24 24">
+        <path
+          d="M.632.55v22.9H2.28V24H0V0h2.28v.55zm7.043 7.26v1.157h.033c.309-.443.683-.784 1.117-1.024.433-.245.936-.365 1.5-.365.54 0 1.033.107 1.481.314.448.208.785.582 1.02 1.108.254-.374.6-.706 1.034-.992.434-.287.95-.43 1.546-.43.453 0 .872.056 1.26.167.388.11.716.286.993.53.276.245.489.559.646.951.152.392.23.863.23 1.417v5.728h-2.349V11.52c0-.286-.01-.559-.032-.812a1.755 1.755 0 0 0-.18-.66 1.106 1.106 0 0 0-.438-.448c-.194-.11-.457-.166-.785-.166-.332 0-.6.064-.803.189a1.38 1.38 0 0 0-.48.499 1.946 1.946 0 0 0-.231.696 5.56 5.56 0 0 0-.06.785v4.768h-2.35v-4.8c0-.254-.004-.503-.018-.752a2.074 2.074 0 0 0-.143-.688 1.052 1.052 0 0 0-.415-.503c-.194-.125-.476-.19-.854-.19-.111 0-.259.024-.439.074-.18.051-.36.143-.53.282-.171.138-.319.337-.439.595-.12.259-.18.6-.18 1.02v4.966H5.46V7.81zm15.693 15.64V.55H21.72V0H24v24h-2.28v-.55z"
+        />
+      </symbol>
+      <symbol id="icon-github" viewBox="0 0 24 24">
+        <path
+          d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.41-5.25 5.7.42.36.79 1.09.79 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.68.8.56C20.71 21.39 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z"
+        />
+      </symbol>
+    </svg>
+
+    <header>
+      <div>
+        <h1>Galaxy Social Post Creator</h1>
+        <p>
+          Write a post once and send it to the Galaxy social media accounts.
+          The team reviews it on GitHub before it goes out.
+        </p>
+      </div>
+      <a href="https://github.com/usegalaxy-eu/galaxy-social" target="_blank">
+        <svg class="icon"><use href="#icon-github" /></svg>
+        <span class="visually-hidden">GitHub repository</span>
+      </a>
+    </header>
+
+    <main class="layout">
+      <div>
+        <section class="card" aria-labelledby="h-accounts">
+          <h2 id="h-accounts"><span class="step">1</span>Where to post</h2>
+          <p class="hint">Tick the accounts that should share this post.</p>
+          <div id="accounts" class="groups">
+            <p class="hint">Loading accounts…</p>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-write">
+          <h2 id="h-write"><span class="step">2</span>Write your post</h2>
+          <label class="field" for="post-title">Short title</label>
+          <p class="hint">Only used to name the file, not shown in the post.</p>
+          <input id="post-title" type="text" autocomplete="off" />
+
+          <label class="field" for="post-content">Text</label>
+          <p class="hint">
+            Plain text. Links work as they are. Long text is split into a
+            thread automatically; two empty lines mark where a new part should
+            start.
+          </p>
+          <div class="editor">
+            <div class="toolbar" role="toolbar" aria-label="Text tools">
+              <button type="button" id="emoji-button" aria-haspopup="true" aria-expanded="false">
+                😊 Emoji
+              </button>
+              <button type="button" id="link-button" aria-haspopup="true" aria-expanded="false">
+                🔗 Link
+              </button>
+            </div>
+            <div id="link-popover" class="popover" hidden>
+              <input id="link-url" type="url" placeholder="https://… paste the link" aria-label="Link to add" />
+              <button type="button" id="link-insert">Add</button>
+            </div>
+            <emoji-picker id="emoji-picker" class="popover" hidden></emoji-picker>
+            <textarea id="post-content"></textarea>
+          </div>
+
+          <label class="field">Images (optional)</label>
+          <p class="hint">
+            Paste a link to an image and describe it for people who can't see
+            it. Up to 4 images.
+          </p>
+          <div id="images"></div>
+          <button type="button" id="add-image">+ Add image</button>
+          <p class="hint">
+            Image on your computer? After "Continue on GitHub", drag it into the
+            text box on GitHub.
+          </p>
+        </section>
+
+        <section class="card" aria-labelledby="h-tags">
+          <h2 id="h-tags"><span class="step">3</span>Hashtags and mentions</h2>
+          <label class="field" for="hashtags-input">Hashtags</label>
+          <p class="hint">
+            Used for every account except Matrix. Type a word and press Enter,
+            without the #.
+          </p>
+          <div class="chips" id="hashtags"></div>
+          <div id="mentions"></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-when">
+          <h2 id="h-when"><span class="step">4</span>When</h2>
+          <p class="hint">
+            Leave empty to post right after the pull request is merged.
+          </p>
+          <label class="field" for="post-schedule">Post at (optional)</label>
+          <input id="post-schedule" type="datetime-local" />
+          <p class="hint">
+            Your time zone: <strong id="post-timezone"></strong>. The post goes
+            out around this time, sometimes a bit later.
+            <button type="button" class="link" id="clear-schedule">Clear</button>
+          </p>
+        </section>
+      </div>
+
+      <aside class="preview-column" aria-labelledby="h-preview">
+        <section class="card">
+          <h2 id="h-preview"><span class="step">5</span>Preview and send</h2>
+          <p class="hint">
+            How the post will look. Underlined with dashes = added when
+            posting. The bot also posts a preview on GitHub.
+          </p>
+          <ul id="errors" aria-live="polite"></ul>
+          <div id="previews">
+            <p class="empty">Pick an account and write something to see it here.</p>
+          </div>
+          <div class="actions">
+            <a id="pr-button" class="primary" target="_blank" aria-disabled="true">
+              <svg class="icon"><use href="#icon-github" /></svg>
+              Continue on GitHub
+            </a>
+            <button type="button" id="toggle-file">Show file</button>
+          </div>
+          <ol class="next">
+            <li>GitHub opens with your post already filled in.</li>
+            <li>Drag in images from your computer, if you have any.</li>
+            <li>Click <strong>Commit changes…</strong>, then <strong>Propose changes</strong>.</li>
+            <li>Click <strong>Create pull request</strong>. The bot replies with a preview.</li>
+          </ol>
+          <pre id="file" hidden></pre>
+        </section>
+      </aside>
+    </main>
+
+    <script>
+      const REPO = "usegalaxy-eu/galaxy-social";
+      const MAX_IMAGES = 4;
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      // Grouping and labels for plugins.yml names like "<platform>-<owner>"
+      const OWNERS = {
+        galaxyproject: "Galaxy Project",
+        eu: "Galaxy Europe",
+        brc: "BRC Analytics",
+        vgp: "Vertebrate Genomes Project",
+      };
+      const PLATFORMS = {
+        mastodon: { label: "Mastodon", mention: "user@server, e.g. galaxyproject@mstdn.science", check: /^[^@:\s]+@[^@:\s]+$/ },
+        bluesky: { label: "Bluesky", mention: "handle, e.g. galaxyproject.bsky.social", check: /^[^@:\s]+\.[^@:\s]+$/ },
+        linkedin: { label: "LinkedIn", mention: "the part after /company/ in the LinkedIn link, e.g. galaxy-project", check: /^[^@\s]+$/ },
+        matrix: { label: "Matrix", mention: "user:server, e.g. bgruening:matrix.org", check: /^[^@:\s]+:[^@:\s]+$/ },
+      };
+
+      let accounts = [];
+      const hashtags = [];
+      const mentions = {};
+      const images = [];
+      let suggestions = {};
+
+      const $ = (id) => document.getElementById(id);
+
+      function platformOf(name) {
+        return name.split("-")[0];
+      }
+
+      function icon(platform) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("class", "icon");
+        svg.setAttribute("aria-hidden", "true");
+        const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+        use.setAttribute("href", `#icon-${platform}`);
+        svg.appendChild(use);
+        return svg;
+      }
+
+      function handleOf(account) {
+        const url = account.url || "";
+        const at = url.match(/@[^/?#]+$/);
+        if (at) return at[0];
+        const profile = url.match(/\/(?:profile|company|in)\/([^/?#]+)/);
+        if (profile) return profile[1];
+        return account.name.split("-").slice(2).join(" ");
+      }
+
+      // Python's textwrap.wrap(text, width, replace_whitespace=False), as used by the plugins
+      const WS = "[ \\t\\n\\r\\f\\v]";
+      const NWS = "[^ \\t\\n\\r\\f\\v]";
+      const LT = "[\\p{L}\\p{M}_]";
+      const WP = "[\\p{L}\\p{M}\\p{N}_!\"'&.,?]";
+      const WORDSEP = new RegExp(
+        `(${WS}+|(?<=${WP})-{2,}(?=[\\p{L}\\p{N}_])|${NWS}+?(?:-(?:(?<=${LT}{2}-)|(?<=${LT}-${LT}-))(?=${LT}-?${LT})|(?=${WS}|$)|(?<=${WP})(?=-{2,}[\\p{L}\\p{N}_])))`,
+        "u"
+      );
+      function wrap(text, width) {
+        const chunks = text.split(WORDSEP).filter(Boolean).reverse();
+        const isSpace = (c) => c.trim() === "";
+        const lines = [];
+        while (chunks.length) {
+          const cur = [];
+          let len = 0;
+          if (isSpace(chunks[chunks.length - 1]) && lines.length) chunks.pop();
+          while (chunks.length && len + chunks[chunks.length - 1].length <= width) {
+            len += chunks[chunks.length - 1].length;
+            cur.push(chunks.pop());
+          }
+          if (chunks.length && chunks[chunks.length - 1].length > width) {
+            const chunk = chunks[chunks.length - 1];
+            const room = width < 1 ? 1 : width - len;
+            let end = room;
+            const hyphen = chunk.lastIndexOf("-", room - 1);
+            if (chunk.length > room && hyphen > 0 && /[^-]/.test(chunk.slice(0, hyphen)))
+              end = hyphen + 1;
+            cur.push(chunk.slice(0, end));
+            chunks[chunks.length - 1] = chunk.slice(end);
+          }
+          if (cur.length && isSpace(cur[cur.length - 1])) cur.pop();
+          if (cur.length) lines.push(cur.join(""));
+        }
+        return lines;
+      }
+
+      // Mirrors wrap_text_with_index in lib/plugins (mastodon counts every link as 23 characters)
+      function splitPost(content, max, platform) {
+        if (!max || content.length <= max) return [content];
+        const urls = content.match(/https?:\/\/\S+/g) || [];
+        const masked = content.replace(/https?:\/\/\S+/g, (u) =>
+          "~".repeat(platform === "mastodon" ? 23 : u.length)
+        );
+        const parts = masked
+          .split("\n\n\n")
+          .flatMap((p) => wrap(p.replace(/^\n+|\n+$/g, ""), max - 8));
+        let next = 0;
+        return parts.map(
+          (line, i) =>
+            line.replace(/~{10,}/g, (m) => (next < urls.length ? urls[next++] : m)) +
+            ` (${i + 1}/${parts.length})`
+        );
+      }
+
+      function countChars(text, platform) {
+        const counted =
+          platform === "mastodon" ? text.replace(/https?:\/\/\S+/g, "~".repeat(23)) : text;
+        return [...counted].length;
+      }
+
+      function selectedAccounts() {
+        return accounts.filter((a) => a.checkbox.checked);
+      }
+
+      function postText(account) {
+        const platform = platformOf(account.name);
+        let content = $("post-content").value.trim() + "\n";
+        const m = (mentions[platform] || []).map((v) => `@${v}`).join(" ");
+        const h = platform === "matrix" ? "" : hashtags.map((v) => `#${v}`).join(" ");
+        if (m) content += `\n${m}`;
+        if (h) content += `\n${h}`;
+        return content.replace(/^\n+|\n+$/g, "");
+      }
+
+      function buildFile(selected) {
+        const yamlList = (obj) =>
+          Object.entries(obj)
+            .filter(([, vs]) => vs.length)
+            .map(([k, vs]) => `\n  ${k}:\n${vs.map((v) => `    - ${v}`).join("\n")}`)
+            .join("");
+        const mentionMap = {};
+        const hashtagMap = {};
+        selected.forEach((a) => {
+          const platform = platformOf(a.name);
+          mentionMap[a.name] = mentions[platform] || [];
+          hashtagMap[a.name] = platform === "matrix" ? [] : hashtags;
+        });
+        let meta = "---";
+        const schedule = $("post-schedule").value;
+        if (schedule) meta += `\nschedule: ${schedule.replace("T", " ")} ${timeZone}`;
+        meta += `\nmedia:\n${selected.map((a) => `  - ${a.name}`).join("\n")}`;
+        const m = yamlList(mentionMap);
+        if (m) meta += `\nmentions:${m}`;
+        const h = yamlList(hashtagMap);
+        if (h) meta += `\nhashtags:${h}`;
+        meta += "\n---";
+        const imageLines = images
+          .filter((img) => img.url)
+          .map((img) => `![${img.alt.replace(/[\[\]]/g, "")}](${img.url})`)
+          .join("\n");
+        const body = $("post-content").value.trim();
+        return `${meta}\n${body}${imageLines ? `\n\n${imageLines}` : ""}\n`;
+      }
+
+      function fileName() {
+        const date = new Date().toISOString().split("T")[0];
+        const slug = $("post-title")
+          .value.trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "");
+        return `posts/${new Date().getFullYear()}/${date}-${slug}.md`;
+      }
+
+      function problems(selected) {
+        const list = [];
+        if (!selected.length) list.push("Tick at least one account.");
+        if (!$("post-title").value.trim()) list.push("Add a short title.");
+        if (!$("post-content").value.trim()) list.push("Write the text of the post.");
+        if (!$("post-schedule").validity.valid)
+          list.push("Complete the date and time, or clear it to post after merge.");
+        images.forEach((img, i) => {
+          if (img.url && !/^https?:\/\/\S+$/.test(img.url))
+            list.push(`Image ${i + 1}: the link must start with http:// or https://.`);
+          if (img.url && !img.alt.trim())
+            list.push(`Image ${i + 1}: add a short description.`);
+        });
+        return list;
+      }
+
+      // Profiles, mentions and link cards are looked up once and cached; update() runs again when they arrive
+      const lookups = {};
+      function lookup(key, fetcher) {
+        if (!(key in lookups)) {
+          lookups[key] = { pending: true };
+          fetcher()
+            .then((value) => (lookups[key] = value || { missing: true }))
+            .catch(() => (lookups[key] = { failed: true }))
+            .finally(update);
+        }
+        return lookups[key];
+      }
+      async function getJSON(url) {
+        const res = await fetch(url);
+        if (res.status === 400 || res.status === 404) return null;
+        if (!res.ok) throw new Error(res.status);
+        return res.json();
+      }
+      function profile(platform, id, base) {
+        if (platform === "bluesky")
+          return lookup(`bluesky:${id}`, async () => {
+            const d = await getJSON(
+              `https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(id)}`
+            );
+            return d && { name: d.displayName || d.handle, avatar: d.avatar };
+          });
+        if (platform === "mastodon") {
+          const [user, host] = id.split("@");
+          return lookup(`mastodon:${id}`, async () => {
+            const d = await getJSON(
+              `https://${host}/api/v1/accounts/lookup?acct=${encodeURIComponent(user)}`
+            );
+            return d && { name: d.display_name || d.username, avatar: d.avatar };
+          });
+        }
+        if (platform === "matrix")
+          return lookup(`matrix:${id}`, async () => {
+            const d = await getJSON(
+              `${base || "https://matrix.org"}/_matrix/client/v3/profile/${encodeURIComponent("@" + id)}/displayname`
+            );
+            return d && { name: d.displayname || id };
+          });
+        return { unknown: true };
+      }
+      // The same kind of link preview the bot (Bluesky) or the server (Mastodon) makes when posting
+      function linkCard(url) {
+        return lookup(`card:${url}`, async () => {
+          const d = await getJSON(`https://cardyb.bsky.app/v1/extract?url=${encodeURIComponent(url)}`);
+          return d && d.title ? { ...d, url } : null;
+        });
+      }
+
+      function accountId(account) {
+        const platform = platformOf(account.name);
+        if (platform === "bluesky") return account.username;
+        const m = (account.url || "").match(/^https?:\/\/([^/]+)\/@([^/?#]+)$/);
+        if (platform === "mastodon" && m) return `${m[2]}@${m[1]}`;
+        return null;
+      }
+
+      function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      const TOKENS =
+        /(https?:\/\/\S+|(?<=^|\s)@[\w.-]+(?:[@:][\w.-]+)?|(?<=^|\s)#[\p{L}\p{N}_]+)/u;
+      function richText(text, platform) {
+        const frag = document.createDocumentFragment();
+        const numbering = text.match(/ \(\d+\/\d+\)$/);
+        if (numbering) text = text.slice(0, -numbering[0].length);
+        text.split(TOKENS).forEach((piece, i) => {
+          if (!piece) return;
+          if (i % 2 === 0) return frag.append(piece);
+          if (piece.startsWith("http")) {
+            let shown = piece;
+            if (platform === "mastodon") {
+              // Mastodon hides the https:// and shortens long links
+              shown = piece.replace(/^https?:\/\/(www\.)?/, "");
+              if (shown.length > 30) shown = shown.slice(0, 30) + "…";
+            }
+            return frag.append(el("span", "lnk", shown));
+          }
+          if (piece.startsWith("@")) {
+            if (platform === "linkedin") {
+              const span = el("span", "lnk auto", piece);
+              span.title = "Added when posting: becomes the company's name";
+              return frag.append(span);
+            }
+            if (platform === "bluesky" && profile("bluesky", piece.slice(1)).missing)
+              return frag.append(piece); // the bot only links handles that exist
+            return frag.append(el("span", "lnk", piece));
+          }
+          frag.append(el("span", "lnk", piece));
+        });
+        if (numbering) {
+          const span = el("span", "auto", numbering[0]);
+          span.title = "Added when posting: the post is split into a thread";
+          frag.append(span);
+        }
+        return frag;
+      }
+
+      function mediaGrid(shown) {
+        const grid = el("div", `media n${shown.length}`);
+        shown.forEach((img) => {
+          const fig = el("figure");
+          const pic = el("img");
+          pic.src = img.url;
+          pic.alt = img.alt;
+          fig.append(pic, el("figcaption", "", "ALT"));
+          fig.title = img.alt;
+          grid.appendChild(fig);
+        });
+        return grid;
+      }
+
+      function cardFor(text, platform) {
+        const urls = text.match(/https?:\/\/\S+/g);
+        if (!urls) return null;
+        // Bluesky: the bot uses the last link; Mastodon: the server uses the first one
+        const card = linkCard(platform === "bluesky" ? urls[urls.length - 1] : urls[0]);
+        if (!card.title) return null;
+        const box = el("a", "card-link");
+        box.href = card.url;
+        box.target = "_blank";
+        if (card.image) {
+          const pic = el("img");
+          pic.src = card.image;
+          pic.alt = "";
+          box.appendChild(pic);
+        }
+        const body = el("div");
+        body.append(
+          el("small", "", new URL(card.url).hostname.replace(/^www\./, "")),
+          el("b", "", card.title),
+          el("p", "", card.description || "")
+        );
+        box.append(body, el("span", "auto-label", "Link preview · added when posting"));
+        return box;
+      }
+
+      function postHead(account, platform) {
+        const head = el("div", "post-head");
+        const id = accountId(account);
+        const info = id ? profile(platform, id) : {};
+        let avatar;
+        if (info.avatar) {
+          avatar = el("img", "avatar");
+          avatar.src = info.avatar;
+          avatar.alt = "";
+        } else {
+          avatar = el("span", "avatar");
+          avatar.appendChild(icon(platform));
+        }
+        const who = el("div", "who");
+        who.append(el("strong", "", info.name || account.owner), el("span", "", handleOf(account)));
+        const badge = el("span", "platform-badge");
+        badge.append(icon(platform), PLATFORMS[platform]?.label || platform);
+        head.append(avatar, who, badge);
+        return head;
+      }
+
+      function renderPreviews(selected) {
+        const box = $("previews");
+        box.replaceChildren();
+        if (!selected.length || !$("post-content").value.trim()) {
+          box.appendChild(el("p", "empty", "Pick an account and write something to see it here."));
+          return;
+        }
+        const shown = images.filter((img) => img.url && img.ok !== false).slice(0, MAX_IMAGES);
+        selected.forEach((a) => {
+          const platform = platformOf(a.name);
+          const post = el("div", `post post-${platform}`);
+          post.appendChild(postHead(a, platform));
+          if (platform === "matrix") {
+            // The bot sends each image as its own message first, then the text
+            shown.forEach((img) => {
+              const part = el("div", "part");
+              part.appendChild(mediaGrid([img]));
+              post.appendChild(part);
+            });
+            const names = (mentions.matrix || []).map((m) => profile("matrix", m, a.base).name || m);
+            const part = el("div", "part");
+            if (names.length) {
+              const span = el("span", "auto", `${names.join(" ")}: `);
+              span.title = "Added when posting: mentions go in front with the person's name";
+              part.appendChild(span);
+            }
+            part.appendChild(richText($("post-content").value.trim(), platform));
+            post.appendChild(part);
+            box.appendChild(post);
+            return;
+          }
+          splitPost(postText(a), a.max, platform).forEach((text, i) => {
+            const part = el("div", "part");
+            if (platform === "linkedin" && i > 0)
+              part.appendChild(el("span", "comment-label", "Comment by the same account"));
+            part.appendChild(richText(text, platform));
+            const hasImages = i === 0 && shown.length;
+            if (hasImages) part.appendChild(mediaGrid(shown));
+            if (!hasImages && (platform === "bluesky" || platform === "mastodon")) {
+              const card = cardFor(text, platform);
+              if (card) part.appendChild(card);
+            }
+            if (a.max) {
+              const used = countChars(text, platform);
+              part.appendChild(el("span", used > a.max ? "count over" : "count", `${used} / ${a.max}`));
+            }
+            post.appendChild(part);
+          });
+          box.appendChild(post);
+        });
+      }
+
+      function update() {
+        const selected = selectedAccounts();
+        renderMentionInputs(selected);
+        const list = problems(selected);
+        $("errors").replaceChildren(
+          ...list.map((text) => Object.assign(document.createElement("li"), { textContent: text }))
+        );
+        renderPreviews(selected);
+        document.querySelectorAll(".chips").forEach((c) => c.render?.());
+        const file = buildFile(selected);
+        $("file").textContent = file;
+        const button = $("pr-button");
+        if (list.length) {
+          button.setAttribute("aria-disabled", "true");
+          button.removeAttribute("href");
+        } else {
+          button.setAttribute("aria-disabled", "false");
+          button.href =
+            `https://github.com/${REPO}/new/main/?filename=${fileName()}&value=` +
+            encodeURIComponent(file);
+        }
+        saveDraft();
+      }
+
+      // A small tag input: Enter, comma or space adds a tag, Backspace removes the last one
+      function chipInput(container, values, { placeholder, strip, check, label, status, suggest }) {
+        container.replaceChildren();
+        const input = document.createElement("input");
+        input.placeholder = placeholder;
+        input.setAttribute("aria-label", label);
+        if (container.id === "hashtags") input.id = "hashtags-input";
+        // Suggestions from past posts, offered by the browser as you type
+        const list = document.createElement("datalist");
+        list.id = `${label.replace(/\W+/g, "-")}-suggestions`;
+        input.setAttribute("list", list.id);
+        input.addEventListener("focus", () =>
+          list.replaceChildren(
+            ...(suggest?.() || [])
+              .filter((v) => !values.includes(v))
+              .map((v) => Object.assign(document.createElement("option"), { value: v }))
+          )
+        );
+        const render = () => {
+          container.querySelectorAll(".chip").forEach((c) => c.remove());
+          values.forEach((value, i) => {
+            const chip = document.createElement("span");
+            chip.className = "chip";
+            chip.textContent = value;
+            const state = status?.(value) || {};
+            if (state.name) {
+              chip.classList.add("ok");
+              chip.append(" ", Object.assign(document.createElement("small"), { textContent: `✓ ${state.name}` }));
+            } else if (state.missing) {
+              chip.classList.add("missing");
+              chip.append(" ", Object.assign(document.createElement("small"), { textContent: "not found" }));
+              chip.title = "No account with this name was found. Check the spelling.";
+            }
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.textContent = "×";
+            remove.setAttribute("aria-label", `Remove ${value}`);
+            remove.onclick = () => {
+              values.splice(i, 1);
+              render();
+              update();
+            };
+            chip.appendChild(remove);
+            container.insertBefore(chip, input);
+          });
+        };
+        const add = () => {
+          input.value
+            .split(/[\s,]+/)
+            .map((v) => v.replace(strip, ""))
+            .filter((v) => v && (!check || check.test(v)) && !values.includes(v))
+            .forEach((v) => values.push(v));
+          input.value = "";
+          render();
+          update();
+        };
+        input.addEventListener("keydown", (e) => {
+          if (["Enter", ",", " "].includes(e.key)) {
+            e.preventDefault();
+            add();
+          } else if (e.key === "Backspace" && !input.value && values.length) {
+            values.pop();
+            render();
+            update();
+          }
+        });
+        input.addEventListener("input", (e) => {
+          // picking a suggestion from the list adds it right away
+          if (!e.inputType || e.inputType === "insertReplacementText") add();
+        });
+        input.addEventListener("blur", add);
+        container.onclick = () => input.focus();
+        container.render = render;
+        container.append(input, list);
+        render();
+      }
+
+      let mentionPlatforms = "";
+      function renderMentionInputs(selected) {
+        const platforms = [...new Set(selected.map((a) => platformOf(a.name)))].filter(
+          (p) => PLATFORMS[p]
+        );
+        if (platforms.join() === mentionPlatforms) return;
+        mentionPlatforms = platforms.join();
+        const box = $("mentions");
+        box.replaceChildren();
+        platforms.forEach((platform) => {
+          mentions[platform] = mentions[platform] || [];
+          const row = document.createElement("div");
+          row.className = "mention-row";
+          row.append(icon(platform), `Mentions on ${PLATFORMS[platform].label}`);
+          const hint = document.createElement("p");
+          hint.className = "hint";
+          hint.textContent = `Without the @. Format: ${PLATFORMS[platform].mention}.`;
+          const chips = document.createElement("div");
+          chips.className = "chips";
+          box.append(row, hint, chips);
+          chipInput(chips, mentions[platform], {
+            placeholder: "Add a mention",
+            strip: /^@/,
+            check: PLATFORMS[platform].check,
+            label: `Mentions on ${PLATFORMS[platform].label}`,
+            status: (value) =>
+              profile(platform, value, selected.find((a) => platformOf(a.name) === platform)?.base),
+            suggest: () => suggestions.mentions?.[platform],
+          });
+        });
+      }
+
+      function addImage(url = "", alt = "") {
+        if (images.length >= MAX_IMAGES) return;
+        const img = { url, alt, ok: undefined };
+        images.push(img);
+        const row = document.createElement("div");
+        row.className = "image-row";
+        const thumb = document.createElement("img");
+        thumb.className = "thumb";
+        thumb.alt = "";
+        const inputs = document.createElement("div");
+        inputs.className = "inputs";
+        const urlInput = Object.assign(document.createElement("input"), {
+          type: "url",
+          placeholder: "https://… link to the image",
+          value: url,
+        });
+        urlInput.setAttribute("aria-label", "Image link");
+        const altInput = Object.assign(document.createElement("input"), {
+          type: "text",
+          placeholder: "Describe the image",
+          value: alt,
+        });
+        altInput.setAttribute("aria-label", "Image description");
+        const status = document.createElement("span");
+        status.className = "image-status";
+        inputs.append(urlInput, altInput, status);
+        const remove = Object.assign(document.createElement("button"), {
+          type: "button",
+          textContent: "Remove",
+        });
+        const check = () => {
+          img.url = urlInput.value.trim();
+          img.ok = undefined;
+          status.textContent = "";
+          if (!/^https?:\/\/\S+$/.test(img.url)) {
+            thumb.removeAttribute("src");
+            return update();
+          }
+          thumb.onload = () => {
+            img.ok = true;
+            status.textContent = "✓ Image found";
+            status.className = "image-status status-ok";
+            update();
+          };
+          thumb.onerror = () => {
+            img.ok = false;
+            status.textContent = "Couldn't load this image. Check that the link opens the image itself.";
+            status.className = "image-status status-error";
+            update();
+          };
+          thumb.src = img.url;
+          update();
+        };
+        urlInput.addEventListener("change", check);
+        altInput.addEventListener("input", () => {
+          img.alt = altInput.value;
+          update();
+        });
+        remove.onclick = () => {
+          images.splice(images.indexOf(img), 1);
+          row.remove();
+          $("add-image").disabled = false;
+          update();
+        };
+        row.append(thumb, inputs, remove);
+        $("images").appendChild(row);
+        $("add-image").disabled = images.length >= MAX_IMAGES;
+        if (url) check();
+      }
+
+      function renderAccounts(plugins) {
+        const box = $("accounts");
+        box.replaceChildren();
+        const groups = {};
+        plugins.forEach((p) => {
+          const name = p.name.toLowerCase();
+          const ownerKey = name.split("-")[1];
+          const owner = OWNERS[ownerKey] || "Other";
+          const account = {
+            name,
+            owner,
+            url: p.config?.account_url,
+            max: p.config?.max_content_length,
+            username: p.config?.username,
+            base: p.config?.base_url,
+          };
+          (groups[owner] = groups[owner] || []).push(account);
+          accounts.push(account);
+        });
+        const order = [...Object.values(OWNERS), "Other"].filter((o, i, a) => a.indexOf(o) === i);
+        order
+          .filter((owner) => groups[owner])
+          .forEach((owner) => {
+            const set = document.createElement("fieldset");
+            set.className = "group";
+            const legend = document.createElement("legend");
+            legend.textContent = owner;
+            const all = Object.assign(document.createElement("button"), {
+              type: "button",
+              className: "link group-all",
+              textContent: "Select all",
+            });
+            all.onclick = () => {
+              const turnOn = groups[owner].some((a) => !a.checkbox.checked);
+              groups[owner].forEach((a) => (a.checkbox.checked = turnOn));
+              update();
+            };
+            legend.appendChild(all);
+            set.appendChild(legend);
+            groups[owner]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .forEach((account) => {
+                const platform = platformOf(account.name);
+                const label = document.createElement("label");
+                label.className = "account";
+                const cb = Object.assign(document.createElement("input"), {
+                  type: "checkbox",
+                  value: account.name,
+                });
+                cb.addEventListener("change", update);
+                account.checkbox = cb;
+                const text = document.createElement("span");
+                text.textContent = PLATFORMS[platform]?.label || platform;
+                const handle = document.createElement("span");
+                handle.className = "handle";
+                handle.textContent = handleOf(account);
+                label.append(cb, icon(platform), text, handle);
+                if (account.url) {
+                  const link = Object.assign(document.createElement("a"), {
+                    href: account.url,
+                    target: "_blank",
+                    textContent: "Open",
+                    title: `Open ${account.name}`,
+                  });
+                  label.appendChild(link);
+                }
+                set.appendChild(label);
+              });
+            box.appendChild(set);
+          });
+      }
+
+      // Toolbar: emoji and links are the only formatting that every platform keeps
+      function insertText(text) {
+        const area = $("post-content");
+        const before = area.value.slice(0, area.selectionStart);
+        const after = area.value.slice(area.selectionEnd);
+        if (/^https?:/.test(text)) {
+          if (before && !/\s$/.test(before)) text = " " + text;
+          if (!after || !/^\s/.test(after)) text += " ";
+        }
+        area.setRangeText(text, area.selectionStart, area.selectionEnd, "end");
+        area.focus();
+        update();
+      }
+      function togglePopover(button, popover, open = popover.hidden) {
+        document.querySelectorAll(".editor .popover").forEach((p) => (p.hidden = true));
+        document
+          .querySelectorAll(".toolbar button")
+          .forEach((b) => b.setAttribute("aria-expanded", "false"));
+        popover.hidden = !open;
+        button.setAttribute("aria-expanded", String(open));
+      }
+      function setUpToolbar() {
+        const emojiButton = $("emoji-button");
+        const linkButton = $("link-button");
+        const picker = $("emoji-picker");
+        const linkBox = $("link-popover");
+        const url = $("link-url");
+        emojiButton.onclick = () => togglePopover(emojiButton, picker);
+        picker.addEventListener("emoji-click", (e) => {
+          togglePopover(emojiButton, picker, false);
+          insertText(e.detail.unicode);
+        });
+        linkButton.onclick = () => {
+          togglePopover(linkButton, linkBox);
+          if (!linkBox.hidden) url.focus();
+        };
+        const addLink = () => {
+          const value = url.value.trim();
+          if (!/^https?:\/\/\S+$/.test(value)) {
+            url.setCustomValidity("Paste a link that starts with https://");
+            return url.reportValidity();
+          }
+          url.setCustomValidity("");
+          url.value = "";
+          togglePopover(linkButton, linkBox, false);
+          insertText(value);
+        };
+        $("link-insert").onclick = addLink;
+        url.addEventListener("input", () => url.setCustomValidity(""));
+        url.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            addLink();
+          }
+        });
+        document.addEventListener("click", (e) => {
+          if (!e.target.closest(".editor .popover, .toolbar button"))
+            togglePopover(emojiButton, picker, false);
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") togglePopover(emojiButton, picker, false);
+        });
+      }
+
+      // Keep a draft in this browser so a reload doesn't lose the text
+      const DRAFT_KEY = "galaxy-social-draft";
+      function saveDraft() {
+        try {
+          localStorage.setItem(
+            DRAFT_KEY,
+            JSON.stringify({
+              title: $("post-title").value,
+              content: $("post-content").value,
+              schedule: $("post-schedule").value,
+              accounts: selectedAccounts().map((a) => a.name),
+              hashtags,
+              mentions,
+              images: images.map(({ url, alt }) => ({ url, alt })),
+            })
+          );
+        } catch (e) {}
+      }
+      function loadDraft() {
+        let draft = null;
+        try {
+          draft = JSON.parse(localStorage.getItem(DRAFT_KEY));
+        } catch (e) {}
+        if (!draft) return;
+        $("post-title").value = draft.title || "";
+        $("post-content").value = draft.content || "";
+        $("post-schedule").value = draft.schedule || "";
+        accounts.forEach((a) => (a.checkbox.checked = (draft.accounts || []).includes(a.name)));
+        hashtags.push(...(draft.hashtags || []));
+        Object.assign(mentions, draft.mentions || {});
+        (draft.images || []).forEach((img) => addImage(img.url, img.alt));
+      }
+
+      window.addEventListener("DOMContentLoaded", async () => {
+        $("post-timezone").textContent = timeZone;
+        ["post-title", "post-content", "post-schedule"].forEach((id) =>
+          $(id).addEventListener("input", update)
+        );
+        // Typing only part of the date fires no input event, so check again on leaving the field
+        $("post-schedule").addEventListener("blur", update);
+        $("clear-schedule").onclick = () => {
+          $("post-schedule").value = "";
+          update();
+        };
+        $("add-image").onclick = () => addImage();
+        setUpToolbar();
+        $("toggle-file").onclick = () => {
+          $("file").hidden = !$("file").hidden;
+          $("toggle-file").textContent = $("file").hidden ? "Show file" : "Hide file";
+        };
+        try {
+          const res = await fetch(`https://raw.githubusercontent.com/${REPO}/main/plugins.yml`);
+          const data = jsyaml.load(await res.text());
+          renderAccounts(data.plugins.filter((p) => p.enabled && p.name !== "markdown"));
+        } catch (e) {
+          console.error(e);
+          $("accounts").textContent = "Couldn't load the accounts. Please reload the page.";
+        }
+        // Built from past posts when the page is deployed; missing when run locally
+        fetch("suggestions.json")
+          .then((res) => (res.ok ? res.json() : {}))
+          .then((data) => (suggestions = data))
+          .catch(() => {});
+        loadDraft();
+        chipInput($("hashtags"), hashtags, {
+          placeholder: "Add a hashtag",
+          strip: /^#/,
+          check: /^[A-Za-z0-9_]+$/,
+          label: "Hashtags",
+          suggest: () => suggestions.hashtags,
+        });
+        update();
+      });
+    </script>
+  </body>
+</html>
