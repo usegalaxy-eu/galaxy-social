@@ -1,12 +1,8 @@
 ---
 media:
   - mastodon-galaxyproject
-  - linkedin-galaxyproject
 hashtags:
   mastodon-galaxyproject:
-  - usegalaxy
-  - OpenScience
-  linkedin-galaxyproject:
   - usegalaxy
   - OpenScience
 ---
