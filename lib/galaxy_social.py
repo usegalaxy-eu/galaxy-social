@@ -69,11 +69,12 @@ class ImgSyntaxConverter(HTMLParser):
 
 
 class galaxy_social:
-    def __init__(self, preview: bool):
+    def __init__(self, preview: bool, plugins_path: str = None):
         self.preview = preview
-        plugins_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "..", "plugins.yml"
-        )
+        if plugins_path is None:
+            plugins_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "..", "plugins.yml"
+            )
         with open(plugins_path, "r") as file:
             plugins_config = yaml(file)
 
