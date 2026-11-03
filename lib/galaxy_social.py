@@ -69,7 +69,7 @@ class ImgSyntaxConverter(HTMLParser):
 
 
 class galaxy_social:
-    def __init__(self, preview: bool, plugins_path: str = None):
+    def __init__(self, preview: bool, plugins_path: str|None = None):
         self.preview = preview
         if plugins_path is None:
             plugins_path = os.path.join(

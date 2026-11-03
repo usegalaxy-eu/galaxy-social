@@ -15,6 +15,12 @@ plugins:
       token: $GALAXY_SOCIAL_TEST_TOKEN
       save_path: "markdown_cache"
 
+  - name: Fake-Uppercase
+    class: markdown.markdown_client
+    enabled: true
+    config:
+      save_path: "markdown_cache"
+
   - name: fake-disabled
     class: markdown.markdown_client
     enabled: false

@@ -32,15 +32,16 @@ def write_post(
 class TestInit:
     def test_reads_config_from_plugins_path(self, test_plugins_path):
         gs = galaxy_social(preview=False, plugins_path=test_plugins_path)
-        assert set(gs.plugins_config_dict) == {"fake-a", "fake-env", "fake-broken"}
+        assert set(gs.plugins_config_dict) == {
+            "fake-a",
+            "fake-env",
+            "fake-broken",
+            "fake-uppercase",  # "Fake-Uppercase" in the file, lowercased on load
+        }
 
     def test_does_not_load_disabled_plugins(self, test_plugins_path):
         gs = galaxy_social(preview=False, plugins_path=test_plugins_path)
         assert "fake-disabled" not in gs.plugins_config_dict
-
-    def test_config_dict_keys_are_lowercase(self, test_plugins_path):
-        gs = galaxy_social(preview=False, plugins_path=test_plugins_path)
-        assert all(key == key.lower() for key in gs.plugins_config_dict)
 
     def test_resolves_class_and_config(self, test_plugins_path):
         gs = galaxy_social(preview=False, plugins_path=test_plugins_path)
@@ -56,7 +57,11 @@ class TestInit:
         assert gs.plugins == {}
 
     def test_default_plugins_path_loads_repo_config(self):
-        # Anchors the default (repo-relative) path resolution.
+        # Intentional test of the default (repo-relative) path resolution.
+        # This specific test needs to read the default config and,
+        # for now, will fail if the config is corrupted or lacks the
+        # "markdown" plugin.
+        # TO DO: code refactoring to let us test path resolution in isolation
         gs = galaxy_social(preview=False)
         assert "markdown" in gs.plugins_config_dict
 
@@ -88,7 +93,7 @@ class TestInitPlugin:
 
 class TestLintMarkdownFile:
     def test_valid_post_passes(self, tmp_path):
-        gs = galaxy_social(preview=False)
+        gs = galaxy_social  # since this is testing a classmethod, instantiation isn't needed here
         path = write_post(tmp_path)
         result, ok = gs.lint_markdown_file(str(path))
         assert ok
@@ -143,12 +148,14 @@ class TestParseMarkdownFile:
         ]
 
     def test_lowercases_media_mentions_and_hashtags(self, tmp_path, make_gs):
+        # The front matter uses mixed-case names; the fakes are registered under
+        # the lowercase forms, so matching keys prove the lowercasing happened.
         gs, _ = make_gs(names=("markdown", "mastodon"))
         extra = (
             "mentions:\n  MastoDon:\n    - SomeOne\n"
             "hashtags:\n  Markdown:\n    - tag1\n"
         )
-        path = write_post(tmp_path, media=("markdown", "mastodon"), extra=extra)
+        path = write_post(tmp_path, media=("Markdown", "MastoDon"), extra=extra)
         _, metadata, errors = gs.parse_markdown_file(str(path))
         assert errors == ""
         assert metadata["media"] == ["markdown", "mastodon"]
