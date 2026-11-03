@@ -102,7 +102,7 @@ class TestLintMarkdownFile:
         assert "Body text" in text
 
     def test_file_without_front_matter_fails(self, tmp_path):
-        gs = galaxy_social(preview=False)
+        gs = galaxy_social  # testing a classmethod
         path = tmp_path / "bad.md"
         path.write_text("no front matter at all\n")
         result, ok = gs.lint_markdown_file(str(path))
@@ -110,7 +110,7 @@ class TestLintMarkdownFile:
         assert isinstance(result, Exception)
 
     def test_schema_violation_fails(self, tmp_path):
-        gs = galaxy_social(preview=False)
+        gs = galaxy_social  # testing a classmethod
         path = tmp_path / "bad.md"
         path.write_text("---\nmedia: markdown\n---\n\nBody text\n")  # media must be a list
         result, ok = gs.lint_markdown_file(str(path))
