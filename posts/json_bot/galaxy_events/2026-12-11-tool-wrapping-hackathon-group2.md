@@ -8,7 +8,7 @@ hashtags:
 ---
 📣 Galaxy Tool Wrapping Hackathon @ SURF
 
-Bring your own tool & leave with a Galaxy wrapper - 1-day hands-on hackathon in Amsterdam.
+Bring your own tool & leave with a Galaxy wrapper - 1-day hackathon in Amsterdam.
 
 📍 SURF, Science Park 140, Amsterdam
 📅 11 December 2026
