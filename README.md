@@ -11,7 +11,7 @@
       </a>
     </td>
     <td align="center">
-      <a href="../../new/main/?filename=posts/2026/<your-path>.md&value=---%0Amedia:%0A-%20mastodon-galaxyproject%0A-%20mastodon-vgp%0A-%20mastodon-brc%0A-%20matrix-eu-announce%0A-%20bluesky-vgp%0A-%20linkedin-galaxyproject%0A-%20linkedin-brc%0A-%20bluesky-brc%0A-%20mastodon-eu-freiburg%0A-%20bluesky-galaxyproject%0Amentions:%0A%20%20mastodon-eu-freiburg:%0A%20%20-%20galaxyproject@mstdn.science%0A%20%20mastodon-galaxyproject:%0A%20%20-%20galaxyfreiburg@bawü.social%0A%20%20bluesky-galaxyproject:%0A%20%20-%20galaxyproject.bsky.social%0A%20%20mastodon-vgp:%20[]%0A%20%20mastodon-brc:%20[]%0A%20%20matrix-eu-announce:%20[]%0A%20%20bluesky-vgp:%20[]%0A%20%20linkedin-galaxyproject:%20[]%0A%20%20linkedin-brc:%20[]%0A%20%20bluesky-brc:%20[]%0Ahashtags:%0A%20%20mastodon-eu-freiburg:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20%20mastodon-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20bluesky-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20%20linkedin-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20%20mastodon-vgp:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20%20mastodon-brc:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20%20matrix-eu-announce:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20%20bluesky-vgp:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20%20linkedin-brc:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20%20bluesky-brc:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%0A---%0AYour%20text%20content%20goes%20here.%20(Markdown%20syntax%20will%20not%20pass%20to%20Bluesky,%20Mastodon,%20and%20Linkedin!)%0AFor%20images%20just%20drag%20and%20drop%20them%20here.%20they%20will%20look%20like%20this:%0A![A](https://example.com/a.jpg)">
+      <a href="../../new/main/?filename=posts/2026/<your-path>.md&value=---%0Amedia:%0A-%20mastodon-galaxyproject%0A-%20mastodon-vgp%0A-%20mastodon-brc%0A-%20matrix-eu-announce%0A-%20bluesky-vgp%0A-%20linkedin-galaxyproject%0A-%20linkedin-brc%0A-%20bluesky-brc%0A-%20mastodon-eu-freiburg%0A-%20bluesky-galaxyproject%0Amentions:%0A%20%20mastodon-eu-freiburg:%0A%20%20-%20galaxyproject@mstdn.science%0A%20%20mastodon-galaxyproject:%0A%20%20-%20galaxyfreiburg@bawü.social%0A%20%20bluesky-galaxyproject:%0A%20%20-%20galaxyproject.bsky.social%0Ahashtags:%0A%20%20mastodon-eu-freiburg:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EuroScienceGateway%0A%20%20mastodon-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20bluesky-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EuroScienceGateway%0A%20%20linkedin-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EuroScienceGateway%0A%0A---%0AYour%20text%20content%20goes%20here.%20(Markdown%20syntax%20will%20not%20pass%20to%20Bluesky,%20Mastodon,%20and%20Linkedin!)%0AFor%20images%20just%20drag%20and%20drop%20them%20here.%20they%20will%20look%20like%20this:%0A![A](https://example.com/a.jpg)">
         <img src="https://img.shields.io/badge/📝%20Create%20New%20Manual%20Post-green?style=for-the-badge" alt="Create new manual post">
       </a>
     </td>
@@ -50,19 +50,11 @@ mentions:
   - galaxyfreiburg@bawü.social
   bluesky-galaxyproject:
   - galaxyproject.bsky.social
-  mastodon-vgp: []
-  mastodon-brc: []
-  matrix-eu-announce: []
-  bluesky-vgp: []
-  linkedin-galaxyproject: []
-  linkedin-brc: []
-  bluesky-brc: []
 hashtags:
   mastodon-eu-freiburg:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - EOSC
   - EuroScienceGateway
   mastodon-galaxyproject:
   - UseGalaxy
@@ -70,49 +62,11 @@ hashtags:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - EOSC
   - EuroScienceGateway
   linkedin-galaxyproject:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
-  mastodon-vgp:
-  - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
-  mastodon-brc:
-  - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
-  matrix-eu-announce:
-  - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
-  bluesky-vgp:
-  - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
-  linkedin-brc:
-  - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
-  bluesky-brc:
-  - UseGalaxy
-  - GalaxyProject
-  - UniFreiburg
-  - EOSC
   - EuroScienceGateway
 
 ---
