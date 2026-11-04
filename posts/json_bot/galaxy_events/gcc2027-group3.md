@@ -9,7 +9,6 @@ hashtags:
   mastodon-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  - EOSC
 ---
 📣 2027 Galaxy Community Conference (GCC2027)
 
