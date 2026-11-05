@@ -1,0 +1,32 @@
+# Minimal plugin configuration used by the unit tests (see tests/conftest.py).
+# The plugin classes reference real, importable, network-free plugins so that
+# init_plugin can be exercised without credentials or API access.
+plugins:
+  - name: fake-a
+    class: markdown.markdown_client
+    enabled: true
+    config:
+      save_path: "markdown_cache"
+
+  - name: fake-env
+    class: markdown.markdown_client
+    enabled: true
+    config:
+      token: $GALAXY_SOCIAL_TEST_TOKEN
+      save_path: "markdown_cache"
+
+  - name: Fake-Uppercase
+    class: markdown.markdown_client
+    enabled: true
+    config:
+      save_path: "markdown_cache"
+
+  - name: fake-disabled
+    class: markdown.markdown_client
+    enabled: false
+    config: {}
+
+  - name: fake-broken
+    class: nonexistent_module.client
+    enabled: true
+    config: {}

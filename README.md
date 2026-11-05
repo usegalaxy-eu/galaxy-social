@@ -11,7 +11,7 @@
       </a>
     </td>
     <td align="center">
-      <a href="../../new/main/?filename=posts/2025/<your-path>.md&value=---%0Amedia:%0A%20-%20mastodon-eu-freiburg%0A%20-%20matrix-eu-announce%0A%20-%20mastodon-galaxyproject%0A%20-%20bluesky-galaxyproject%0A%20-%20linkedin-galaxyproject%0A%0Amentions:%0A%20mastodon-eu-freiburg:%0A%20%20-%20galaxyproject@mstdn.science%0A%20mastodon-galaxyproject:%0A%20%20-%20galaxyfreiburg@bawü.social%0A%20bluesky-galaxyproject:%0A%20%20-%20galaxyproject.bsky.social%0A%0Ahashtags:%0A%20mastodon-eu-freiburg:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20mastodon-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20bluesky-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20linkedin-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A---%0AYour%20text%20content%20goes%20here.%20(Markdown%20syntax%20will%20not%20pass%20to%20Bluesky,%20Mastodon,%20and%20Linkedin!)%0AFor%20images%20just%20drag%20and%20drop%20them%20here.%20they%20will%20look%20like%20this:%0A![A](https://example.com/a.jpg)">
+      <a href="../../new/main/?filename=posts/2026/<your-path>.md&value=---%0Amedia:%0A-%20mastodon-galaxyproject%0A-%20mastodon-vgp%0A-%20mastodon-brc%0A-%20matrix-eu-announce%0A-%20bluesky-vgp%0A-%20linkedin-galaxyproject%0A-%20linkedin-brc%0A-%20bluesky-brc%0A-%20mastodon-eu-freiburg%0A-%20bluesky-galaxyproject%0Amentions:%0A%20%20mastodon-eu-freiburg:%0A%20%20-%20galaxyproject@mstdn.science%0A%20%20mastodon-galaxyproject:%0A%20%20-%20galaxyfreiburg@bawü.social%0A%20%20bluesky-galaxyproject:%0A%20%20-%20galaxyproject.bsky.social%0Ahashtags:%0A%20%20mastodon-eu-freiburg:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20mastodon-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20bluesky-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20linkedin-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%0A---%0AYour%20text%20content%20goes%20here.%20(Markdown%20syntax%20will%20not%20pass%20to%20Bluesky,%20Mastodon,%20and%20Linkedin!)%0AFor%20images%20just%20drag%20and%20drop%20them%20here.%20they%20will%20look%20like%20this:%0A![A](https://example.com/a.jpg)">
         <img src="https://img.shields.io/badge/📝%20Create%20New%20Manual%20Post-green?style=for-the-badge" alt="Create new manual post">
       </a>
     </td>
@@ -26,48 +26,46 @@ To create a post on Galaxy Social, follow these steps:
 
 1. **Create a Branch:** Begin by [creating a branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository#creating-a-branch) in this repository or [your forked repository](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository). Do not commit directly to the main branch. All changes must go through a pull request.
 
-2. **Add a New File:** Within the "posts" folder (or sub-folders), create a new file with the extension ".md" and [commit it to your branch](https://docs.github.com/en/repositories/working-with-files/managing-files/creating-new-files). Do not edit an existing or older file. Always create a new one for your content.
+2. **Add a New File:** Within the "posts" folder (or sub-folders), create a new file with the extension ".md" and [commit it to your branch](https://docs.github.com/en/repositories/working-with-files/managing-files/creating-new-files). Do not edit an existing or older file. Always create a new one for your content. The only exception is a scheduled post that has not gone out yet (see `schedule` below).
 
 3. **Use the Post Template:** Utilize the following template for the post content:
 
 ```yaml
 ---
 media:
- - mastodon-eu-freiburg
- - matrix-eu-announce
- - mastodon-galaxyproject
- - bluesky-galaxyproject
- - linkedin-galaxyproject
-
+- mastodon-galaxyproject
+- mastodon-vgp
+- mastodon-brc
+- matrix-eu-announce
+- bluesky-vgp
+- linkedin-galaxyproject
+- linkedin-brc
+- bluesky-brc
+- mastodon-eu-freiburg
+- bluesky-galaxyproject
 mentions:
- mastodon-eu-freiburg:
+  mastodon-eu-freiburg:
   - galaxyproject@mstdn.science
- mastodon-galaxyproject:
+  mastodon-galaxyproject:
   - galaxyfreiburg@bawü.social
- bluesky-galaxyproject:
+  bluesky-galaxyproject:
   - galaxyproject.bsky.social
-
 hashtags:
- mastodon-eu-freiburg:
+  mastodon-eu-freiburg:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
- mastodon-galaxyproject:
+  mastodon-galaxyproject:
   - UseGalaxy
- bluesky-galaxyproject:
+  bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
- linkedin-galaxyproject:
+  linkedin-galaxyproject:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
+
 ---
 Your text content goes here. (Markdown syntax will not pass to Bluesky, Mastodon, and Linkedin!)
 For images just drag and drop them here. they will look like this:
@@ -90,11 +88,13 @@ For images just drag and drop them here. they will look like this:
 
 - "images" (Optional): You can include images using Markdown format at the end of the file like this: `![Alternative text](Link to the image)`. Alternatively, you can simply drag and drop an image from your PC while adding your file.
 
+- "schedule" (Optional): To post later instead of right after merge, add a date, time and time zone to the metatags, either in UTC like `schedule: 2026-10-20 07:00 UTC` or in your own [time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) like `schedule: 2026-10-20 09:00 Europe/Berlin` (the [Interactive Post Creator](https://usegalaxy-eu.github.io/galaxy-social/) fills this in for you). The preview shows this time in UTC, Berlin, New York and Los Angeles time. The post will go out around this time, but it can be a bit late, so for posts that must go out at an exact moment, don't use `schedule` and merge the pull request at that moment instead. To change the time or cancel a scheduled post before it goes out, edit its `schedule` or delete the file in a new pull request.
+
 4. **Create a Pull Request:** Once your post is ready, [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request?tool=webui#creating-the-pull-request) to the main branch from another branch or [from your fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
 
 5. **Preview and Review:** After each pull request, the GitHub action will run and will generate previews of the content as it would appear on each platform listed under "media" in a comment to the pull request and highlight any errors that need to be fixed before merging.
 
-6. **Publish Your Content:** Upon merging the pull request, the GitHub action will run. The results will be added to `processed_files.json` in the processed_files branch.
+6. **Publish Your Content:** Upon merging the pull request, the GitHub action will run. The results will be added to `processed_files.json` in the processed_files branch. If posting fails on some platforms, a new pull request is created to retry them. If the bot comments "Something went wrong, an Admin will take a look.", nothing was posted: an admin can open the failed run from the pull request's checks and click "Re-run all jobs".
 
 By following these steps, you can effectively create and publish posts on Galaxy Social.
 
@@ -153,7 +153,7 @@ By following these steps, you can effectively duplicate a social media platform 
 
 ## Run locally
 
-You can execute this repository on your machine by running `lib/galaxy_social.py` with the argument `--files Files ...` or `--folder FOLDER` to process files, or add `--preview` to preview the file as markdown. Also there is `--json-out processed_files.json` that could be change where to save the json results output.
+You can execute this repository on your machine by running `lib/galaxy_social.py` with the argument `--files Files ...` or `--folder FOLDER` to process files, or `--scheduled FOLDER` to publish the scheduled posts in a folder whose time has come, or add `--preview` to preview the file as markdown. Also there is `--json-out processed_files.json` that could be change where to save the json results output.
 
 Remember to add the env variable that needed for each social media seperatly.
 

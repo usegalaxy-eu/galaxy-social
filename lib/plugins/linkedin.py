@@ -26,7 +26,11 @@ class linkedin_client:
         paragraphs = content.split("\n\n\n")
         for p in paragraphs:
             for chunk in textwrap.wrap(
-                p.strip("\n"), max_chunk_length, replace_whitespace=False
+                p.strip("\n"),
+                max_chunk_length,
+                replace_whitespace=False,
+                # keep hyphenated handles and words in one chunk
+                break_on_hyphens=False,
             ):
                 yield chunk
 
