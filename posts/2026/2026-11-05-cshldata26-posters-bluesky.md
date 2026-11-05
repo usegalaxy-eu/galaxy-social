@@ -2,7 +2,7 @@
 media:
   - bluesky-galaxyproject
 ---
-Six posters from the Galaxy Project team are up this week at CSHL Biological Data Science 2026 (Nov 4–7). AI-agent reanalysis, Galaxy user-defined tools, workflow automation, cannabis genomics, diploid genome assembly, planetary-scale SRA mining. Posting each one with its PDF — follow #CSHLdata26.
+Six posters from the Galaxy Project team are up this week at CSHL Biological Data Science 2026 (Nov 4–7): AI-agent reanalysis, Galaxy user-defined tools, workflow automation, cannabis genomics, genome assembly, and SRA mining at planetary scale. Follow #CSHLdata26.
 
 
 HighGen (Poster 52): a 218-assembly cannabis genomics resource (Burhans & Nekrutenko, Penn State) with a UCSC track hub and real MULTIZ/masking-bias fixes. https://github.com/nekrut/cshl-meetings/blob/main/2026/biological-data-science/burhans/cannabis-poster.pdf #CSHLdata26
@@ -23,4 +23,4 @@ disassembler (Poster 159): pulling target sequences straight out of Logan's peta
 Galaxy user-defined tools (Poster 61): interface, environment, data, compute, provenance and sharing in ~40 lines, in your own account, no admin install. https://github.com/nekrut/cshl-meetings/blob/main/2026/biological-data-science/vandenbeek/udt-poster.pdf #CSHLdata26
 
 
-Orbit: Reproducible Agentic Workflow Development with Cloud Execution Included (Poster 126, live demo). Nekrutenko, Cain & Baker demo Orbit live: a desktop app that plans, runs and publishes analyses on Galaxy + NCBI Datasets, across TACC/Jetstream2/ACCESS-CI, provider-agnostic. #CSHLdata26
+Orbit: Reproducible Agentic Workflow Development with Cloud Execution Included (Poster 126, live demo). Nekrutenko, Cain & Baker demo Orbit live: a desktop app that plans, runs and publishes analyses on Galaxy + NCBI Datasets, across TACC/Jetstream2/ACCESS-CI. #CSHLdata26
