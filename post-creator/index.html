@@ -448,6 +448,12 @@
       .lnk {
         color: var(--accent);
       }
+      a.lnk {
+        text-decoration: none;
+      }
+      a.lnk:hover {
+        text-decoration: underline;
+      }
       .auto {
         color: var(--muted);
         border-bottom: 1px dashed currentColor;
@@ -1053,7 +1059,7 @@
             const d = await getJSON(
               `https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(id)}`
             );
-            return d && { name: d.displayName || d.handle, avatar: d.avatar };
+            return d && { name: d.displayName || d.handle, avatar: d.avatar, url: `https://bsky.app/profile/${d.handle}` };
           });
         if (platform === "mastodon") {
           const [user, host] = id.split("@");
@@ -1061,7 +1067,7 @@
             const d = await getJSON(
               `https://${host}/api/v1/accounts/lookup?acct=${encodeURIComponent(user)}`
             );
-            return d && { name: d.display_name || d.username, avatar: d.avatar };
+            return d && { name: d.display_name || d.username, avatar: d.avatar, url: d.url };
           });
         }
         if (platform === "matrix")
@@ -1135,7 +1141,7 @@
       function mentionPart(platform, shown, id, account) {
         const info = profile(platform, id, account?.base);
         if (info.missing) return { cls: "bad", shown, title: `No account ${id} was found, so this stays plain text. Check the spelling.` };
-        if (info.name) return { cls: "lnk", shown, title: `✓ ${info.name} (${id})` };
+        if (info.name) return { cls: "lnk", shown, title: `✓ ${info.name} (${id})`, href: info.url };
         return { cls: "lnk", shown, title: id };
       }
 
@@ -1148,24 +1154,24 @@
           }
         };
         if (platform === "linkedin") {
-          add(/@\[[^\]]+\]\(urn:li:organization:\d+\)/g, (m) => ({ cls: "lnk", shown: m[0].slice(2, m[0].indexOf("]")) }));
-          add(ANY_URL, (m) => ({ cls: "lnk auto", shown: "https://lnkd.in/…", title: `LinkedIn shows this as a short lnkd.in link to ${m[0]}` }));
-          add(/(?<=^|\s)#[\p{L}\p{N}_]+/gu, () => ({ cls: "lnk" }));
+          add(/@\[([^\]]+)\]\(urn:li:organization:(\d+)\)/g, (m) => ({ cls: "lnk", shown: m[1], href: `https://www.linkedin.com/company/${m[2]}/` }));
+          add(ANY_URL, (m) => ({ cls: "lnk auto", shown: "https://lnkd.in/…", title: `LinkedIn shows this as a short lnkd.in link to ${m[0]}`, href: m[0] }));
+          add(/(?<=^|\s)#([\p{L}\p{N}_]+)/gu, (m) => ({ cls: "lnk", href: `https://www.linkedin.com/feed/hashtag/${encodeURIComponent(m[1].toLowerCase())}/` }));
           // only the mention box makes real LinkedIn mentions; the bot sends a typed @ as plain text
           add(/(?<=^|\s)@[\w.-]+/g, (m) =>
             (mentions.linkedin || []).includes(m[0].slice(1))
-              ? { cls: "lnk auto", title: "Added when posting: becomes the page's name" }
+              ? { cls: "lnk auto", title: "Added when posting: becomes the page's name", href: `https://www.linkedin.com/company/${encodeURIComponent(m[0].slice(1))}/` }
               : { cls: "bad", title: "Stays plain text on LinkedIn. To tag a page, add it in the mention box." }
           );
         } else if (platform === "mastodon") {
-          add(ANY_URL, (m) => ({ cls: "lnk", shown: shortLink(m[0], platform) }));
-          add(MASTODON_TAG, () => ({ cls: "lnk" }));
           // Mastodon shows @user@server as @user; @user alone is an account on the posting server
           const host = (account?.url || "").match(/^https?:\/\/([^/]+)/)?.[1];
+          add(ANY_URL, (m) => ({ cls: "lnk", shown: shortLink(m[0], platform), href: m[0] }));
+          add(MASTODON_TAG, (m) => ({ cls: "lnk", href: host && `https://${host}/tags/${encodeURIComponent(m[1])}` }));
           add(MASTODON_MENTION, (m) => mentionPart(platform, `@${m[1]}`, `${m[1]}@${m[2] || host}`, account));
         } else if (platform === "bluesky") {
-          add(BSKY_URL, (m) => ({ cls: "lnk", shown: shortLink(m[0], platform) }));
-          add(BSKY_TAG, () => ({ cls: "lnk" }));
+          add(BSKY_URL, (m) => ({ cls: "lnk", shown: shortLink(m[0], platform), href: m[0] }));
+          add(BSKY_TAG, (m) => ({ cls: "lnk", href: `https://bsky.app/hashtag/${m[1]}` }));
           add(BSKY_MENTION, (m) => mentionPart(platform, m[0], m[1], account));
         }
         // keep the first of overlapping matches, like the sites do
@@ -1204,7 +1210,12 @@
         let at = 0;
         for (const e of entities(text, platform, account)) {
           plain(text.slice(at, e.start));
-          const span = el("span", e.cls, e.shown ?? text.slice(e.start, e.end));
+          const span = el(e.href ? "a" : "span", e.cls, e.shown ?? text.slice(e.start, e.end));
+          if (e.href) {
+            span.href = e.href;
+            span.target = "_blank";
+            span.rel = "noopener";
+          }
           if (e.title) span.title = e.title;
           frag.append(span);
           at = e.end;
@@ -1231,9 +1242,14 @@
           from.childNodes.forEach((node) => {
             // Element makes the web links in the text clickable too
             if (node.nodeType === Node.TEXT_NODE)
-              return node.data.split(/(https?:\/\/\S+)/).forEach((piece, i) =>
-                to.append(i % 2 && !inLink ? el("span", "lnk", piece) : piece)
-              );
+              return node.data.split(/(https?:\/\/\S+)/).forEach((piece, i) => {
+                if (!(i % 2) || inLink) return to.append(piece);
+                const link = el("a", "lnk", piece);
+                link.href = piece;
+                link.target = "_blank";
+                link.rel = "noopener";
+                to.append(link);
+              });
             if (node.nodeType !== Node.ELEMENT_NODE) return;
             const tag = node.tagName.toLowerCase();
             if (!MATRIX_TAGS.has(tag)) return copy(node, to, inLink);
@@ -1243,7 +1259,12 @@
               const mention = href.startsWith("https://matrix.to/#/@");
               // Element keeps only links with these schemes (PERMITTED_URL_SCHEMES in element-web's isUrlPermitted.ts)
               const permitted = /^(file|mailto|https?|ftps?|bitcoin|geo|im|magnet|matrix|news|openpgp4fpr|sip|sms|smsto|tel|urn|xmpp):/i.test(href);
-              made = el("span", mention ? "lnk auto" : permitted ? "lnk" : "");
+              made = el(permitted ? "a" : "span", mention ? "lnk auto" : permitted ? "lnk" : "");
+              if (permitted) {
+                made.href = href;
+                made.target = "_blank";
+                made.rel = "noopener";
+              }
               if (mention) made.title = "Added when posting: mentions go in front with the person's name";
             } else made = document.createElement(tag);
             copy(node, made, inLink || tag === "a");
