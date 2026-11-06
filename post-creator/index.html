@@ -921,10 +921,13 @@
         });
       }
 
+      // How the site counts: Mastodon counts a link as 23 and @user@server as @user (countable_text in its status_length_validator.rb)
       function countChars(text, platform) {
         const counted =
-          platform === "mastodon" ? text.replace(/https?:\/\/\S+/g, "~".repeat(23)) : text;
-        return [...counted].length;
+          platform === "mastodon"
+            ? text.replace(/https?:\/\/\S+/g, "~".repeat(23)).replace(/(?<=^|\s)(@[\w.-]+)@[\w.-]+/g, "$1")
+            : text;
+        return len(counted);
       }
 
       function selectedAccounts() {
@@ -1129,6 +1132,12 @@
             }
             if (platform === "bluesky" && profile("bluesky", piece.slice(1)).missing)
               return frag.append(piece); // the bot only links handles that exist
+            if (platform === "mastodon") {
+              // Mastodon shows @user@server as @user
+              const span = el("span", "lnk", piece.split("@").slice(0, 2).join("@"));
+              span.title = piece;
+              return frag.append(span);
+            }
             return frag.append(el("span", "lnk", piece));
           }
           frag.append(el("span", "lnk", piece));
