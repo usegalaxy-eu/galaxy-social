@@ -10,7 +10,7 @@ No poster PDF for this one — it's a live demo, not a printed poster.
 
 disassembler: planetary-scale sequence extraction from Logan (Poster 159)
 Andrew Seacord and colleagues built two complementary tools, a graph path-walker and a streaming contig assembler, to pull target sequences directly out of Logan's petabase-scale SRA index without a reference-alignment pipeline. Applied to SARS-CoV-2 spike alone, they scanned 4.99 million Logan runs, drove a contamination filter from 0.555% mislabeled accessions down to zero, and ran a selection scan across 161 global haplotypes in under 30 seconds — flagging the known antibody-escape site E484K. The same approach also turned up obelisks across microbiome datasets and built a reference panel for H. pylori.
-Poster PDF: https://github.com/nekrut/cshl-meetings/blob/main/2026/biological-data-science/seacord/poster.pdf
+Poster PDF: https://raw.githubusercontent.com/nekrut/cshl-meetings/main/2026/biological-data-science/seacord/poster.pdf
 
 Catch us at Poster Session II tonight — including a live run of Orbit itself.
 
