@@ -7,6 +7,7 @@ import subprocess
 import sys
 from collections import Counter, defaultdict
 
+import github
 import yaml
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -31,6 +32,25 @@ for line in log.splitlines():
     elif line:
         added.setdefault(line, date)
 
+# Links to the published posts, from the bot's "now online" comments on the PRs
+links = defaultdict(dict)
+try:
+    repo = github.Github(os.getenv("GITHUB_TOKEN")).get_repo(
+        os.getenv("GITHUB_REPOSITORY", "usegalaxy-eu/galaxy-social")
+    )
+    for comment in repo.get_issues_comments():
+        if comment.user.login != "github-actions[bot]" or "now online" not in comment.body:
+            continue
+        file_path = None
+        for line in comment.body.splitlines():
+            if match := re.fullmatch(r"`(posts/.+\.md)`", line.strip()):
+                file_path = match[1]
+            elif file_path and (match := re.fullmatch(r"- \[(\S+)\]\((https://\S+)\)", line.strip())):
+                links[file_path][match[1]] = match[2]
+except Exception as e:
+    # the page still works without the links
+    print(f"Couldn't load the post links: {e}")
+
 for root, _, files in os.walk(posts_folder):
     for filename in files:
         if not filename.endswith(".md"):
@@ -54,13 +74,16 @@ for root, _, files in os.walk(posts_folder):
         except ValueError:
             schedule = None
         inline_images = re.findall(r"!\[[^\]]*\]\(([^)\s]+)[^)]*\)", text)
+        text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", text).strip()
         posts.append(
             {
                 "path": file_path,
                 "media": metadata.get("media") or [],
                 "schedule": schedule.isoformat() if schedule else None,
                 "added": added.get(file_path),
-                "text": re.sub(r"!\[[^\]]*\]\([^)]*\)", "", text).strip()[:400],
+                "links": links.get(file_path, {}),
+                # cut at a space so links stay whole
+                "text": re.sub(r"\s\S*$", "", text[:500]) if len(text) > 500 else text,
                 "image": ((metadata.get("images") or [{}])[0] or {}).get("url")
                 or next(iter(inline_images), None),
             }

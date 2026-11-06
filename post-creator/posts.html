@@ -200,6 +200,10 @@
         font-size: 0.85rem;
         background: var(--bg);
         color: var(--muted);
+        text-decoration: none;
+      }
+      a.account:hover {
+        text-decoration: underline;
       }
       .account.ok {
         background: var(--ok-soft);
@@ -359,6 +363,22 @@
           .replace(/\n{3,}/g, "\n\n");
       }
 
+      // The text with its web links clickable
+      function linkedText(text) {
+        const p = el("p", "text");
+        let last = 0;
+        for (const m of text.matchAll(/\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)|https?:\/\/[^\s<>()]*[^\s<>().,!?;:'"]/g)) {
+          p.append(excerpt(text.slice(last, m.index)));
+          const a = el("a", "", excerpt(m[1] || m[0]));
+          a.href = m[2] || m[0];
+          a.target = "_blank";
+          p.append(a);
+          last = m.index + m[0].length;
+        }
+        p.append(excerpt(text.slice(last)));
+        return p;
+      }
+
       function card(post, status, upcoming) {
         const date = new Date(post.schedule || post.added || 0);
         const results = Object.values(status || {});
@@ -382,14 +402,20 @@
         file.href = `https://github.com/${REPO}/blob/main/${post.path}`;
         file.target = "_blank";
         meta.append(file);
-        body.append(meta, el("p", "text", excerpt(post.text)));
+        body.append(meta, linkedText(post.text));
 
         const accounts = el("div", "accounts");
         post.media.forEach((name) => {
           const [platform, owner] = name.split("-");
           const result = status?.[name];
-          const chip = el("span", result === true ? "account ok" : result === false ? "account failed" : "account");
+          const link = post.links?.[name];
+          const chip = el(link ? "a" : "span", result === true ? "account ok" : result === false ? "account failed" : "account");
           chip.title = `${name}: ${result === true ? "posted" : result === false ? "failed" : upcoming ? "waiting" : "no record"}`;
+          if (link) {
+            chip.href = link;
+            chip.target = "_blank";
+            chip.title += ", open the post";
+          }
           chip.append(icon(platform), OWNERS[owner] || name.split("-").slice(1).join(" "));
           if (result !== undefined) chip.append(result ? " ✓" : " ✗");
           accounts.append(chip);
@@ -428,14 +454,29 @@
           $("note").hidden = false;
         }
 
+        // A retry PR adds a copy named retry-<PR>_<file> with only the failed accounts; count it as the same post
+        const original = (path) => path.replace(/[^/]*$/, (name) => name.replace(/^(retry-\d+_)+/, ""));
+        const status = {};
+        for (const [path, results] of Object.entries(processed)) {
+          const merged = (status[original(path)] ??= {});
+          for (const [name, ok] of Object.entries(results)) merged[name] = merged[name] || ok;
+        }
+        const byPath = Object.fromEntries(posts.map((p) => [p.path, p]));
+        posts = posts.filter((p) => {
+          const first = byPath[original(p.path)];
+          if (!first || first === p) return true;
+          Object.assign(first.links, p.links);
+          return false;
+        });
+
         const time = (p) => new Date(p.schedule || p.added || 0).getTime();
-        const upcoming = posts.filter((p) => p.schedule && !(p.path in processed)).sort((a, b) => time(a) - time(b));
+        const upcoming = posts.filter((p) => p.schedule && !(p.path in status)).sort((a, b) => time(a) - time(b));
         const posted = posts.filter((p) => !upcoming.includes(p)).sort((a, b) => time(b) - time(a));
 
         $("upcoming-count").textContent = upcoming.length;
         $("upcoming").replaceChildren(
           ...(upcoming.length
-            ? upcoming.map((p) => card(p, processed[p.path], true))
+            ? upcoming.map((p) => card(p, status[p.path], true))
             : [el("p", "empty", "Nothing is scheduled right now. Pick a time in the Post Creator to plan a post.")])
         );
 
@@ -446,13 +487,25 @@
           posted.slice(shown, shown + PAGE_SIZE).forEach((p) => {
             const label = monthFormat.format(time(p));
             if (label !== month) $("posted").append(el("h3", "", (month = label)));
-            $("posted").append(card(p, processed[p.path], false));
+            $("posted").append(card(p, status[p.path], false));
           });
           shown += PAGE_SIZE;
           $("more").hidden = shown >= posted.length;
         }
         $("more").onclick = showMore;
         showMore();
+        // Load the next posts while scrolling, before the button comes into view
+        const observer = new IntersectionObserver(
+          (entries) => {
+            if (!entries.at(-1).isIntersecting) return;
+            showMore();
+            // observe again so it checks once more if the button is still in view
+            observer.unobserve($("more"));
+            observer.observe($("more"));
+          },
+          { rootMargin: "800px" }
+        );
+        observer.observe($("more"));
       });
     </script>
   </body>
