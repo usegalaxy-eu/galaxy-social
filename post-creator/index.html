@@ -423,6 +423,28 @@
         margin-top: 6px;
         padding: 8px 12px;
       }
+      /* Element shows the HTML with white-space: normal (.markdown-body), so single line breaks become spaces */
+      .post-matrix .html {
+        white-space: normal;
+      }
+      .post-matrix .html > * {
+        margin: 0 0 0.6em;
+      }
+      .post-matrix .html > :last-child {
+        margin-bottom: 0;
+      }
+      .post-matrix .html h1 {
+        font-size: 2em;
+      }
+      .post-matrix .html h2 {
+        font-size: 1.5em;
+      }
+      .post-matrix .html h3 {
+        font-size: 1.25em;
+      }
+      .post-matrix .html :is(ul, ol) {
+        padding-left: 1.5em;
+      }
       .lnk {
         color: var(--accent);
       }
@@ -909,10 +931,31 @@
         return accounts.filter((a) => a.checkbox.checked);
       }
 
+      // emoji.emojize(text, language="alias") as the bot does: :tada: becomes 🎉 (the names come with suggestions.json)
+      const EMOJI_NAME = /:[\p{L}\p{N}_\-&.’”“()!#*+,/«»\u0300\u0301\u0302\u0303\u0306\u0308\u030a\u0327\u064b\u064e\u064f\u0650\u0653\u0654\u0655\u3099\u309a\u30fb]+:/gu;
+      function emojize(text) {
+        const names = suggestions.emoji || {};
+        return text.replace(EMOJI_NAME, (m) => names[`:${m.slice(1, -1).normalize("NFKC")}:`] ?? m);
+      }
+
+      // LinkedIn keeps @[Name](urn:li:organization:123) mentions out of the Markdown step, then string.Template puts them back
+      function stripMarkdownLinkedIn(text) {
+        const kept = {};
+        text = text.replace(/@\[[^\]]+\]\(urn:li:organization:\d+\)/g, (m) => {
+          const key = `M${Object.keys(kept).length}`;
+          kept[key] = m;
+          return `$${key}`;
+        });
+        return stripMarkdown(text).replace(
+          /\$(?:(\$)|([_a-z][_a-z0-9]*)|\{([_a-z][_a-z0-9]*)\})/gi,
+          (m, dollar, id, braced) => (dollar ? "$" : kept[id || braced] ?? m)
+        );
+      }
+
       function postText(account) {
         const platform = platformOf(account.name);
-        // shortcut: GitHub emoji codes like :tada: are not turned into emoji here like the bot does; the emoji button inserts real emoji
-        let content = $("post-content").value.trim().split("\n\n\n").map(stripMarkdown).join("\n\n\n") + "\n";
+        const strip = platform === "linkedin" ? stripMarkdownLinkedIn : stripMarkdown;
+        let content = emojize($("post-content").value.trim()).split("\n\n\n").map(strip).join("\n\n\n") + "\n";
         const m = (mentions[platform] || []).map((v) => `@${v}`).join(" ");
         const h = platform === "matrix" ? "" : hashtags.map((v) => `#${v}`).join(" ");
         if (m) content += `\n${m}`;
@@ -1044,7 +1087,7 @@
       }
 
       const TOKENS =
-        /(https?:\/\/\S+|(?<=^|\s)@[\w.-]+(?:[@:][\w.-]+)?|(?<=^|\s)#[\p{L}\p{N}_]+)/u;
+        /(@\[[^\]]+\]\(urn:li:organization:\d+\)|https?:\/\/\S+|(?<=^|\s)@[\w.-]+(?:[@:][\w.-]+)?|(?<=^|\s)#[\p{L}\p{N}_]+)/u;
       function richText(text, platform) {
         const frag = document.createDocumentFragment();
         const numbering = text.match(/ \(\d+\/\d+\)$/);
@@ -1076,6 +1119,8 @@
             }
             return frag.append(el("span", "lnk", shown));
           }
+          // a LinkedIn mention written as @[Name](urn:li:organization:123) shows as the name
+          if (piece.startsWith("@[")) return frag.append(el("span", "lnk", piece.slice(2, piece.indexOf("]"))));
           if (piece.startsWith("@")) {
             if (platform === "linkedin") {
               const span = el("span", "lnk auto", piece);
@@ -1093,6 +1138,41 @@
           span.title = "Added when posting: the post is split into a thread";
           frag.append(span);
         }
+        return frag;
+      }
+
+      // The bot sends Matrix the Markdown as HTML (async_format_content in lib/plugins/matrix.py), and Element shows that HTML
+      const MATRIX_TAGS = new Set(["p", "br", "strong", "b", "em", "i", "a", "ul", "ol", "li", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "code", "pre", "hr"]);
+      function matrixHtml(account) {
+        let content = emojize($("post-content").value.trim()).replaceAll("\n\n\n", "\n\n");
+        const links = (mentions.matrix || []).map(
+          (m) => `[${profile("matrix", m, account.base).name || m}](https://matrix.to/#/@${m})`
+        );
+        if (links.length) content = `${links.join(" ")}: ${content}`;
+        const frag = document.createDocumentFragment();
+        const copy = (from, to, inLink) =>
+          from.childNodes.forEach((node) => {
+            // Element makes the web links in the text clickable too
+            if (node.nodeType === Node.TEXT_NODE)
+              return node.data.split(/(https?:\/\/\S+)/).forEach((piece, i) =>
+                to.append(i % 2 && !inLink ? el("span", "lnk", piece) : piece)
+              );
+            if (node.nodeType !== Node.ELEMENT_NODE) return;
+            const tag = node.tagName.toLowerCase();
+            if (!MATRIX_TAGS.has(tag)) return copy(node, to, inLink);
+            let made;
+            if (tag === "a") {
+              const href = node.getAttribute("href") || "";
+              const mention = href.startsWith("https://matrix.to/#/@");
+              // Element keeps only links with these schemes (PERMITTED_URL_SCHEMES in element-web's isUrlPermitted.ts)
+              const permitted = /^(file|mailto|https?|ftps?|bitcoin|geo|im|magnet|matrix|news|openpgp4fpr|sip|sms|smsto|tel|urn|xmpp):/i.test(href);
+              made = el("span", mention ? "lnk auto" : permitted ? "lnk" : "");
+              if (mention) made.title = "Added when posting: mentions go in front with the person's name";
+            } else made = document.createElement(tag);
+            copy(node, made, inLink || tag === "a");
+            to.append(made);
+          });
+        copy(new DOMParser().parseFromString(`<body>${markdownHtml(content)}</body>`, "text/html").body, frag, false);
         return frag;
       }
 
@@ -1175,14 +1255,8 @@
               part.appendChild(mediaGrid([img]));
               post.appendChild(part);
             });
-            const names = (mentions.matrix || []).map((m) => profile("matrix", m, a.base).name || m);
-            const part = el("div", "part");
-            if (names.length) {
-              const span = el("span", "auto", `${names.join(" ")}: `);
-              span.title = "Added when posting: mentions go in front with the person's name";
-              part.appendChild(span);
-            }
-            part.appendChild(richText($("post-content").value.trim(), platform));
+            const part = el("div", "part html");
+            part.appendChild(matrixHtml(a));
             post.appendChild(part);
             box.appendChild(post);
             return;
@@ -1608,7 +1682,10 @@
         // Built from past posts when the page is deployed; missing when run locally
         fetch("suggestions.json")
           .then((res) => (res.ok ? res.json() : {}))
-          .then((data) => (suggestions = data))
+          .then((data) => {
+            suggestions = data;
+            update();
+          })
           .catch(() => {});
         loadDraft();
         chipInput($("hashtags"), hashtags, {

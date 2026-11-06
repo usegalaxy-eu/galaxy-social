@@ -7,6 +7,7 @@ import subprocess
 import sys
 from collections import Counter, defaultdict
 
+import emoji
 import yaml
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -78,6 +79,13 @@ with open(output_path, "w") as f:
             "mentions": {
                 platform: [name for name, _ in counter.most_common(200)]
                 for platform, counter in mentions.items()
+            },
+            # :tada: style codes the bot turns into emoji (emoji.emojize in lib/galaxy_social.py)
+            "emoji": {
+                name: emoji.emojize(name, language="alias")
+                for data in emoji.EMOJI_DATA.values()
+                for name in [data["en"], *data.get("alias", [])]
+                if emoji.emojize(name, language="alias") != name
             },
         },
         f,
