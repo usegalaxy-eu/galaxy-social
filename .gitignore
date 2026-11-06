@@ -128,3 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 post-creator/suggestions.json
+post-creator/posts.json
