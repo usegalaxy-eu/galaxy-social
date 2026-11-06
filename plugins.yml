@@ -24,7 +24,7 @@ plugins:
     config:
       base_url: "https://xn--baw-joa.social"
       access_token: $MASTODON_EU_FR_TOKEN
-      max_content_length: 500
+      max_content_length: 5000
       account_url: "https://xn--baw-joa.social/@galaxyfreiburg"
 
   - name: matrix-eu-announce

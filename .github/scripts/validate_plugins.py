@@ -10,14 +10,6 @@ from github import Github, GithubException
 
 logging.basicConfig(level=logging.INFO)
 
-DEFAULT_HASHTAGS = [
-    "UseGalaxy",
-    "GalaxyProject",
-    "UniFreiburg",
-    "EOSC",
-    "EuroScienceGateway",
-]
-
 event_path = os.getenv("GITHUB_EVENT_PATH", "")
 with open(event_path, "r") as f:
     event_data = json.load(f)
@@ -178,10 +170,6 @@ def update_readme(head_plugins={}):
                     for plugin, value in yaml_data.get(key, {}).items()
                     if plugin in head_plugins
                 }
-                for plugin in head_plugins:
-                    yaml_data[key].setdefault(
-                        plugin, [] if key == "mentions" else DEFAULT_HASHTAGS.copy()
-                    )
             yaml_data["media"] = list(head_plugins)
             updated_yaml_content = yaml.dump(
                 yaml_data, sort_keys=False, default_flow_style=False, allow_unicode=True

@@ -11,7 +11,7 @@
       </a>
     </td>
     <td align="center">
-      <a href="../../new/main/?filename=posts/2025/<your-path>.md&value=---%0Amedia:%0A%20-%20mastodon-eu-freiburg%0A%20-%20matrix-eu-announce%0A%20-%20mastodon-galaxyproject%0A%20-%20bluesky-galaxyproject%0A%20-%20linkedin-galaxyproject%0A%0Amentions:%0A%20mastodon-eu-freiburg:%0A%20%20-%20galaxyproject@mstdn.science%0A%20mastodon-galaxyproject:%0A%20%20-%20galaxyfreiburg@bawü.social%0A%20bluesky-galaxyproject:%0A%20%20-%20galaxyproject.bsky.social%0A%0Ahashtags:%0A%20mastodon-eu-freiburg:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20mastodon-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20bluesky-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A%20linkedin-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20-%20EOSC%0A%20%20-%20EuroScienceGateway%0A---%0AYour%20text%20content%20goes%20here.%20(Markdown%20syntax%20will%20not%20pass%20to%20Bluesky,%20Mastodon,%20and%20Linkedin!)%0AFor%20images%20just%20drag%20and%20drop%20them%20here.%20they%20will%20look%20like%20this:%0A![A](https://example.com/a.jpg)">
+      <a href="../../new/main/?filename=posts/2026/<your-path>.md&value=---%0Amedia:%0A-%20mastodon-galaxyproject%0A-%20mastodon-vgp%0A-%20mastodon-brc%0A-%20matrix-eu-announce%0A-%20bluesky-vgp%0A-%20linkedin-galaxyproject%0A-%20linkedin-brc%0A-%20bluesky-brc%0A-%20mastodon-eu-freiburg%0A-%20bluesky-galaxyproject%0Amentions:%0A%20%20mastodon-eu-freiburg:%0A%20%20-%20galaxyproject@mstdn.science%0A%20%20mastodon-galaxyproject:%0A%20%20-%20galaxyfreiburg@bawü.social%0A%20%20bluesky-galaxyproject:%0A%20%20-%20galaxyproject.bsky.social%0Ahashtags:%0A%20%20mastodon-eu-freiburg:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20mastodon-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20bluesky-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%20%20linkedin-galaxyproject:%0A%20%20-%20UseGalaxy%0A%20%20-%20GalaxyProject%0A%20%20-%20UniFreiburg%0A%0A---%0AYour%20text%20content%20goes%20here.%20(Markdown%20syntax%20will%20not%20pass%20to%20Bluesky,%20Mastodon,%20and%20Linkedin!)%0AFor%20images%20just%20drag%20and%20drop%20them%20here.%20they%20will%20look%20like%20this:%0A![A](https://example.com/a.jpg)">
         <img src="https://img.shields.io/badge/📝%20Create%20New%20Manual%20Post-green?style=for-the-badge" alt="Create new manual post">
       </a>
     </td>
@@ -33,41 +33,39 @@ To create a post on Galaxy Social, follow these steps:
 ```yaml
 ---
 media:
- - mastodon-eu-freiburg
- - matrix-eu-announce
- - mastodon-galaxyproject
- - bluesky-galaxyproject
- - linkedin-galaxyproject
-
+- mastodon-galaxyproject
+- mastodon-vgp
+- mastodon-brc
+- matrix-eu-announce
+- bluesky-vgp
+- linkedin-galaxyproject
+- linkedin-brc
+- bluesky-brc
+- mastodon-eu-freiburg
+- bluesky-galaxyproject
 mentions:
- mastodon-eu-freiburg:
+  mastodon-eu-freiburg:
   - galaxyproject@mstdn.science
- mastodon-galaxyproject:
+  mastodon-galaxyproject:
   - galaxyfreiburg@bawü.social
- bluesky-galaxyproject:
+  bluesky-galaxyproject:
   - galaxyproject.bsky.social
-
 hashtags:
- mastodon-eu-freiburg:
+  mastodon-eu-freiburg:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
- mastodon-galaxyproject:
+  mastodon-galaxyproject:
   - UseGalaxy
- bluesky-galaxyproject:
+  bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
- linkedin-galaxyproject:
+  linkedin-galaxyproject:
   - UseGalaxy
   - GalaxyProject
   - UniFreiburg
-  - EOSC
-  - EuroScienceGateway
+
 ---
 Your text content goes here. (Markdown syntax will not pass to Bluesky, Mastodon, and Linkedin!)
 For images just drag and drop them here. they will look like this:
@@ -96,7 +94,7 @@ For images just drag and drop them here. they will look like this:
 
 5. **Preview and Review:** After each pull request, the GitHub action will run and will generate previews of the content as it would appear on each platform listed under "media" in a comment to the pull request and highlight any errors that need to be fixed before merging.
 
-6. **Publish Your Content:** Upon merging the pull request, the GitHub action will run. The results will be added to `processed_files.json` in the processed_files branch. If posting fails on some platforms, a new pull request is created to retry them. If the bot comments "Something went wrong, an Admin will take a look.", nothing was posted: an admin can open the failed run from the pull request's checks and click "Re-run all jobs".
+6. **Publish Your Content:** Upon merging the pull request, the GitHub action will run. The results will be added to `processed_files.json` in the processed_files branch: for each platform the link to the post (or `true` if the platform gives no link), or `false` if posting failed. If posting fails on some platforms, a new pull request is created to retry them. If the bot comments "Something went wrong, an Admin will take a look.", nothing was posted: an admin can open the failed run from the pull request's checks and click "Re-run all jobs".
 
 By following these steps, you can effectively create and publish posts on Galaxy Social.
 

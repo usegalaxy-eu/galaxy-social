@@ -69,11 +69,12 @@ class ImgSyntaxConverter(HTMLParser):
 
 
 class galaxy_social:
-    def __init__(self, preview: bool):
+    def __init__(self, preview: bool, plugins_path: str|None = None):
         self.preview = preview
-        plugins_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "..", "plugins.yml"
-        )
+        if plugins_path is None:
+            plugins_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "..", "plugins.yml"
+            )
         with open(plugins_path, "r") as file:
             plugins_config = yaml(file)
 
@@ -307,9 +308,11 @@ class galaxy_social:
         )
         for media in remaining_media:
             formatted_content, _, _ = formatting_results[media]
-            stats[media], url[media] = self.plugins[media].create_post(
+            posted, url[media] = self.plugins[media].create_post(
                 formatted_content, file_path=file_path
             )
+            # Record the link to the post, or True when the platform gives none
+            stats[media] = (url[media] or True) if posted else False
         url_text = "\n".join(
             [
                 f"- [{media}]({link})" if link else f"- {media}"
