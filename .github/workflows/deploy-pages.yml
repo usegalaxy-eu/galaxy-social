@@ -17,8 +17,6 @@ on:
 
 permissions:
   contents: read
-  # read the bot's comments with the links to the published posts
-  pull-requests: read
   pages: write
   id-token: write
 
@@ -50,10 +48,9 @@ jobs:
           python-version: "3.12"
 
       - name: Build suggestions and the posts list
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          python -m pip install -r requirements.txt
+          # only what the script imports, at the versions in requirements.txt
+          python -m pip install -c requirements.txt PyYAML emoji jsonschema requests tzdata
           python .github/scripts/build_suggestions.py posts post-creator/suggestions.json post-creator/posts.json
 
       - name: Setup GitHub Pages

@@ -407,10 +407,11 @@
         const accounts = el("div", "accounts");
         post.media.forEach((name) => {
           const [platform, owner] = name.split("-");
+          // the bot records the link to the post, true when there is no link, or false when it failed
           const result = status?.[name];
-          const link = post.links?.[name];
-          const chip = el(link ? "a" : "span", result === true ? "account ok" : result === false ? "account failed" : "account");
-          chip.title = `${name}: ${result === true ? "posted" : result === false ? "failed" : upcoming ? "waiting" : "no record"}`;
+          const link = typeof result === "string" && result.startsWith("https://") ? result : null;
+          const chip = el(link ? "a" : "span", result ? "account ok" : result === false ? "account failed" : "account");
+          chip.title = `${name}: ${result ? "posted" : result === false ? "failed" : upcoming ? "waiting" : "no record"}`;
           if (link) {
             chip.href = link;
             chip.target = "_blank";
@@ -464,9 +465,7 @@
         const byPath = Object.fromEntries(posts.map((p) => [p.path, p]));
         posts = posts.filter((p) => {
           const first = byPath[original(p.path)];
-          if (!first || first === p) return true;
-          Object.assign(first.links, p.links);
-          return false;
+          return !first || first === p;
         });
 
         const time = (p) => new Date(p.schedule || p.added || 0).getTime();
