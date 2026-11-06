@@ -453,6 +453,11 @@
         border-bottom: 1px dashed currentColor;
         cursor: help;
       }
+      .bad {
+        color: var(--error);
+        border-bottom: 1px dashed currentColor;
+        cursor: help;
+      }
       .lnk.auto {
         color: var(--accent);
       }
@@ -1089,59 +1094,120 @@
         return node;
       }
 
-      const TOKENS =
-        /(@\[[^\]]+\]\(urn:li:organization:\d+\)|https?:\/\/\S+|(?<=^|\s)@[\w.-]+(?:[@:][\w.-]+)?|(?<=^|\s)#[\p{L}\p{N}_]+)/u;
-      function richText(text, platform) {
+      // Where each site makes links, hashtags and mentions, with the rules it really uses
+      const W = "\\p{L}\\p{M}\\p{Nd}\\p{Pc}"; // Ruby's [[:word:]]
+      const SEP = "_\\u00B7\\u30FB\\u200c";
+      const MASTODON_TAG = new RegExp(
+        `(?<=^|\\s)[#＃]([${W}_][${W}${SEP}]*[\\p{Alphabetic}${SEP}][${W}${SEP}]*[${W}_]|[${W}_]*\\p{Alphabetic}[${W}_]*)`,
+        "gu"
+      ); // HASHTAG_RE in mastodon/app/models/tag.rb
+      const HOST = `[${W}ßς۽۾་〇]`;
+      const MASTODON_MENTION = new RegExp(
+        `(?<![=/${W}])@([a-z0-9_]+(?:[.-]+[a-z0-9_]+)*)(?:@(${HOST}+(?:[.-]+${HOST}+)*))?`,
+        "giu"
+      ); // MENTION_RE in mastodon/app/models/account.rb
+      // parse_hashtags, parse_mentions and parse_urls in lib/plugins/bluesky.py: something must come before, ASCII only
+      const BSKY_TAG = /(?<=[^A-Za-z0-9_])#([A-Za-z0-9_]+)/g;
+      const BSKY_MENTION = /(?<=[^A-Za-z0-9_])@((?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)/g;
+      const BSKY_URL = /(?<=[^A-Za-z0-9_])https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*[-a-zA-Z0-9@%_+~#/=])?/g;
+      const ANY_URL = /https?:\/\/\S+/g;
+
+      function shortLink(url, platform) {
+        if (platform === "mastodon") {
+          // Mastodon hides the https:// and shortens long links; one extra character is shown instead of the … (text_formatter.rb)
+          const shown = url.replace(/^https?:\/\/(www\.)?/, "");
+          return shown.length > 31 ? shown.slice(0, 30) + "…" : shown;
+        }
+        if (platform === "bluesky") {
+          // The Bluesky app shows the host and the start of the path (toShortUrl in bluesky-social/social-app)
+          try {
+            const u = new URL(url);
+            const path = (u.pathname === "/" ? "" : u.pathname) + u.search + u.hash;
+            return u.host + (path.length > 15 ? path.slice(0, 13) + "..." : path);
+          } catch {}
+        }
+        return url;
+      }
+
+      // A mention found in the text: looked up like the mention boxes, so a typo shows before posting
+      function mentionPart(platform, shown, id, account) {
+        const info = profile(platform, id, account?.base);
+        if (info.missing) return { cls: "bad", shown, title: `No account ${id} was found, so this stays plain text. Check the spelling.` };
+        if (info.name) return { cls: "lnk", shown, title: `✓ ${info.name} (${id})` };
+        return { cls: "lnk", shown, title: id };
+      }
+
+      function entities(text, platform, account) {
+        const found = [];
+        const add = (re, make) => {
+          for (const m of text.matchAll(re)) {
+            const part = make(m);
+            if (part) found.push({ start: m.index, end: m.index + m[0].length, ...part });
+          }
+        };
+        if (platform === "linkedin") {
+          add(/@\[[^\]]+\]\(urn:li:organization:\d+\)/g, (m) => ({ cls: "lnk", shown: m[0].slice(2, m[0].indexOf("]")) }));
+          add(ANY_URL, (m) => ({ cls: "lnk auto", shown: "https://lnkd.in/…", title: `LinkedIn shows this as a short lnkd.in link to ${m[0]}` }));
+          add(/(?<=^|\s)#[\p{L}\p{N}_]+/gu, () => ({ cls: "lnk" }));
+          // only the mention box makes real LinkedIn mentions; the bot sends a typed @ as plain text
+          add(/(?<=^|\s)@[\w.-]+/g, (m) =>
+            (mentions.linkedin || []).includes(m[0].slice(1))
+              ? { cls: "lnk auto", title: "Added when posting: becomes the page's name" }
+              : { cls: "bad", title: "Stays plain text on LinkedIn. To tag a page, add it in the mention box." }
+          );
+        } else if (platform === "mastodon") {
+          add(ANY_URL, (m) => ({ cls: "lnk", shown: shortLink(m[0], platform) }));
+          add(MASTODON_TAG, () => ({ cls: "lnk" }));
+          // Mastodon shows @user@server as @user; @user alone is an account on the posting server
+          const host = (account?.url || "").match(/^https?:\/\/([^/]+)/)?.[1];
+          add(MASTODON_MENTION, (m) => mentionPart(platform, `@${m[1]}`, `${m[1]}@${m[2] || host}`, account));
+        } else if (platform === "bluesky") {
+          add(BSKY_URL, (m) => ({ cls: "lnk", shown: shortLink(m[0], platform) }));
+          add(BSKY_TAG, () => ({ cls: "lnk" }));
+          add(BSKY_MENTION, (m) => mentionPart(platform, m[0], m[1], account));
+        }
+        // keep the first of overlapping matches, like the sites do
+        found.sort((a, b) => a.start - b.start || b.end - a.end);
+        return found.filter((e, i) => !found.slice(0, i).some((f) => e.start < f.end && f.start < e.end));
+      }
+
+      // Hashtags and mentions written in the text that the site will not pick up
+      function missed(piece, platform) {
+        if (platform === "mastodon" && /^#/.test(piece))
+          return /^#\d+$/.test(piece)
+            ? "Not a hashtag on Mastodon: it needs at least one letter."
+            : "Not a hashtag on Mastodon: put a space before the #.";
+        if (platform === "bluesky" && /^#/.test(piece))
+          return /^#[^A-Za-z0-9_]/.test(piece)
+            ? "Not a tag on Bluesky: only plain letters (A to Z), digits and _ work in tags."
+            : "Not a tag on Bluesky: the bot only makes a tag when something comes before the #.";
+        if (platform === "bluesky" && /^@\S+\.\S+/.test(piece))
+          return "Not a mention on Bluesky: the bot only makes a mention when something comes before the @.";
+        return null;
+      }
+
+      function richText(text, platform, account) {
         const frag = document.createDocumentFragment();
         const numbering = text.match(/ \(\d+\/\d+\)$/);
         if (numbering) text = text.slice(0, -numbering[0].length);
-        text.split(TOKENS).forEach((piece, i) => {
-          if (!piece) return;
-          if (i % 2 === 0) return frag.append(piece);
-          if (piece.startsWith("http")) {
-            let shown = piece;
-            if (platform === "mastodon") {
-              // Mastodon hides the https:// and shortens long links
-              shown = piece.replace(/^https?:\/\/(www\.)?/, "");
-              // shortened_link in mastodon/app/lib/text_formatter.rb: one extra character is shown instead of the …
-              if (shown.length > 31) shown = shown.slice(0, 30) + "…";
-            }
-            if (platform === "linkedin") {
-              // LinkedIn shows every link as its own short https://lnkd.in/… link
-              const span = el("span", "lnk auto", "https://lnkd.in/…");
-              span.title = `LinkedIn shows this as a short lnkd.in link to ${piece}`;
-              return frag.append(span);
-            }
-            if (platform === "bluesky") {
-              // The Bluesky app shows the host and the start of the path (toShortUrl in bluesky-social/social-app)
-              try {
-                const u = new URL(piece);
-                const path = (u.pathname === "/" ? "" : u.pathname) + u.search + u.hash;
-                shown = u.host + (path.length > 15 ? path.slice(0, 13) + "..." : path);
-              } catch {}
-            }
-            return frag.append(el("span", "lnk", shown));
-          }
-          // a LinkedIn mention written as @[Name](urn:li:organization:123) shows as the name
-          if (piece.startsWith("@[")) return frag.append(el("span", "lnk", piece.slice(2, piece.indexOf("]"))));
-          if (piece.startsWith("@")) {
-            if (platform === "linkedin") {
-              const span = el("span", "lnk auto", piece);
-              span.title = "Added when posting: becomes the company's name";
-              return frag.append(span);
-            }
-            if (platform === "bluesky" && profile("bluesky", piece.slice(1)).missing)
-              return frag.append(piece); // the bot only links handles that exist
-            if (platform === "mastodon") {
-              // Mastodon shows @user@server as @user
-              const span = el("span", "lnk", piece.split("@").slice(0, 2).join("@"));
-              span.title = piece;
-              return frag.append(span);
-            }
-            return frag.append(el("span", "lnk", piece));
-          }
-          frag.append(el("span", "lnk", piece));
-        });
+        const plain = (piece) =>
+          piece.split(/((?<=^|[^\p{L}\p{N}_])[#@][\p{L}\p{N}_][^\s]*)/u).forEach((p, i) => {
+            const word = p.replace(/[.,;:!?)\]]+$/, "");
+            const why = i % 2 ? missed(word, platform) : null;
+            if (!why) return p && frag.append(p);
+            const span = el("span", "bad", word);
+            span.title = why;
+            frag.append(span, p.slice(word.length));
+          });
+        let at = 0;
+        for (const e of entities(text, platform, account)) {
+          plain(text.slice(at, e.start));
+          const span = el("span", e.cls, e.shown ?? text.slice(e.start, e.end));
+          if (e.title) span.title = e.title;
+          frag.append(span);
+          at = e.end;
+        }
+        plain(text.slice(at));
         if (numbering) {
           const span = el("span", "auto", numbering[0]);
           span.title = "Added when posting: the post is split into a thread";
@@ -1200,7 +1266,7 @@
       }
 
       function cardFor(text, platform) {
-        const urls = text.match(/https?:\/\/\S+/g);
+        const urls = text.match(platform === "bluesky" ? BSKY_URL : ANY_URL);
         if (!urls) return null;
         // Bluesky: the bot uses the last link; Mastodon: the server uses the first one
         const card = linkCard(platform === "bluesky" ? urls[urls.length - 1] : urls[0]);
@@ -1274,7 +1340,7 @@
             const part = el("div", "part");
             if (platform === "linkedin" && i > 0)
               part.appendChild(el("span", "comment-label", "Comment by the same account"));
-            part.appendChild(richText(text, platform));
+            part.appendChild(richText(text, platform, a));
             const hasImages = i === 0 && shown.length;
             if (hasImages) part.appendChild(mediaGrid(shown));
             if (!hasImages && (platform === "bluesky" || platform === "mastodon")) {
