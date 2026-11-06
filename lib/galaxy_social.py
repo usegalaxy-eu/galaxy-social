@@ -308,9 +308,11 @@ class galaxy_social:
         )
         for media in remaining_media:
             formatted_content, _, _ = formatting_results[media]
-            stats[media], url[media] = self.plugins[media].create_post(
+            posted, url[media] = self.plugins[media].create_post(
                 formatted_content, file_path=file_path
             )
+            # Record the link to the post, or True when the platform gives none
+            stats[media] = (url[media] or True) if posted else False
         url_text = "\n".join(
             [
                 f"- [{media}]({link})" if link else f"- {media}"
