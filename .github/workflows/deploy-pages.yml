@@ -22,7 +22,8 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  # let a started deployment finish, like GitHub's Pages starter workflow
+  cancel-in-progress: false
 
 jobs:
   deploy:

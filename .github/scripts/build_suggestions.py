@@ -8,10 +8,9 @@ import sys
 from collections import Counter, defaultdict
 
 import emoji
-import yaml
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from lib.galaxy_social import parse_schedule  # noqa: E402
+from lib.galaxy_social import galaxy_social, parse_schedule  # noqa: E402
 
 posts_folder, output_path, posts_output_path = sys.argv[1], sys.argv[2], sys.argv[3]
 hashtags = Counter()
@@ -19,10 +18,10 @@ spellings = defaultdict(Counter)
 mentions = defaultdict(Counter)
 posts = []
 
-# When each post file was added to the repo, newest first; needs the full git history
+# When each post file was merged to main, newest first; needs the full git history
 added, date = {}, None
 log = subprocess.run(
-    ["git", "log", "--no-renames", "--diff-filter=A", "--format=%cI", "--name-only", "--", posts_folder],
+    ["git", "log", "--first-parent", "--no-renames", "--diff-filter=A", "--format=%cI", "--name-only", "--", posts_folder],
     capture_output=True,
     text=True,
 ).stdout
@@ -37,19 +36,18 @@ for root, _, files in os.walk(posts_folder):
         if not filename.endswith(".md"):
             continue
         file_path = os.path.join(root, filename)
-        try:
-            with open(file_path) as f:
-                _, metadata, text = f.read().split("---\n", 2)
-            metadata = yaml.safe_load(metadata) or {}
-        except Exception:
+        # the bot's own check, so a broken post is skipped instead of failing the deploy
+        result, ok = galaxy_social.lint_markdown_file(file_path)
+        if not ok:
             continue
+        metadata, text = result
         for values in (metadata.get("hashtags") or {}).values():
             for tag in values or []:
                 # count #EOSC and #eosc as one hashtag, suggested in its most used spelling
                 hashtags[str(tag).lower()] += 1
                 spellings[str(tag).lower()][str(tag)] += 1
         for media, values in (metadata.get("mentions") or {}).items():
-            mentions[str(media).split("-")[0]].update(str(v) for v in values or [])
+            mentions[str(media).lower().split("-")[0]].update(str(v) for v in values or [])
         try:
             schedule = parse_schedule(metadata.get("schedule"))
         except ValueError:
@@ -59,7 +57,8 @@ for root, _, files in os.walk(posts_folder):
         posts.append(
             {
                 "path": file_path,
-                "media": metadata.get("media") or [],
+                # lowercase like the bot, which keys processed_files.json this way
+                "media": [m.lower() for m in metadata.get("media") or []],
                 "schedule": schedule.isoformat() if schedule else None,
                 "added": added.get(file_path),
                 # cut at a space so links stay whole
@@ -82,10 +81,10 @@ with open(output_path, "w") as f:
             },
             # :tada: style codes the bot turns into emoji (emoji.emojize in lib/galaxy_social.py)
             "emoji": {
-                name: emoji.emojize(name, language="alias")
+                name: shown
                 for data in emoji.EMOJI_DATA.values()
                 for name in [data["en"], *data.get("alias", [])]
-                if emoji.emojize(name, language="alias") != name
+                if (shown := emoji.emojize(name, language="alias")) != name
             },
         },
         f,

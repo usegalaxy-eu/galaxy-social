@@ -469,13 +469,13 @@
         });
 
         const time = (p) => new Date(p.schedule || p.added || 0).getTime();
-        const upcoming = posts.filter((p) => p.schedule && !(p.path in status)).sort((a, b) => time(a) - time(b));
+        const upcoming = posts.filter((p) => p.schedule && !(original(p.path) in status)).sort((a, b) => time(a) - time(b));
         const posted = posts.filter((p) => !upcoming.includes(p)).sort((a, b) => time(b) - time(a));
 
         $("upcoming-count").textContent = upcoming.length;
         $("upcoming").replaceChildren(
           ...(upcoming.length
-            ? upcoming.map((p) => card(p, status[p.path], true))
+            ? upcoming.map((p) => card(p, status[original(p.path)], true))
             : [el("p", "empty", "Nothing is scheduled right now. Pick a time in the Post Creator to plan a post.")])
         );
 
@@ -486,7 +486,7 @@
           posted.slice(shown, shown + PAGE_SIZE).forEach((p) => {
             const label = monthFormat.format(time(p));
             if (label !== month) $("posted").append(el("h3", "", (month = label)));
-            $("posted").append(card(p, status[p.path], false));
+            $("posted").append(card(p, status[original(p.path)], false));
           });
           shown += PAGE_SIZE;
           $("more").hidden = shown >= posted.length;

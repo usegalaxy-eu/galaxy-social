@@ -975,7 +975,8 @@
         const yamlList = (obj) =>
           Object.entries(obj)
             .filter(([, vs]) => vs.length)
-            .map(([k, vs]) => `\n  ${k}:\n${vs.map((v) => `    - ${v}`).join("\n")}`)
+            // quoted so values like 2026 or yes stay strings, as .schema.yaml needs
+            .map(([k, vs]) => `\n  ${k}:\n${vs.map((v) => `    - ${JSON.stringify(v)}`).join("\n")}`)
             .join("");
         const mentionMap = {};
         const hashtagMap = {};
@@ -995,7 +996,8 @@
         meta += "\n---";
         const imageLines = images
           .filter((img) => img.url)
-          .map((img) => `![${img.alt.replace(/[\[\]]/g, "")}](${img.url})`)
+          // the bot reads the link up to the first ")", so brackets in it are encoded
+          .map((img) => `![${img.alt.replace(/[\[\]]/g, "")}](${img.url.replace(/\(/g, "%28").replace(/\)/g, "%29")})`)
           .join("\n");
         const body = $("post-content").value.trim();
         return `${meta}\n${body}${imageLines ? `\n\n${imageLines}` : ""}\n`;
@@ -1008,7 +1010,7 @@
           .toLowerCase()
           .replace(/\s+/g, "-")
           .replace(/[^a-z0-9-]/g, "");
-        return `posts/${new Date().getFullYear()}/${date}-${slug}.md`;
+        return `posts/${date.slice(0, 4)}/${date}-${slug}.md`;
       }
 
       function problems(selected) {
