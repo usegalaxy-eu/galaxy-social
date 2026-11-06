@@ -9,6 +9,7 @@
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📣</text></svg>"
     />
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
     <script
       type="module"
       src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/index.js"
@@ -792,40 +793,33 @@
         const at = url.match(/@[^/?#]+$/);
         if (at) return at[0];
         const profile = url.match(/\/(?:profile|company|in)\/([^/?#]+)/);
-        if (profile) return profile[1];
+        // Bluesky shows handles with an @, LinkedIn shows the page name
+        if (profile) return (platformOf(account.name) === "bluesky" ? "@" : "") + profile[1];
         return account.name.split("-").slice(2).join(" ");
       }
 
-      // Python's textwrap.wrap(text, width, replace_whitespace=False), as used by the plugins
-      const WS = "[ \\t\\n\\r\\f\\v]";
-      const NWS = "[^ \\t\\n\\r\\f\\v]";
-      const LT = "[\\p{L}\\p{M}_]";
-      const WP = "[\\p{L}\\p{M}\\p{N}_!\"'&.,?]";
-      const WORDSEP = new RegExp(
-        `(${WS}+|(?<=${WP})-{2,}(?=[\\p{L}\\p{N}_])|${NWS}+?(?:-(?:(?<=${LT}{2}-)|(?<=${LT}-${LT}-))(?=${LT}-?${LT})|(?=${WS}|$)|(?<=${WP})(?=-{2,}[\\p{L}\\p{N}_])))`,
-        "u"
-      );
+      // Lengths like Python's len(): an emoji such as 🎉 is 1, not 2
+      const len = (text) => [...text].length;
+
+      // Python's textwrap.wrap(text, width, replace_whitespace=False, break_on_hyphens=False), as used by the plugins
       function wrap(text, width) {
-        const chunks = text.split(WORDSEP).filter(Boolean).reverse();
-        const isSpace = (c) => c.trim() === "";
+        const chunks = text.split(/([\t\n\v\f\r ]+)/).filter(Boolean).reverse();
+        const isSpace = (c) => /^[\t\n\v\f\r ]+$/.test(c);
         const lines = [];
         while (chunks.length) {
           const cur = [];
-          let len = 0;
+          let used = 0;
           if (isSpace(chunks[chunks.length - 1]) && lines.length) chunks.pop();
-          while (chunks.length && len + chunks[chunks.length - 1].length <= width) {
-            len += chunks[chunks.length - 1].length;
+          while (chunks.length && used + len(chunks[chunks.length - 1]) <= width) {
+            used += len(chunks[chunks.length - 1]);
             cur.push(chunks.pop());
           }
-          if (chunks.length && chunks[chunks.length - 1].length > width) {
-            const chunk = chunks[chunks.length - 1];
-            const room = width < 1 ? 1 : width - len;
-            let end = room;
-            const hyphen = chunk.lastIndexOf("-", room - 1);
-            if (chunk.length > room && hyphen > 0 && /[^-]/.test(chunk.slice(0, hyphen)))
-              end = hyphen + 1;
-            cur.push(chunk.slice(0, end));
-            chunks[chunks.length - 1] = chunk.slice(end);
+          // a word longer than the whole line is cut where the line ends
+          if (chunks.length && len(chunks[chunks.length - 1]) > width) {
+            const chars = [...chunks[chunks.length - 1]];
+            const room = width < 1 ? 1 : width - used;
+            cur.push(chars.slice(0, room).join(""));
+            chunks[chunks.length - 1] = chars.slice(room).join("");
           }
           if (cur.length && isSpace(cur[cur.length - 1])) cur.pop();
           if (cur.length) lines.push(cur.join(""));
@@ -833,22 +827,76 @@
         return lines;
       }
 
+      // The bot's strip_markdown_formatting (lib/plugins/base.py): Python-Markdown, then HTMLFilter to plain text.
+      // marked in pedantic mode follows the same original Markdown rules; the three replaces cover where they differ.
+      const ESCAPABLE = "\\`*_{}[]()>#+-.!";
+      function markdownHtml(text) {
+        text = text
+          .replace(/\\(.)/gu, (m, c) => (ESCAPABLE.includes(c) ? m : `\\${m}`))
+          .replace(/^(\s*\d+)\)/gm, "$1\\)");
+        return marked.parse(text, { pedantic: true, gfm: false }).replace(/<br>/g, "<br>\n");
+      }
+      function stripMarkdown(text) {
+        const s = { text: "", href: "", li: 0, quote: false, lineBreak: false };
+        const start = (tag, node) => {
+          if (tag === "blockquote") {
+            s.quote = true;
+            s.lineBreak = false;
+          } else if (tag === "ol" || tag === "ul") {
+            if (s.quote) s.text += ">";
+            s.li = tag === "ol" ? 1 : 0;
+          } else if (tag === "li") {
+            s.lineBreak = false;
+            if (s.quote) s.text += "> ";
+            s.text += s.li ? `${s.li++}. ` : "- ";
+          } else if (tag === "p" || /^h\d/.test(tag)) {
+            const sep = s.lineBreak ? (s.quote ? "\n>\n> " : "\n\n") : s.quote ? "\n> " : "";
+            s.text = s.text.replace(/\n+$/, "") + sep;
+          } else if (tag === "a") s.href = node.getAttribute("href") ?? "";
+        };
+        const end = (tag) => {
+          if (tag === "a") {
+            s.text += `: ${s.href}`;
+            s.href = "";
+          } else if (tag === "blockquote") s.quote = false;
+          s.lineBreak = true;
+        };
+        const data = (d) => {
+          if (!s.lineBreak) d = d.replace(/^\n+/, "");
+          if (s.quote && d !== "\n") d = d.replace(/\n/g, "\n> ");
+          s.text += d;
+        };
+        const walk = (parent) =>
+          parent.childNodes.forEach((node) => {
+            if (node.nodeType === Node.TEXT_NODE) return data(node.data);
+            if (node.nodeType !== Node.ELEMENT_NODE) return;
+            const tag = node.tagName.toLowerCase();
+            start(tag, node);
+            walk(node);
+            end(tag);
+          });
+        walk(new DOMParser().parseFromString(`<body>${markdownHtml(text)}</body>`, "text/html").body);
+        return s.text.replace(/^\n+|\n+$/g, "");
+      }
+
       // Mirrors wrap_text_with_index in lib/plugins (mastodon counts every link as 23 characters)
       function splitPost(content, max, platform) {
-        if (!max || content.length <= max) return [content];
+        if (!max || len(content) <= max) return [content];
         const urls = content.match(/https?:\/\/\S+/g) || [];
         const masked = content.replace(/https?:\/\/\S+/g, (u) =>
-          "~".repeat(platform === "mastodon" ? 23 : u.length)
+          "~".repeat(platform === "mastodon" ? 23 : len(u))
         );
         const parts = masked
           .split("\n\n\n")
           .flatMap((p) => wrap(p.replace(/^\n+|\n+$/g, ""), max - 8));
         let next = 0;
-        return parts.map(
-          (line, i) =>
-            line.replace(/~{10,}/g, (m) => (next < urls.length ? urls[next++] : m)) +
-            ` (${i + 1}/${parts.length})`
-        );
+        return parts.map((line, i) => {
+          while (line.includes(platform === "mastodon" ? "~".repeat(23) : "~".repeat(10)) && next < urls.length) {
+            const url = urls[next++];
+            line = line.replace("~".repeat(platform === "mastodon" ? 23 : len(url)), () => url);
+          }
+          return `${line} (${i + 1}/${parts.length})`;
+        });
       }
 
       function countChars(text, platform) {
@@ -863,7 +911,8 @@
 
       function postText(account) {
         const platform = platformOf(account.name);
-        let content = $("post-content").value.trim() + "\n";
+        // shortcut: GitHub emoji codes like :tada: are not turned into emoji here like the bot does; the emoji button inserts real emoji
+        let content = $("post-content").value.trim().split("\n\n\n").map(stripMarkdown).join("\n\n\n") + "\n";
         const m = (mentions[platform] || []).map((v) => `@${v}`).join(" ");
         const h = platform === "matrix" ? "" : hashtags.map((v) => `#${v}`).join(" ");
         if (m) content += `\n${m}`;
@@ -1008,7 +1057,22 @@
             if (platform === "mastodon") {
               // Mastodon hides the https:// and shortens long links
               shown = piece.replace(/^https?:\/\/(www\.)?/, "");
-              if (shown.length > 30) shown = shown.slice(0, 30) + "…";
+              // shortened_link in mastodon/app/lib/text_formatter.rb: one extra character is shown instead of the …
+              if (shown.length > 31) shown = shown.slice(0, 30) + "…";
+            }
+            if (platform === "linkedin") {
+              // LinkedIn shows every link as its own short https://lnkd.in/… link
+              const span = el("span", "lnk auto", "https://lnkd.in/…");
+              span.title = `LinkedIn shows this as a short lnkd.in link to ${piece}`;
+              return frag.append(span);
+            }
+            if (platform === "bluesky") {
+              // The Bluesky app shows the host and the start of the path (toShortUrl in bluesky-social/social-app)
+              try {
+                const u = new URL(piece);
+                const path = (u.pathname === "/" ? "" : u.pathname) + u.search + u.hash;
+                shown = u.host + (path.length > 15 ? path.slice(0, 13) + "..." : path);
+              } catch {}
             }
             return frag.append(el("span", "lnk", shown));
           }
@@ -1062,11 +1126,11 @@
           box.appendChild(pic);
         }
         const body = el("div");
-        body.append(
-          el("small", "", new URL(card.url).hostname.replace(/^www\./, "")),
-          el("b", "", card.title),
-          el("p", "", card.description || "")
-        );
+        const host = el("small", "", new URL(card.url).hostname.replace(/^www\./, ""));
+        body.append(el("b", "", card.title), el("p", "", card.description || ""));
+        // Bluesky puts the site below the text, Mastodon above
+        if (platform === "bluesky") body.append(host);
+        else body.prepend(host);
         box.append(body, el("span", "auto-label", "Link preview · added when posting"));
         return box;
       }
