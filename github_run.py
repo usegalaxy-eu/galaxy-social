@@ -300,5 +300,12 @@ if __name__ == "__main__":
         if pr_number:
             gh_interactor.comment_on_pr("No files to process.")
 
+    if files_to_process and not preview:
+        # Rebuild the Post Creator's posts page so it links to the new posts
+        try:
+            gh_interactor.repo.get_workflow("deploy-pages.yml").create_dispatch(ref="main")
+        except Exception as e:
+            print(f"Could not start the Post Creator deploy: {e}")
+
     if errors:
         raise RuntimeError(f"Failed to handle: {', '.join(errors)}")
