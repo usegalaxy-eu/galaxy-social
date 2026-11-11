@@ -86,7 +86,7 @@ For images just drag and drop them here. they will look like this:
 
   Dividing long content into multiple threaded posts: when the character limit is reached on a social media, it will be divided into several posts as a thread. You can also define custom breakpoints for splitting the post by inserting 2 empty lines anywhere in the text. The second empty line will simply be removed for media that don't support content splitting.
 
-- "images" (Optional): You can include images using Markdown format at the end of the file like this: `![Alternative text](Link to the image)`. Alternatively, you can simply drag and drop an image from your PC while adding your file.
+- "images" (Optional): You can include images using Markdown format at the end of the file like this: `![Alternative text](Link to the image)`. Alternatively, you can simply drag and drop an image from your PC while adding your file. JPEG, PNG and GIF images are posted as they are; other formats like AVIF or WebP are converted to JPEG (or PNG if they have transparency).
 
 - "schedule" (Optional): To post later instead of right after merge, add a date, time and time zone to the metatags, either in UTC like `schedule: 2026-10-20 07:00 UTC` or in your own [time zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) like `schedule: 2026-10-20 09:00 Europe/Berlin` (the [Interactive Post Creator](https://usegalaxy-eu.github.io/galaxy-social/) fills this in for you). The preview shows this time in UTC, Berlin, New York and Los Angeles time. The post will go out around this time, but it can be a bit late, so for posts that must go out at an exact moment, don't use `schedule` and merge the pull request at that moment instead. To change the time or cancel a scheduled post before it goes out, edit its `schedule` or delete the file in a new pull request.
 
@@ -102,7 +102,7 @@ By following these steps, you can effectively create and publish posts on Galaxy
 
 Expanding the capabilities of Galaxy Social by adding a new social media platform is a straightforward process. Follow these steps to integrate a new platform:
 
-1. **Create a Plugin File**: Begin by adding a Python file to the `lib/plugins` folder. This file should contain a class with a function named `create_post(content, mentions, hashtags, images, alt_texts)`. This function will handle the process of sending announcements to the desired social media platform.
+1. **Create a Plugin File**: Begin by adding a Python file to the `lib/plugins` folder. This file should contain a class with a function named `create_post(content, mentions, hashtags, images, alt_texts)`. This function will handle the process of sending announcements to the desired social media platform. Pass downloaded images through `to_supported_image` from `lib/plugins/base.py`, so formats like AVIF are converted first.
 
 2. **Update plugins.yml**: Next, update the `plugins.yml` file to include the new social media platform. Follow this template:
 

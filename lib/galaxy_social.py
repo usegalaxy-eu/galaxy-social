@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+import traceback
 from argparse import ArgumentParser
 from datetime import datetime, timezone
 from fnmatch import filter
@@ -14,6 +15,11 @@ import emoji
 import requests
 from jsonschema import validate
 from yaml import safe_load as yaml
+
+try:
+    from lib.plugins.base import to_supported_image
+except ImportError:  # run as lib/galaxy_social.py
+    from plugins.base import to_supported_image
 
 
 def parse_schedule(value):
@@ -71,6 +77,8 @@ class ImgSyntaxConverter(HTMLParser):
 class galaxy_social:
     def __init__(self, preview: bool, plugins_path: str|None = None):
         self.preview = preview
+        # files where a platform crashed while posting, so the run can still fail visibly
+        self.crashed_files = []
         if plugins_path is None:
             plugins_path = os.path.join(
                 os.path.dirname(os.path.abspath(__file__)), "..", "plugins.yml"
@@ -213,12 +221,12 @@ class galaxy_social:
             response = requests.get(image["url"])
             if response.status_code != 200:
                 errors += f"- Failed to download image from URL: {image['url']}\n"
+                continue
 
-            if response.headers["Content-Type"] not in [
-                "image/jpeg",
-                "image/png",
-                "image/gif",
-            ]:
+            # Check the file itself, the header can be wrong (e.g. an AVIF file sent as image/jpeg)
+            try:
+                to_supported_image(response.content)
+            except Exception:
                 errors += f"- URL does not point to a supported image file: {image['url']}\n"
 
         return errors
@@ -308,9 +316,17 @@ class galaxy_social:
         )
         for media in remaining_media:
             formatted_content, _, _ = formatting_results[media]
-            stats[media], url[media] = self.plugins[media].create_post(
-                formatted_content, file_path=file_path
-            )
+            # One platform failing must not stop the others or lose what was already posted
+            try:
+                stats[media], url[media] = self.plugins[media].create_post(
+                    formatted_content, file_path=file_path
+                )
+            except Exception:
+                print(f"Error posting {file_path} to {media}:")
+                traceback.print_exc()
+                stats[media], url[media] = False, None
+                if file_path not in self.crashed_files:
+                    self.crashed_files.append(file_path)
         url_text = "\n".join(
             [
                 f"- [{media}]({link})" if link else f"- {media}"

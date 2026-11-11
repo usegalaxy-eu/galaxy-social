@@ -7,7 +7,7 @@ from urllib.parse import quote
 
 import requests
 
-from .base import strip_markdown_formatting
+from .base import strip_markdown_formatting, to_supported_image
 
 
 class linkedin_client:
@@ -180,8 +180,7 @@ class linkedin_client:
                 with requests.get(image["url"], stream=True, headers=headers) as r:
                     r.raise_for_status()
                     with open(filename, "wb") as f:
-                        for chunk in r.iter_content(chunk_size=8192):
-                            f.write(chunk)
+                        f.write(to_supported_image(r.content))
                 with open(filename, "rb") as file:
                     response = requests.put(
                         upload_url,
