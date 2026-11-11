@@ -9,7 +9,7 @@ import numpy as np
 import requests
 from bs4 import BeautifulSoup
 
-from .base import strip_markdown_formatting
+from .base import strip_markdown_formatting, to_supported_image
 
 
 def compress_image_to_limit(image_url):
@@ -23,7 +23,7 @@ def compress_image_to_limit(image_url):
         "Content-Type", ""
     ).startswith("image/"):
         return None
-    image_content = response.content
+    image_content = to_supported_image(response.content)
     if len(image_content) < 976.56 * 1024:
         return image_content
 

@@ -7,7 +7,7 @@ import traceback
 import requests
 from mastodon import Mastodon  # type: ignore
 
-from .base import strip_markdown_formatting
+from .base import strip_markdown_formatting, to_supported_image
 
 
 class mastodon_client:
@@ -96,7 +96,7 @@ class mastodon_client:
                 "Content-Type", ""
             ).startswith("image/"):
                 with tempfile.NamedTemporaryFile() as temp:
-                    temp.write(response.content)
+                    temp.write(to_supported_image(response.content))
                     temp.flush()
                     try:
                         media_uploaded = self.mastodon_handle.media_post(

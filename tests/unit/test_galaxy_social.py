@@ -5,11 +5,20 @@ under valid media names, and image downloads go through a fake `requests`.
 """
 import json
 from datetime import datetime, timezone
+from io import BytesIO
 
 import pytest
+from PIL import Image
 
 import lib.galaxy_social as galaxy_social_module
 from lib.galaxy_social import galaxy_social
+from lib.plugins.base import to_supported_image
+
+
+def image_bytes(image_format, mode="RGB"):
+    buffer = BytesIO()
+    Image.new(mode, (8, 8)).save(buffer, image_format)
+    return buffer.getvalue()
 
 
 def write_post(
@@ -233,13 +242,34 @@ class TestValidateImages:
         errors = gs.validate_images(metadata)
         assert "Failed to download image from URL: https://example.test/i.png" in errors
 
-    def test_unsupported_file_is_reported_even_with_image_header(self, tmp_path, make_gs, fake_requests):
+    def test_non_image_is_reported_even_with_image_header(self, tmp_path, make_gs, fake_requests):
         gs, metadata = self.parse_post_with_image(tmp_path, make_gs)
-        # e.g. an AVIF file served as image/jpeg
         fake_requests.content_type = "image/jpeg"
-        fake_requests.content = b"\x00\x00\x00\x1cftypavif"
+        fake_requests.content = b"<html></html>"
         errors = gs.validate_images(metadata)
         assert "does not point to a supported image file" in errors
+
+    def test_avif_sent_as_jpeg_is_accepted(self, tmp_path, make_gs, fake_requests):
+        gs, metadata = self.parse_post_with_image(tmp_path, make_gs)
+        fake_requests.content_type = "image/jpeg"
+        fake_requests.content = image_bytes("AVIF")
+        assert gs.validate_images(metadata) == ""
+
+
+class TestToSupportedImage:
+    def test_jpeg_png_and_gif_are_kept_as_they_are(self):
+        for image_format in ["JPEG", "PNG", "GIF"]:
+            content = image_bytes(image_format)
+            assert to_supported_image(content) == content
+
+    def test_avif_and_webp_are_converted_to_jpeg(self):
+        for image_format in ["AVIF", "WEBP"]:
+            converted = to_supported_image(image_bytes(image_format))
+            assert Image.open(BytesIO(converted)).format == "JPEG"
+
+    def test_transparent_webp_is_converted_to_png(self):
+        converted = to_supported_image(image_bytes("WEBP", mode="RGBA"))
+        assert Image.open(BytesIO(converted)).format == "PNG"
 
 
 class TestProcessMarkdownFilePublish:

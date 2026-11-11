@@ -1,6 +1,8 @@
 from html.parser import HTMLParser
+from io import BytesIO
 
 from markdown import markdown
+from PIL import Image
 
 
 # inspired by:
@@ -75,3 +77,19 @@ def strip_markdown_formatting(text):
     html_filter = HTMLFilter()
     html_filter.feed(markdown(text))
     return html_filter.text.strip('\n')
+
+
+def to_supported_image(content):
+    """Return image bytes as JPEG, PNG or GIF, converting other formats like AVIF or WebP.
+
+    Raises an error if the bytes are not an image.
+    """
+    image = Image.open(BytesIO(content))
+    if image.format in ["JPEG", "PNG", "GIF"]:
+        return content
+    output = BytesIO()
+    if image.mode in ["RGBA", "LA", "PA"] or "transparency" in image.info:
+        image.convert("RGBA").save(output, "PNG")
+    else:
+        image.convert("RGB").save(output, "JPEG", quality=90)
+    return output.getvalue()

@@ -4,6 +4,8 @@ import textwrap
 import requests
 from slack_sdk import WebClient
 
+from .base import to_supported_image
+
 
 class slack_client:
     def __init__(self, **kwargs):
@@ -71,7 +73,7 @@ class slack_client:
                     "Content-Type", ""
                 ).startswith("image/"):
                     continue
-                image_content = response.content
+                image_content = to_supported_image(response.content)
 
             response = self.client.files_getUploadURLExternal(
                 filename=filename,

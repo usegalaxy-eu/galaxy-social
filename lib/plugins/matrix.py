@@ -12,6 +12,8 @@ from markdown import markdown
 from nio import AsyncClient, UploadResponse  # type: ignore
 from PIL import Image
 
+from .base import to_supported_image
+
 
 class matrix_client:
     def __init__(self, **kwargs):
@@ -85,7 +87,7 @@ class matrix_client:
                     if response.status_code != 200:
                         continue
                     temp = tempfile.NamedTemporaryFile()
-                    temp.write(response.content)
+                    temp.write(to_supported_image(response.content))
                     temp.flush()
                     mime_type = magic.from_file(temp.name, mime=True)
                     if not mime_type.startswith("image/"):

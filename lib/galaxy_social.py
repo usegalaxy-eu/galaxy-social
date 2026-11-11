@@ -8,15 +8,18 @@ from datetime import datetime, timezone
 from fnmatch import filter
 from html.parser import HTMLParser
 from importlib import import_module
-from io import BytesIO
 from typing import Any, Dict, Iterable
 from zoneinfo import ZoneInfo
 
 import emoji
 import requests
 from jsonschema import validate
-from PIL import Image
 from yaml import safe_load as yaml
+
+try:
+    from lib.plugins.base import to_supported_image
+except ImportError:  # run as lib/galaxy_social.py
+    from plugins.base import to_supported_image
 
 
 def parse_schedule(value):
@@ -218,13 +221,11 @@ class galaxy_social:
                 errors += f"- Failed to download image from URL: {image['url']}\n"
                 continue
 
-            # Check the file itself, servers can send e.g. an AVIF file as image/jpeg
+            # Check the file itself, the header can be wrong (e.g. an AVIF file sent as image/jpeg)
             try:
-                image_format = Image.open(BytesIO(response.content)).format
+                to_supported_image(response.content)
             except Exception:
-                image_format = None
-            if image_format not in ["JPEG", "PNG", "GIF"]:
-                errors += f"- URL does not point to a supported image file (JPEG, PNG or GIF): {image['url']}\n"
+                errors += f"- URL does not point to a supported image file: {image['url']}\n"
 
         return errors
 
