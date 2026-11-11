@@ -26,7 +26,6 @@ Every workflow, history, and dataset from the study is public. Start with the pr
 
 Read the preprint on bioRxiv: https://www.biorxiv.org/content/10.64898/2026.10.26.761864v1
 
-#UseGalaxy #OpenScience #Bioinformatics #Reproducibility #AgenticAI
 
 ![Architecture diagram: an Agent (Orbit, OpenCode, Claude Code, Codex, Agy) links via MCP Server and Skills to public cyberinfrastructure (storage, CPUs, GPUs), which connects to Tools/Data and a UI for validation and provenance.](https://raw.githubusercontent.com/usegalaxy-eu/galaxy-social/46c92d3e1221e82c9e32443c4c1026fe3909f5c6/posts/images/2026-10-30-160349-new-preprint-verifiable-agentic-screenshot-2026-10-30-at-11.56.38-am.png)
 ![Sankey diagram of 30 RNA-seq analysis plans from Claude Opus 5.5, Codex (GPT-6 Astra) and Gemini 3.8 Flash, showing plans diverging at every step from reference genome to LFC shrinkage, with major forks in genome choice and DE model scope.](https://raw.githubusercontent.com/usegalaxy-eu/galaxy-social/06c276028fed298992dc86d93b80d0d234154090/posts/images/2026-10-30-160349-new-preprint-verifiable-agentic-screenshot-2026-10-30-at-11.56.08-am.png)
