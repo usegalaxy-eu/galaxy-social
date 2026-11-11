@@ -177,7 +177,7 @@ class linkedin_client:
                 headers = {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                 }
-                with requests.get(image["url"], headers=headers) as r:
+                with requests.get(image["url"], stream=True, headers=headers) as r:
                     r.raise_for_status()
                     with open(filename, "wb") as f:
                         f.write(to_supported_image(r.content))
