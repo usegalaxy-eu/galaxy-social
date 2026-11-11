@@ -1,6 +1,13 @@
 ---
 media:
 - linkedin-galaxyproject
+hashtags:
+  linkedin-galaxyproject:
+  - UseGalaxy
+  - OpenScience
+  - Bioinformatics
+  - Reproducibility
+  - AgenticAI
 ---
 
 New preprint: Verifiable Agentic Science on Public Infrastructure
