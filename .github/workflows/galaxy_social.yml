@@ -16,6 +16,8 @@ on:
         description: "The number of the pull request to create preview for (empty: publish due scheduled posts)"
         required: false
 
+permissions: {}
+
 jobs:
   manage_content:
     name: Manage Content
