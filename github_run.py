@@ -231,6 +231,7 @@ def process(github_instance, files_to_process, preview):
                     not_posted[file_path] = media_list
 
         github_instance.new_pr(not_posted)
+        return gs.crashed_files
     except Exception as e:
         if preview:
             github_instance.comment_on_pr("Something went wrong, an Admin will take a look.")
@@ -291,7 +292,8 @@ if __name__ == "__main__":
         for number, files in files_to_process.items():
             gh_interactor.attach_pr(number)
             try:
-                process(gh_interactor, files, preview)
+                # a crashed platform is retried in the new PR, but should still fail the run
+                errors.extend(process(gh_interactor, files, preview) or [])
             except Exception as e:
                 print(f"Error processing {', '.join(files)} for PR #{number} - {type(e).__name__}: {e}")
                 traceback.print_exc()

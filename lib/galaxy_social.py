@@ -77,6 +77,8 @@ class ImgSyntaxConverter(HTMLParser):
 class galaxy_social:
     def __init__(self, preview: bool, plugins_path: str|None = None):
         self.preview = preview
+        # files where a platform crashed while posting, so the run can still fail visibly
+        self.crashed_files = []
         if plugins_path is None:
             plugins_path = os.path.join(
                 os.path.dirname(os.path.abspath(__file__)), "..", "plugins.yml"
@@ -323,6 +325,8 @@ class galaxy_social:
                 print(f"Error posting {file_path} to {media}:")
                 traceback.print_exc()
                 stats[media], url[media] = False, None
+                if file_path not in self.crashed_files:
+                    self.crashed_files.append(file_path)
         url_text = "\n".join(
             [
                 f"- [{media}]({link})" if link else f"- {media}"

@@ -289,6 +289,7 @@ class TestProcessMarkdownFilePublish:
         processed, _ = gs.process_markdown_file(str(path), {})
         assert len(fakes["mastodon"].post_calls) == 1
         assert processed[str(path)] == {"markdown": False, "mastodon": True}
+        assert gs.crashed_files == [str(path)]
 
     def test_skips_future_scheduled_post(self, tmp_path, make_gs, fake_requests):
         gs, fakes = make_gs(preview=False)
