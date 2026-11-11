@@ -2,17 +2,20 @@ import json
 import os
 import re
 import sys
+import traceback
 from argparse import ArgumentParser
 from datetime import datetime, timezone
 from fnmatch import filter
 from html.parser import HTMLParser
 from importlib import import_module
+from io import BytesIO
 from typing import Any, Dict, Iterable
 from zoneinfo import ZoneInfo
 
 import emoji
 import requests
 from jsonschema import validate
+from PIL import Image
 from yaml import safe_load as yaml
 
 
@@ -213,13 +216,15 @@ class galaxy_social:
             response = requests.get(image["url"])
             if response.status_code != 200:
                 errors += f"- Failed to download image from URL: {image['url']}\n"
+                continue
 
-            if response.headers["Content-Type"] not in [
-                "image/jpeg",
-                "image/png",
-                "image/gif",
-            ]:
-                errors += f"- URL does not point to a supported image file: {image['url']}\n"
+            # Check the file itself, servers can send e.g. an AVIF file as image/jpeg
+            try:
+                image_format = Image.open(BytesIO(response.content)).format
+            except Exception:
+                image_format = None
+            if image_format not in ["JPEG", "PNG", "GIF"]:
+                errors += f"- URL does not point to a supported image file (JPEG, PNG or GIF): {image['url']}\n"
 
         return errors
 
@@ -308,9 +313,15 @@ class galaxy_social:
         )
         for media in remaining_media:
             formatted_content, _, _ = formatting_results[media]
-            stats[media], url[media] = self.plugins[media].create_post(
-                formatted_content, file_path=file_path
-            )
+            # One platform failing must not stop the others or lose what was already posted
+            try:
+                stats[media], url[media] = self.plugins[media].create_post(
+                    formatted_content, file_path=file_path
+                )
+            except Exception:
+                print(f"Error posting {file_path} to {media}:")
+                traceback.print_exc()
+                stats[media], url[media] = False, None
         url_text = "\n".join(
             [
                 f"- [{media}]({link})" if link else f"- {media}"

@@ -233,9 +233,11 @@ class TestValidateImages:
         errors = gs.validate_images(metadata)
         assert "Failed to download image from URL: https://example.test/i.png" in errors
 
-    def test_unsupported_content_type_is_reported(self, tmp_path, make_gs, fake_requests):
+    def test_unsupported_file_is_reported_even_with_image_header(self, tmp_path, make_gs, fake_requests):
         gs, metadata = self.parse_post_with_image(tmp_path, make_gs)
-        fake_requests.content_type = "text/html"
+        # e.g. an AVIF file served as image/jpeg
+        fake_requests.content_type = "image/jpeg"
+        fake_requests.content = b"\x00\x00\x00\x1cftypavif"
         errors = gs.validate_images(metadata)
         assert "does not point to a supported image file" in errors
 
@@ -249,6 +251,14 @@ class TestProcessMarkdownFilePublish:
         assert fakes["markdown"].post_calls and fakes["mastodon"].post_calls
         assert processed[str(path)] == {"markdown": True, "mastodon": True}
         assert "🎉" in message
+
+    def test_failing_platform_does_not_stop_the_others(self, tmp_path, make_gs, fake_requests):
+        gs, fakes = make_gs(preview=False, names=("markdown", "mastodon"))
+        fakes["markdown"].post_error = RuntimeError("boom")
+        path = write_post(tmp_path, media=("markdown", "mastodon"), schedule="2020-01-01 00:00 UTC")
+        processed, _ = gs.process_markdown_file(str(path), {})
+        assert len(fakes["mastodon"].post_calls) == 1
+        assert processed[str(path)] == {"markdown": False, "mastodon": True}
 
     def test_skips_future_scheduled_post(self, tmp_path, make_gs, fake_requests):
         gs, fakes = make_gs(preview=False)

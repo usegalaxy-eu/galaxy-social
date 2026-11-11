@@ -5,9 +5,11 @@ plugins.yml: fake plugins are injected into a galaxy_social instance
 constructed from tests/data/plugins.yml, and the module-level `requests`
 object is replaced by a fake.
 """
+from io import BytesIO
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 import lib.galaxy_social as galaxy_social_module
 from lib.galaxy_social import galaxy_social
@@ -15,10 +17,17 @@ from lib.galaxy_social import galaxy_social
 TEST_DATA = Path(__file__).parent / "data"
 
 
+def png_bytes():
+    buffer = BytesIO()
+    Image.new("RGB", (1, 1)).save(buffer, "PNG")
+    return buffer.getvalue()
+
+
 class FakeResponse:
-    def __init__(self, status_code, content_type):
+    def __init__(self, status_code, content_type, content):
         self.status_code = status_code
         self.headers = {"Content-Type": content_type}
+        self.content = content
 
 
 class FakeRequests:
@@ -27,11 +36,12 @@ class FakeRequests:
     def __init__(self, status_code=200, content_type="image/png"):
         self.status_code = status_code
         self.content_type = content_type
+        self.content = png_bytes()
         self.calls = []
 
     def get(self, url):
         self.calls.append(url)
-        return FakeResponse(self.status_code, self.content_type)
+        return FakeResponse(self.status_code, self.content_type, self.content)
 
 
 class FakePlugin:
@@ -43,11 +53,13 @@ class FakePlugin:
         format_result=("formatted", "PREVIEW", ""),
         post_result=(True, "https://example.test/1"),
         format_error=None,
+        post_error=None,
     ):
         self.name = name
         self.format_result = format_result
         self.post_result = post_result
         self.format_error = format_error
+        self.post_error = post_error
         self.format_calls = []
         self.post_calls = []
 
@@ -66,6 +78,8 @@ class FakePlugin:
 
     def create_post(self, formatted_content, **kwargs):
         self.post_calls.append(formatted_content)
+        if self.post_error:
+            raise self.post_error
         return self.post_result
 
 
@@ -103,7 +117,7 @@ def make_gs():
 def fake_requests(monkeypatch):
     """Install a FakeRequests instance as galaxy_social's `requests` module.
 
-    Mutate `fake_requests.status_code` / `fake_requests.content_type` before
+    Mutate `fake_requests.status_code` / `fake_requests.content` before
     exercising the code to simulate broken downloads or wrong file types.
     """
     fake = FakeRequests()

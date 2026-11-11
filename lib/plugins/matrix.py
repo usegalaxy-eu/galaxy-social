@@ -76,51 +76,51 @@ class matrix_client:
     async def async_create_post(self, content):
         posts = []
         for msg in content:
-            if msg["msgtype"] == "m.image":
-                headers = {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                }
-                response = requests.get(msg["url"], headers=headers)
-                if response.status_code != 200:
-                    continue
-                temp = tempfile.NamedTemporaryFile()
-                temp.write(response.content)
-                temp.flush()
-                mime_type = magic.from_file(temp.name, mime=True)
-                if not mime_type.startswith("image/"):
-                    continue
-
-                filename = msg["filename"]
-                correct_ext = mimetypes.guess_extension(mime_type)
-                if correct_ext:
-                    base_name, ext = os.path.splitext(filename)
-                    if ext.lower() != correct_ext.lower():
-                        filename = f"{base_name}{correct_ext}"
-
-                width, height = Image.open(temp.name).size
-                file_stat = await aiofiles.os.stat(temp.name)
-                async with aiofiles.open(temp.name, "r+b") as f:
-                    resp, _ = await self.client.upload(
-                        f,
-                        content_type=mime_type,
-                        filename=filename,
-                        filesize=file_stat.st_size,
-                    )
-
-                if not isinstance(resp, UploadResponse):
-                    return False, None
-
-                # add info about the image to the message
-                msg["info"] = {
-                    "size": file_stat.st_size,
-                    "mimetype": mime_type,
-                    "w": width,
-                    "h": height,
-                }
-                # replace original image url with that of the server upload
-                msg["url"] = resp.content_uri
-
             try:
+                if msg["msgtype"] == "m.image":
+                    headers = {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                    }
+                    response = requests.get(msg["url"], headers=headers)
+                    if response.status_code != 200:
+                        continue
+                    temp = tempfile.NamedTemporaryFile()
+                    temp.write(response.content)
+                    temp.flush()
+                    mime_type = magic.from_file(temp.name, mime=True)
+                    if not mime_type.startswith("image/"):
+                        continue
+
+                    filename = msg["filename"]
+                    correct_ext = mimetypes.guess_extension(mime_type)
+                    if correct_ext:
+                        base_name, ext = os.path.splitext(filename)
+                        if ext.lower() != correct_ext.lower():
+                            filename = f"{base_name}{correct_ext}"
+
+                    width, height = Image.open(temp.name).size
+                    file_stat = await aiofiles.os.stat(temp.name)
+                    async with aiofiles.open(temp.name, "r+b") as f:
+                        resp, _ = await self.client.upload(
+                            f,
+                            content_type=mime_type,
+                            filename=filename,
+                            filesize=file_stat.st_size,
+                        )
+
+                    if not isinstance(resp, UploadResponse):
+                        raise Exception(f"Image upload failed: {resp}")
+
+                    # add info about the image to the message
+                    msg["info"] = {
+                        "size": file_stat.st_size,
+                        "mimetype": mime_type,
+                        "w": width,
+                        "h": height,
+                    }
+                    # replace original image url with that of the server upload
+                    msg["url"] = resp.content_uri
+
                 post = await self.client.room_send(
                     self.room_id, message_type="m.room.message", content=msg
                 )
