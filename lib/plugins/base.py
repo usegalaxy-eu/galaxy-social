@@ -79,14 +79,37 @@ def strip_markdown_formatting(text):
     return html_filter.text.strip('\n')
 
 
-def to_supported_image(content):
-    """Return image bytes as JPEG, PNG or GIF, converting other formats like AVIF or WebP.
+def image_format(content):
+    """Return JPEG, PNG, GIF, WEBP or AVIF from the first bytes of a file, without opening it."""
+    if content.startswith(b"\xff\xd8\xff"):
+        return "JPEG"
+    if content.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "PNG"
+    if content.startswith((b"GIF87a", b"GIF89a")):
+        return "GIF"
+    if content.startswith(b"RIFF") and content[8:12] == b"WEBP":
+        return "WEBP"
+    if content[4:8] == b"ftyp":
+        # AVIF: "avif" or "avis" as main brand or among the compatible brands of the ftyp box
+        ftyp_end = int.from_bytes(content[:4], "big")
+        brands = [content[8:12]] + [content[i:i + 4] for i in range(16, min(ftyp_end, len(content)), 4)]
+        if b"avif" in brands or b"avis" in brands:
+            return "AVIF"
+    return None
 
-    Raises an error if the bytes are not an image.
+
+def to_supported_image(content):
+    """Return image bytes as JPEG, PNG or GIF, converting AVIF and WebP.
+
+    Only the AVIF or WebP decoder is used, and only for files that start like one.
+    Raises an error for anything else.
     """
-    image = Image.open(BytesIO(content))
-    if image.format in ["JPEG", "PNG", "GIF"]:
+    image_type = image_format(content)
+    if image_type in ["JPEG", "PNG", "GIF"]:
         return content
+    if image_type not in ["AVIF", "WEBP"]:
+        raise ValueError("Not a JPEG, PNG, GIF, AVIF or WebP image")
+    image = Image.open(BytesIO(content), formats=[image_type])
     output = BytesIO()
     if image.mode in ["RGBA", "LA", "PA"] or "transparency" in image.info:
         image.convert("RGBA").save(output, "PNG")

@@ -12,7 +12,7 @@ from PIL import Image
 
 import lib.galaxy_social as galaxy_social_module
 from lib.galaxy_social import galaxy_social
-from lib.plugins.base import to_supported_image
+from lib.plugins.base import image_format, to_supported_image
 
 
 def image_bytes(image_format, mode="RGB"):
@@ -255,6 +255,17 @@ class TestValidateImages:
         fake_requests.content = image_bytes("AVIF")
         assert gs.validate_images(metadata) == ""
 
+    def test_image_is_not_opened(self, tmp_path, make_gs, fake_requests):
+        gs, metadata = self.parse_post_with_image(tmp_path, make_gs)
+        # starts like an AVIF but is broken: only the first bytes are checked
+        fake_requests.content = b"\x00\x00\x00\x14ftypavif\x00\x00\x00\x00broken"
+        assert gs.validate_images(metadata) == ""
+
+    def test_other_image_formats_are_reported(self, tmp_path, make_gs, fake_requests):
+        gs, metadata = self.parse_post_with_image(tmp_path, make_gs)
+        fake_requests.content = image_bytes("BMP")
+        assert "does not point to a supported image file" in gs.validate_images(metadata)
+
 
 class TestToSupportedImage:
     def test_jpeg_png_and_gif_are_kept_as_they_are(self):
@@ -270,6 +281,19 @@ class TestToSupportedImage:
     def test_transparent_webp_is_converted_to_png(self):
         converted = to_supported_image(image_bytes("WEBP", mode="RGBA"))
         assert Image.open(BytesIO(converted)).format == "PNG"
+
+    def test_other_formats_are_refused_without_decoding(self):
+        for other in ["BMP", "TIFF", "TGA"]:
+            with pytest.raises(ValueError):
+                to_supported_image(image_bytes(other))
+
+    def test_image_format_reads_only_the_first_bytes(self):
+        for name in ["JPEG", "PNG", "GIF", "WEBP", "AVIF"]:
+            assert image_format(image_bytes(name)) == name
+        # mif1 is used by AVIF and HEIC: only AVIF when "avif" is a compatible brand
+        assert image_format(b"\x00\x00\x00\x18ftypmif1\x00\x00\x00\x00mif1avif") == "AVIF"
+        assert image_format(b"\x00\x00\x00\x18ftypmif1\x00\x00\x00\x00mif1heic") is None
+        assert image_format(b"<html></html>") is None
 
 
 class TestProcessMarkdownFilePublish:

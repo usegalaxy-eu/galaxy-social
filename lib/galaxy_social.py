@@ -17,9 +17,9 @@ from jsonschema import validate
 from yaml import safe_load as yaml
 
 try:
-    from lib.plugins.base import to_supported_image
+    from lib.plugins.base import image_format
 except ImportError:  # run as lib/galaxy_social.py
-    from plugins.base import to_supported_image
+    from plugins.base import image_format
 
 
 def parse_schedule(value):
@@ -223,11 +223,10 @@ class galaxy_social:
                 errors += f"- Failed to download image from URL: {image['url']}\n"
                 continue
 
-            # Check the file itself, the header can be wrong (e.g. an AVIF file sent as image/jpeg)
-            try:
-                to_supported_image(response.content)
-            except Exception:
-                errors += f"- URL does not point to a supported image file: {image['url']}\n"
+            # Check the first bytes of the file, the header can be wrong (e.g. an AVIF file sent as
+            # image/jpeg). The image is not opened here: previews run on anyone's PR with tokens loaded.
+            if image_format(response.content) is None:
+                errors += f"- URL does not point to a supported image file (JPEG, PNG, GIF, AVIF or WebP): {image['url']}\n"
 
         return errors
 
