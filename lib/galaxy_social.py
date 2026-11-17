@@ -17,9 +17,9 @@ from jsonschema import validate
 from yaml import safe_load as yaml
 
 try:
-    from lib.plugins.base import image_format
+    from lib.plugins.base import image_format, load_image, prepared_manifest
 except ImportError:  # run as lib/galaxy_social.py
-    from plugins.base import image_format
+    from plugins.base import image_format, load_image, prepared_manifest
 
 
 def parse_schedule(value):
@@ -196,6 +196,16 @@ class galaxy_social:
         except ValueError as e:
             errors += f"- {e}\n"
 
+        plain_content, metadata["images"] = self.extract_images(text)
+
+        # convert github emoji to unicode
+        plain_content = emoji.emojize(plain_content, language="alias")
+
+        return plain_content, metadata, errors
+
+    @staticmethod
+    def extract_images(text: str):
+        """Return the text without images, and the images as [{"url", "alt_text"}]."""
         # convert html img tags to markdown image syntax
         converter = ImgSyntaxConverter()
         text = re.sub(r"<img [^>]+>", lambda x: converter.convert(x[0]), text)
@@ -204,20 +214,27 @@ class galaxy_social:
         image_pattern = re.compile(r"!\[(.*?)\]\((.*?)\)")
         images = image_pattern.findall(text)
         plain_content = image_pattern.sub("", text).strip()
+        return plain_content, [{"url": image[1], "alt_text": image[0]} for image in images]
 
-        # convert github emoji to unicode
-        plain_content = emoji.emojize(plain_content, language="alias")
-
-        metadata["images"] = [
-            {"url": image[1], "alt_text": image[0]} for image in images
-        ]
-
-        return plain_content, metadata, errors
+    @classmethod
+    def image_urls(cls, file_path: str):
+        """Image URLs of a post, without starting any plugin (for the job that prepares images)."""
+        result, status = cls.lint_markdown_file(file_path)
+        if not status:
+            return []
+        return [image["url"] for image in cls.extract_images(result[1])[1]]
 
     def validate_images(self, metadata: Dict[str, Any]):
         """Download all images of a post and check that they are reachable and supported."""
         errors = ""
         for image in metadata["images"]:
+            if prepared_manifest() is not None:
+                # publishing: the job without tokens already downloaded and converted the image
+                try:
+                    load_image(image["url"])
+                except Exception as e:
+                    errors += f"- Could not use image {image['url']}: {e}\n"
+                continue
             response = requests.get(image["url"])
             if response.status_code != 200:
                 errors += f"- Failed to download image from URL: {image['url']}\n"
@@ -303,6 +320,12 @@ class galaxy_social:
                 processed_files,
                 f"⏰ This post is scheduled for {describe_schedule(schedule)}:\n`{file_path}`",
             )
+
+        manifest = prepared_manifest()
+        if schedule and manifest is not None and any(image["url"] not in manifest for image in metadata["images"]):
+            # became due after the images were prepared: the next scheduled run posts it
+            print(f"Images of {file_path} were not prepared in this run, leaving it for the next one.")
+            return processed_files, ""
 
         errors += self.validate_images(metadata)
         if errors:

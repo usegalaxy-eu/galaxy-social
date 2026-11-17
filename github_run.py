@@ -9,6 +9,7 @@ import github
 import yaml
 
 from lib.galaxy_social import galaxy_social
+from lib.plugins.base import prepare_images
 
 
 class GithubInteractor:
@@ -253,6 +254,10 @@ def process(github_instance, files_to_process, preview):
 
 
 if __name__ == "__main__":
+    # --prepare-images FOLDER: the job without tokens downloads and converts the images of the
+    # posts this run will publish, for the job that posts (see lib/plugins/base.py load_image)
+    prepare_folder = sys.argv[2] if sys.argv[1:2] == ["--prepare-images"] else None
+
     with open(os.getenv("GITHUB_EVENT_PATH", ""), "r") as f:
         event_data = json.load(f)
     pr_number = event_data.get("number") or event_data.get("inputs", {}).get(
@@ -271,13 +276,16 @@ if __name__ == "__main__":
     try:
         gh_interactor.load_processed_files()
     except Exception:
-        # Some issue with getting the processed_files info.
-        # Failing the workflow run is our only option,
-        # but if we have a PR we can at least the contributor there
-        # with a rather generic comment.
-        if pr_number is not None:
-            gh_interactor.comment_on_pr("Something went wrong, an Admin will take a look.")
-        raise
+        if not prepare_folder:
+            # Some issue with getting the processed_files info.
+            # Failing the workflow run is our only option,
+            # but if we have a PR we can at least the contributor there
+            # with a rather generic comment.
+            if pr_number is not None:
+                gh_interactor.comment_on_pr("Something went wrong, an Admin will take a look.")
+            raise
+        # the token is read-only here; the job that posts creates processed_files if it is missing
+        print("Could not load processed_files, preparing the images of all candidate posts.")
 
     errors = []
     if pr_number is None:
@@ -287,6 +295,13 @@ if __name__ == "__main__":
     else:
         preview = not merged and not closed
         files_to_process = gh_interactor.get_pr_files()
+
+    if prepare_folder:
+        prepare_images(
+            [url for files in files_to_process.values() for file in files for url in galaxy_social.image_urls(file)],
+            prepare_folder,
+        )
+        sys.exit(0)
 
     if files_to_process:
         for number, files in files_to_process.items():

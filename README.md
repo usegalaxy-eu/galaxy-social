@@ -102,7 +102,7 @@ By following these steps, you can effectively create and publish posts on Galaxy
 
 Expanding the capabilities of Galaxy Social by adding a new social media platform is a straightforward process. Follow these steps to integrate a new platform:
 
-1. **Create a Plugin File**: Begin by adding a Python file to the `lib/plugins` folder. This file should contain a class with a function named `create_post(content, mentions, hashtags, images, alt_texts)`. This function will handle the process of sending announcements to the desired social media platform. Pass downloaded images through `to_supported_image` from `lib/plugins/base.py`, so formats like AVIF are converted first.
+1. **Create a Plugin File**: Begin by adding a Python file to the `lib/plugins` folder. This file should contain a class with a function named `create_post(content, mentions, hashtags, images, alt_texts)`. This function will handle the process of sending announcements to the desired social media platform. Get images with `load_image` from `lib/plugins/base.py` instead of downloading them: in the workflow they are downloaded and converted in a separate job without any tokens.
 
 2. **Update plugins.yml**: Next, update the `plugins.yml` file to include the new social media platform. Follow this template:
 

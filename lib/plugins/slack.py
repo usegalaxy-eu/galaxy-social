@@ -4,7 +4,7 @@ import textwrap
 import requests
 from slack_sdk import WebClient
 
-from .base import to_supported_image
+from .base import load_image
 
 
 class slack_client:
@@ -65,15 +65,11 @@ class slack_client:
         uploaded_files = []
         for image in images:
             filename = image["url"].split("/")[-1]
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-            }
-            with requests.get(image["url"], headers=headers) as response:
-                if response.status_code != 200 or not response.headers.get(
-                    "Content-Type", ""
-                ).startswith("image/"):
-                    continue
-                image_content = to_supported_image(response.content)
+            try:
+                image_content = load_image(image["url"])["content"]
+            except Exception as e:
+                print(f"Slack error: {e}")
+                continue
 
             response = self.client.files_getUploadURLExternal(
                 filename=filename,

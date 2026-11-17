@@ -1,8 +1,17 @@
+import json
+import os
+import re
 from html.parser import HTMLParser
 from io import BytesIO
 
+import requests
 from markdown import markdown
 from PIL import Image
+
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+BLUESKY_IMAGE_LIMIT = int(976.56 * 1024)
+MAX_IMAGE_BYTES = 50 * 1024 * 1024
+MIME_TYPES = {"JPEG": "image/jpeg", "PNG": "image/png", "GIF": "image/gif"}
 
 
 # inspired by:
@@ -116,3 +125,97 @@ def to_supported_image(content):
     else:
         image.convert("RGB").save(output, "JPEG", quality=90)
     return output.getvalue()
+
+
+def download_image(url):
+    response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=60)
+    response.raise_for_status()
+    return response.content
+
+
+def shrink_to_limit(content, limit):
+    """Save the image as JPEG with lower quality until it fits the limit, or return None."""
+    image = Image.open(BytesIO(content), formats=[image_format(content)]).convert("RGB")
+    for quality in range(95, 5, -5):
+        output = BytesIO()
+        image.save(output, "JPEG", quality=quality)
+        if output.tell() <= limit:
+            return output.getvalue()
+    return None
+
+
+def prepare_images(urls, folder):
+    """Download and convert images in the job without tokens, for load_image in the job that posts.
+
+    Writes one file per image (and a smaller copy for Bluesky when needed) and a manifest.json.
+    """
+    os.makedirs(folder, exist_ok=True)
+    manifest = {}
+    for index, url in enumerate(dict.fromkeys(urls)):
+        try:
+            content = to_supported_image(download_image(url))
+            width, height = Image.open(BytesIO(content), formats=[image_format(content)]).size
+            entry = {"file": str(index), "width": width, "height": height}
+            with open(os.path.join(folder, entry["file"]), "wb") as f:
+                f.write(content)
+            if len(content) > BLUESKY_IMAGE_LIMIT:
+                small = shrink_to_limit(content, BLUESKY_IMAGE_LIMIT)
+                if small:
+                    entry["small"] = f"{index}-small"
+                    with open(os.path.join(folder, entry["small"]), "wb") as f:
+                        f.write(small)
+            manifest[url] = entry
+        except Exception as e:
+            print(f"Could not prepare image {url}: {type(e).__name__}: {e}")
+            manifest[url] = {"error": f"{type(e).__name__}: {e}"}
+    with open(os.path.join(folder, "manifest.json"), "w") as f:
+        json.dump(manifest, f)
+
+
+def prepared_manifest():
+    """The manifest of the prepare job, or None when images are not prepared (previews, local runs)."""
+    folder = os.environ.get("PREPARED_IMAGES")
+    if not folder:
+        return None
+    with open(os.path.join(folder, "manifest.json")) as f:
+        return json.load(f)
+
+
+def load_image(url, small=False):
+    """Return the image to post as {"content", "mime", "width", "height"}.
+
+    In the workflow the files come from the prepare job. This runs with the tokens, so the files
+    are only checked (name, size, first bytes) and never opened. With small=True the smaller copy
+    for Bluesky is used when there is one.
+    """
+    manifest = prepared_manifest()
+    if manifest is None:
+        if os.environ.get("GITHUB_ACTIONS"):
+            raise ValueError("Images must be prepared by the prepare_images job")
+        # local run: download and convert here
+        content = to_supported_image(download_image(url))
+        if small and len(content) > BLUESKY_IMAGE_LIMIT:
+            content = shrink_to_limit(content, BLUESKY_IMAGE_LIMIT) or content
+        width, height = Image.open(BytesIO(content), formats=[image_format(content)]).size
+        return {"content": content, "mime": MIME_TYPES[image_format(content)], "width": width, "height": height}
+
+    entry = manifest.get(url)
+    if not isinstance(entry, dict) or "file" not in entry:
+        raise ValueError(entry.get("error", "not prepared") if isinstance(entry, dict) else "not prepared")
+    name = entry.get("small") if small and entry.get("small") else entry["file"]
+    # the prepare job handled untrusted files, so its output is not trusted either
+    if not re.fullmatch(r"[0-9]+(-small)?", str(name)):
+        raise ValueError(f"Unexpected prepared file name: {name!r}")
+    path = os.path.join(os.environ["PREPARED_IMAGES"], name)
+    if os.path.getsize(path) > MAX_IMAGE_BYTES:
+        raise ValueError("Prepared image is too large")
+    with open(path, "rb") as f:
+        content = f.read()
+    mime = MIME_TYPES.get(image_format(content))
+    if not mime:
+        raise ValueError("Prepared file is not a JPEG, PNG or GIF image")
+    size = [entry.get("width"), entry.get("height")]
+    if not all(isinstance(n, int) and 0 < n < 100000 for n in size):
+        size = [None, None]
+    return {"content": content, "mime": mime, "width": size[0], "height": size[1]}
+

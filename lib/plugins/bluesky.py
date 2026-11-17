@@ -4,41 +4,31 @@ import traceback
 from typing import Dict, List, Optional, Tuple, cast
 
 import atproto  # type: ignore
-import cv2
-import numpy as np
 import requests
 from bs4 import BeautifulSoup
 
-from .base import strip_markdown_formatting, to_supported_image
+from .base import (
+    BLUESKY_IMAGE_LIMIT,
+    MIME_TYPES,
+    download_image,
+    image_format,
+    load_image,
+    strip_markdown_formatting,
+)
 
 
-def compress_image_to_limit(image_url):
-    if not isinstance(image_url, str) or not image_url.startswith(("http", "https")):
+def card_thumbnail(image_url):
+    """Image of a link card, from a page we don't control: used only if it is already a small
+    JPEG, PNG or GIF, checked by its first bytes and never opened (this runs with the tokens)."""
+    if not isinstance(image_url, str) or not image_url.startswith(("http://", "https://")):
         return None
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    }
-    response = requests.get(image_url, headers=headers)
-    if response.status_code != 200 and not response.headers.get(
-        "Content-Type", ""
-    ).startswith("image/"):
+    try:
+        content = download_image(image_url)
+    except Exception:
         return None
-    image_content = to_supported_image(response.content)
-    if len(image_content) < 976.56 * 1024:
-        return image_content
-
-    np_array = np.frombuffer(image_content, np.uint8)
-    image = cv2.imdecode(np_array, cv2.IMREAD_UNCHANGED)
-    quality = 95
-    while quality >= 10:
-        success, compressed_image = cv2.imencode(
-            ".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, quality]
-        )
-        if not success:
-            return None
-        if len(compressed_image) <= 976.56 * 1024:
-            return compressed_image.tobytes()
-        quality -= 5
+    if image_format(content) in MIME_TYPES and len(content) <= BLUESKY_IMAGE_LIMIT:
+        return content
+    return None
 
 
 class bluesky_client:
@@ -180,7 +170,7 @@ class bluesky_client:
             if image_tag and hasattr(image_tag, "attrs")
             else None
         )
-        image_content = compress_image_to_limit(image_url)
+        image_content = card_thumbnail(image_url)
         thumb = (
             self.blueskysocial.upload_blob(image_content).blob
             if image_content
@@ -266,7 +256,9 @@ class bluesky_client:
         try:
             embed_images = []
             for image in content["images"]:
-                img_data = compress_image_to_limit(image["url"])
+                img_data = load_image(image["url"], small=True)["content"]
+                if len(img_data) > BLUESKY_IMAGE_LIMIT:
+                    img_data = None  # too large for Bluesky even as a smaller JPEG
                 upload = (
                     self.blueskysocial.com.atproto.repo.upload_blob(img_data).blob
                     if img_data

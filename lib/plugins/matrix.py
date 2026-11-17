@@ -5,14 +5,11 @@ import tempfile
 import traceback
 
 import aiofiles.os
-import magic
-import requests
 from bs4 import BeautifulSoup
 from markdown import markdown
 from nio import AsyncClient, UploadResponse  # type: ignore
-from PIL import Image
 
-from .base import to_supported_image
+from .base import load_image
 
 
 class matrix_client:
@@ -80,18 +77,11 @@ class matrix_client:
         for msg in content:
             try:
                 if msg["msgtype"] == "m.image":
-                    headers = {
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                    }
-                    response = requests.get(msg["url"], headers=headers)
-                    if response.status_code != 200:
-                        continue
+                    image = load_image(msg["url"])
+                    mime_type = image["mime"]
                     temp = tempfile.NamedTemporaryFile()
-                    temp.write(to_supported_image(response.content))
+                    temp.write(image["content"])
                     temp.flush()
-                    mime_type = magic.from_file(temp.name, mime=True)
-                    if not mime_type.startswith("image/"):
-                        continue
 
                     filename = msg["filename"]
                     correct_ext = mimetypes.guess_extension(mime_type)
@@ -100,7 +90,6 @@ class matrix_client:
                         if ext.lower() != correct_ext.lower():
                             filename = f"{base_name}{correct_ext}"
 
-                    width, height = Image.open(temp.name).size
                     file_stat = await aiofiles.os.stat(temp.name)
                     async with aiofiles.open(temp.name, "r+b") as f:
                         resp, _ = await self.client.upload(
@@ -114,12 +103,9 @@ class matrix_client:
                         raise Exception(f"Image upload failed: {resp}")
 
                     # add info about the image to the message
-                    msg["info"] = {
-                        "size": file_stat.st_size,
-                        "mimetype": mime_type,
-                        "w": width,
-                        "h": height,
-                    }
+                    msg["info"] = {"size": file_stat.st_size, "mimetype": mime_type}
+                    if image["width"]:
+                        msg["info"].update(w=image["width"], h=image["height"])
                     # replace original image url with that of the server upload
                     msg["url"] = resp.content_uri
 

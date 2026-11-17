@@ -1,4 +1,3 @@
-import os
 import re
 import textwrap
 import traceback
@@ -7,7 +6,7 @@ from urllib.parse import quote
 
 import requests
 
-from .base import strip_markdown_formatting, to_supported_image
+from .base import load_image, strip_markdown_formatting
 
 
 class linkedin_client:
@@ -173,21 +172,12 @@ class linkedin_client:
                 response.raise_for_status()
                 value = response.json().get("value")
                 upload_url = value["uploadUrl"]
-                filename = os.path.basename(image["url"])
-                headers = {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                }
-                with requests.get(image["url"], stream=True, headers=headers) as r:
-                    r.raise_for_status()
-                    with open(filename, "wb") as f:
-                        f.write(to_supported_image(r.content))
-                with open(filename, "rb") as file:
-                    response = requests.put(
-                        upload_url,
-                        headers={"Authorization": f"Bearer {self.access_token}"},
-                        data=file,
-                    )
-                    response.raise_for_status()
+                response = requests.put(
+                    upload_url,
+                    headers={"Authorization": f"Bearer {self.access_token}"},
+                    data=load_image(image["url"])["content"],
+                )
+                response.raise_for_status()
                 image_id = value["image"]
                 image_upload.append(
                     {"id": image_id, "altText": image.get("alt_text", "")}

@@ -4,6 +4,7 @@ Real plugins are never instantiated: the tests register FakePlugin instances
 under valid media names, and image downloads go through a fake `requests`.
 """
 import json
+import random
 from datetime import datetime, timezone
 from io import BytesIO
 
@@ -12,7 +13,8 @@ from PIL import Image
 
 import lib.galaxy_social as galaxy_social_module
 from lib.galaxy_social import galaxy_social
-from lib.plugins.base import image_format, to_supported_image
+import lib.plugins.base as base_module
+from lib.plugins.base import image_format, load_image, prepare_images, to_supported_image
 
 
 def image_bytes(image_format, mode="RGB"):
@@ -294,6 +296,86 @@ class TestToSupportedImage:
         assert image_format(b"\x00\x00\x00\x18ftypmif1\x00\x00\x00\x00mif1avif") == "AVIF"
         assert image_format(b"\x00\x00\x00\x18ftypmif1\x00\x00\x00\x00mif1heic") is None
         assert image_format(b"<html></html>") is None
+
+
+class TestPreparedImages:
+    """Images are downloaded and converted in a job without tokens; the job that posts only checks them."""
+
+    @pytest.fixture
+    def prepared(self, tmp_path, monkeypatch):
+        # random noise does not compress, so this PNG is larger than Bluesky's limit
+        noisy = Image.frombytes("RGB", (900, 900), random.Random(0).randbytes(900 * 900 * 3))
+        big = BytesIO()
+        noisy.save(big, "PNG")
+        files = {
+            "https://example.test/a.avif": image_bytes("AVIF"),
+            "https://example.test/b.png": image_bytes("PNG"),
+            "https://example.test/big.png": big.getvalue(),
+            "https://example.test/page.jpg": b"<html></html>",
+        }
+        monkeypatch.setattr(base_module, "download_image", lambda url: files[url])
+        folder = tmp_path / "prepared"
+        prepare_images(list(files) + ["https://example.test/b.png"], str(folder))
+        monkeypatch.setenv("PREPARED_IMAGES", str(folder))
+        return folder, files
+
+    def test_prepared_images_are_loaded_without_opening_them(self, prepared, monkeypatch):
+        folder, files = prepared
+        monkeypatch.setattr(base_module.Image, "open", lambda *a, **k: pytest.fail("opened an image"))
+        avif = load_image("https://example.test/a.avif")
+        assert (avif["mime"], avif["width"], avif["height"]) == ("image/jpeg", 8, 8)
+        assert load_image("https://example.test/b.png")["content"] == files["https://example.test/b.png"]
+
+    def test_small_copy_for_bluesky(self, prepared):
+        big = load_image("https://example.test/big.png")["content"]
+        small = load_image("https://example.test/big.png", small=True)
+        assert len(big) > base_module.BLUESKY_IMAGE_LIMIT >= len(small["content"])
+        assert small["mime"] == "image/jpeg"
+
+    def test_failed_image_is_reported(self, prepared):
+        with pytest.raises(ValueError, match="Not a JPEG"):
+            load_image("https://example.test/page.jpg")
+        with pytest.raises(ValueError, match="not prepared"):
+            load_image("https://example.test/other.png")
+
+    def test_prepared_files_are_not_trusted(self, prepared):
+        folder, _ = prepared
+        manifest = json.loads((folder / "manifest.json").read_text())
+        manifest["https://example.test/b.png"]["file"] = "../../etc/passwd"
+        manifest["https://example.test/a.avif"]["file"] = "0-small"
+        (folder / "manifest.json").write_text(json.dumps(manifest))
+        (folder / "0-small").write_bytes(b"<html></html>")
+        with pytest.raises(ValueError, match="Unexpected prepared file name"):
+            load_image("https://example.test/b.png")
+        with pytest.raises(ValueError, match="not a JPEG, PNG or GIF"):
+            load_image("https://example.test/a.avif")
+
+    def test_validate_images_uses_prepared_images(self, prepared, tmp_path, make_gs, fake_requests):
+        gs, _ = make_gs()
+        metadata = {"images": [{"url": "https://example.test/a.avif"}, {"url": "https://example.test/page.jpg"}]}
+        errors = gs.validate_images(metadata)
+        assert fake_requests.calls == []
+        assert "page.jpg" in errors and "a.avif" not in errors
+
+    def test_scheduled_post_with_images_not_prepared_waits_for_next_run(self, prepared, tmp_path, make_gs, fake_requests):
+        gs, fakes = make_gs(preview=False)
+        path = write_post(tmp_path, schedule="2020-01-01 00:00 UTC", body="Body ![x](https://example.test/new.png)")
+        processed, message = gs.process_markdown_file(str(path), {})
+        assert message == "" and processed == {} and fakes["markdown"].post_calls == []
+
+    def test_other_post_with_images_not_prepared_is_reported(self, prepared, tmp_path, make_gs, fake_requests):
+        gs, fakes = make_gs(preview=False)
+        path = write_post(tmp_path, body="Body ![x](https://example.test/new.png)")
+        processed, message = gs.process_markdown_file(str(path), {})
+        assert "Could not use image https://example.test/new.png: not prepared" in message
+        assert processed == {str(path): {}} and fakes["markdown"].post_calls == []
+
+    def test_images_are_never_opened_in_github_actions_without_prepare_job(self, monkeypatch):
+        monkeypatch.delenv("PREPARED_IMAGES", raising=False)
+        monkeypatch.setenv("GITHUB_ACTIONS", "true")
+        monkeypatch.setattr(base_module, "download_image", lambda url: pytest.fail("downloaded"))
+        with pytest.raises(ValueError, match="must be prepared"):
+            load_image("https://example.test/a.png")
 
 
 class TestProcessMarkdownFilePublish:
