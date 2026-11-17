@@ -91,7 +91,7 @@ def strip_markdown_formatting(text):
 
 
 def image_format(content):
-    """Return JPEG, PNG, GIF, WEBP or AVIF from the first bytes of a file, without opening it."""
+    """Return JPEG, PNG, GIF, WEBP, AVIF or SVG from the first bytes of a file, without opening it."""
     if content.startswith(b"\xff\xd8\xff"):
         return "JPEG"
     if content.startswith(b"\x89PNG\r\n\x1a\n"):
@@ -106,20 +106,29 @@ def image_format(content):
         brands = [content[8:12]] + [content[i:i + 4] for i in range(16, min(ftyp_end, len(content)), 4)]
         if b"avif" in brands or b"avis" in brands:
             return "AVIF"
+    # SVG is text: the first element, after an XML declaration, comments or a doctype, is <svg
+    head = re.sub(rb"^(\s+|<\?xml[^>]*>|<!--.*?-->|<!DOCTYPE[^>]*>)+", b"", content[:4096].removeprefix(b"\xef\xbb\xbf"), flags=re.S)
+    if re.match(rb"<svg[\s>]", head):
+        return "SVG"
     return None
 
 
 def to_supported_image(content):
-    """Return image bytes as JPEG, PNG or GIF, converting AVIF and WebP.
+    """Return image bytes as JPEG, PNG or GIF, converting AVIF, WebP and SVG.
 
-    Only the AVIF or WebP decoder is used, and only for files that start like one.
+    Only the AVIF, WebP or SVG decoder is used, and only for files that start like one.
     Raises an error for anything else.
     """
     image_type = image_format(content)
     if image_type in ["JPEG", "PNG", "GIF"]:
         return content
+    if image_type == "SVG":
+        import cairosvg  # needs the Cairo system library
+
+        # 1600 px wide like a photo; CairoSVG does not load files or URLs the SVG links to
+        return cairosvg.svg2png(bytestring=content, output_width=1600)
     if image_type not in ["AVIF", "WEBP"]:
-        raise ValueError("Not a JPEG, PNG, GIF, AVIF or WebP image")
+        raise ValueError("Not a JPEG, PNG, GIF, AVIF, WebP or SVG image")
     image = Image.open(BytesIO(content), formats=[image_type])
     output = BytesIO()
     if image.mode in ["RGBA", "LA", "PA"] or "transparency" in image.info:

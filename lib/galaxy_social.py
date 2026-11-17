@@ -256,7 +256,7 @@ class galaxy_social:
             # Check the first bytes of the file, the header can be wrong (e.g. an AVIF file sent as
             # image/jpeg). The image is not opened here: previews run on anyone's PR with tokens loaded.
             if image_format(content) is None:
-                errors += f"- URL does not point to a supported image file (JPEG, PNG, GIF, AVIF or WebP): {image['url']}\n"
+                errors += f"- URL does not point to a supported image file (JPEG, PNG, GIF, AVIF, WebP or SVG): {image['url']}\n"
 
         return errors
 

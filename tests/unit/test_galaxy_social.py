@@ -283,6 +283,20 @@ class TestToSupportedImage:
         converted = to_supported_image(image_bytes("WEBP", mode="RGBA"))
         assert Image.open(BytesIO(converted)).format == "PNG"
 
+    def test_svg_is_recognised_and_converted_to_png(self, monkeypatch):
+        svg = b'<?xml version="1.0"?>\n<!-- logo -->\n<!DOCTYPE svg>\n<svg xmlns="http://www.w3.org/2000/svg" width="40" height="20"><rect width="40" height="20"/></svg>'
+        assert image_format(svg) == "SVG"
+        assert image_format(b"<!DOCTYPE html><html><body><svg></svg></body></html>") is None
+        converted = Image.open(BytesIO(to_supported_image(svg)))
+        assert (converted.format, converted.size) == ("PNG", (1600, 800))
+
+    def test_svg_links_are_not_loaded(self, monkeypatch):
+        import cairosvg.url
+
+        monkeypatch.setattr(cairosvg.url, "urlopen", lambda *a, **k: pytest.fail("the SVG loaded a link"))
+        svg = b'<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><image href="https://example.test/x.png" width="10" height="10"/></svg>'
+        assert Image.open(BytesIO(to_supported_image(svg))).format == "PNG"
+
     def test_other_formats_are_refused_without_decoding(self):
         for other in ["BMP", "TIFF", "TGA"]:
             with pytest.raises(ValueError):
