@@ -9,7 +9,7 @@ import github
 import yaml
 
 from lib.galaxy_social import galaxy_social
-from lib.plugins.base import prepare_images
+from lib.plugins.base import link_image_url, prepare_images
 
 
 class GithubInteractor:
@@ -254,8 +254,16 @@ def process(github_instance, files_to_process, preview):
 
 
 if __name__ == "__main__":
-    # --prepare-images FOLDER: the job without tokens downloads and converts the images of the
-    # posts this run will publish, for the job that posts (see lib/plugins/base.py load_image)
+    # The prepare_images job, in two steps (see lib/plugins/base.py load_image):
+    # --prepare-images FOLDER lists the images and linked pages of the posts this run will publish
+    # (needs the read-only GitHub token), --convert-images FOLDER downloads and converts them
+    # (gets no token at all, as it opens files from anywhere)
+    if sys.argv[1:2] == ["--convert-images"]:
+        with open(os.path.join(sys.argv[2], "urls.json")) as f:
+            urls = json.load(f)
+        link_images = [link_image_url(link) for link in dict.fromkeys(urls["links"])]
+        prepare_images(urls["images"] + [url for url in link_images if url], sys.argv[2])
+        sys.exit(0)
     prepare_folder = sys.argv[2] if sys.argv[1:2] == ["--prepare-images"] else None
 
     with open(os.getenv("GITHUB_EVENT_PATH", ""), "r") as f:
@@ -297,10 +305,15 @@ if __name__ == "__main__":
         files_to_process = gh_interactor.get_pr_files()
 
     if prepare_folder:
-        prepare_images(
-            [url for files in files_to_process.values() for file in files for url in galaxy_social.image_urls(file)],
-            prepare_folder,
-        )
+        urls = {"images": [], "links": []}
+        for files in files_to_process.values():
+            for file in files:
+                images, links = galaxy_social.urls_to_prepare(file)
+                urls["images"] += images
+                urls["links"] += links
+        os.makedirs(prepare_folder, exist_ok=True)
+        with open(os.path.join(prepare_folder, "urls.json"), "w") as f:
+            json.dump(urls, f)
         sys.exit(0)
 
     if files_to_process:

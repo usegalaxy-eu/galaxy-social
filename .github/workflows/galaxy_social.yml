@@ -17,8 +17,9 @@ on:
         required: false
 
 jobs:
-  # Downloads and converts the images of the posts to publish, without any tokens, so a broken
-  # or harmful image file can never reach them. Previews skip this job.
+  # Downloads and converts the images of the posts to publish, so a broken or harmful image file
+  # can never reach a token: this job has no platform tokens, and the step that opens files has
+  # no token at all. Previews skip this job.
   prepare_images:
     name: Prepare Images
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.pr_number == '') || (github.event_name == 'pull_request_target' && github.event.pull_request.merged)
@@ -44,24 +45,28 @@ jobs:
           python -m pip install uv
           uv pip install --system -r requirements.txt
 
-      - name: Download and convert images
+      - name: List images and linked pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python -u github_run.py --prepare-images prepared_images
+
+      - name: Download and convert images
+        run: python -u github_run.py --convert-images prepared_images
 
       - name: Upload prepared images
         uses: actions/upload-artifact@v7
         with:
           name: prepared-images
           path: prepared_images
-          retention-days: 1
+          retention-days: 7  # so a failed run can be re-run later
           overwrite: true  # re-runs upload it again
 
   manage_content:
     name: Manage Content
     needs: prepare_images
-    # also runs when prepare_images is skipped (previews)
-    if: ${{ !cancelled() && needs.prepare_images.result != 'failure' }}
+    # also runs when prepare_images is skipped (previews) or failed: then no image is posted, the
+    # platforms report it and a retry PR is made, instead of the post being lost silently
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # Runs that can publish wait in one queue so a post is never published twice

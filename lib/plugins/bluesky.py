@@ -7,28 +7,19 @@ import atproto  # type: ignore
 import requests
 from bs4 import BeautifulSoup
 
-from .base import (
-    BLUESKY_IMAGE_LIMIT,
-    MIME_TYPES,
-    download_image,
-    image_format,
-    load_image,
-    strip_markdown_formatting,
-)
+from .base import BLUESKY_IMAGE_LIMIT, load_image, strip_markdown_formatting
 
 
 def card_thumbnail(image_url):
-    """Image of a link card, from a page we don't control: used only if it is already a small
-    JPEG, PNG or GIF, checked by its first bytes and never opened (this runs with the tokens)."""
-    if not isinstance(image_url, str) or not image_url.startswith(("http://", "https://")):
+    """Image of a link card: prepared like the post images (the prepare job also looks up the
+    og:image of linked pages), or no image if it was not prepared."""
+    if not image_url:
         return None
     try:
-        content = download_image(image_url)
+        content = load_image(image_url, small=True)["content"]
     except Exception:
         return None
-    if image_format(content) in MIME_TYPES and len(content) <= BLUESKY_IMAGE_LIMIT:
-        return content
-    return None
+    return content if len(content) <= BLUESKY_IMAGE_LIMIT else None
 
 
 class bluesky_client:

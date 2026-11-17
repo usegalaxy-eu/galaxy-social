@@ -1,10 +1,12 @@
 import json
 import os
 import re
+import time
 from html.parser import HTMLParser
 from io import BytesIO
 
 import requests
+from bs4 import BeautifulSoup
 from markdown import markdown
 from PIL import Image
 
@@ -128,9 +130,31 @@ def to_supported_image(content):
 
 
 def download_image(url):
-    response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=60)
-    response.raise_for_status()
-    return response.content
+    """Download at most MAX_IMAGE_BYTES, and give up after two minutes."""
+    deadline = time.monotonic() + 120
+    content = bytearray()
+    with requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=30, stream=True) as response:
+        response.raise_for_status()
+        for chunk in response.iter_content(chunk_size=None):  # data as it arrives
+            content += chunk
+            if len(content) > MAX_IMAGE_BYTES:
+                raise ValueError("Image is larger than 50 MB")
+            if time.monotonic() > deadline:
+                raise TimeoutError("Image download took longer than two minutes")
+    return bytes(content)
+
+
+def link_image_url(page_url):
+    """The og:image of a linked page, as Bluesky's link card uses it, or None."""
+    try:
+        response = requests.get(page_url, timeout=30)
+        if response.status_code != 200:
+            return None
+        tag = BeautifulSoup(response.text, "html.parser").find("meta", attrs={"property": "og:image"})
+        image_url = tag.attrs.get("content") if tag and hasattr(tag, "attrs") else None
+        return image_url if isinstance(image_url, str) and image_url.startswith(("http://", "https://")) else None
+    except Exception:
+        return None
 
 
 def shrink_to_limit(content, limit):

@@ -12,14 +12,13 @@ from typing import Any, Dict, Iterable
 from zoneinfo import ZoneInfo
 
 import emoji
-import requests
 from jsonschema import validate
 from yaml import safe_load as yaml
 
 try:
-    from lib.plugins.base import image_format, load_image, prepared_manifest
+    from lib.plugins.base import download_image, image_format, load_image, prepared_manifest
 except ImportError:  # run as lib/galaxy_social.py
-    from plugins.base import image_format, load_image, prepared_manifest
+    from plugins.base import download_image, image_format, load_image, prepared_manifest
 
 
 def parse_schedule(value):
@@ -217,12 +216,25 @@ class galaxy_social:
         return plain_content, [{"url": image[1], "alt_text": image[0]} for image in images]
 
     @classmethod
-    def image_urls(cls, file_path: str):
-        """Image URLs of a post, without starting any plugin (for the job that prepares images)."""
+    def urls_to_prepare(cls, file_path: str):
+        """Image URLs and linked pages of a post, for the job that prepares images.
+
+        Linked pages are for Bluesky link cards, whose image is prepared too. Posts scheduled
+        for later are skipped: the run that publishes them prepares their images.
+        """
         result, status = cls.lint_markdown_file(file_path)
         if not status:
-            return []
-        return [image["url"] for image in cls.extract_images(result[1])[1]]
+            return [], []
+        metadata, text = result
+        try:
+            schedule = parse_schedule(metadata.get("schedule"))
+        except ValueError:
+            schedule = None
+        if schedule and schedule > datetime.now(timezone.utc):
+            return [], []
+        text, images = cls.extract_images(text)
+        links = [link.rstrip(".,;:!?") for link in re.findall(r"https?://[^\s<>()\[\]]+", text)]
+        return [image["url"] for image in images], links
 
     def validate_images(self, metadata: Dict[str, Any]):
         """Download all images of a post and check that they are reachable and supported."""
@@ -235,14 +247,15 @@ class galaxy_social:
                 except Exception as e:
                     errors += f"- Could not use image {image['url']}: {e}\n"
                 continue
-            response = requests.get(image["url"])
-            if response.status_code != 200:
+            try:
+                content = download_image(image["url"])
+            except Exception:
                 errors += f"- Failed to download image from URL: {image['url']}\n"
                 continue
 
             # Check the first bytes of the file, the header can be wrong (e.g. an AVIF file sent as
             # image/jpeg). The image is not opened here: previews run on anyone's PR with tokens loaded.
-            if image_format(response.content) is None:
+            if image_format(content) is None:
                 errors += f"- URL does not point to a supported image file (JPEG, PNG, GIF, AVIF or WebP): {image['url']}\n"
 
         return errors
@@ -322,6 +335,11 @@ class galaxy_social:
             )
 
         manifest = prepared_manifest()
+        if manifest is None and os.environ.get("GITHUB_ACTIONS") and metadata["images"]:
+            # the prepare_images job failed: post nothing, the retry PR tries again
+            stats.update({media: False for media in remaining_media})
+            processed_files[file_path] = stats
+            return processed_files, f"⚠️ Could not prepare the images of `{file_path}`, so nothing was posted."
         if schedule and manifest is not None and any(image["url"] not in manifest for image in metadata["images"]):
             # became due after the images were prepared: the next scheduled run posts it
             print(f"Images of {file_path} were not prepared in this run, leaving it for the next one.")

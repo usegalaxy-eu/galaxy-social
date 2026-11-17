@@ -209,11 +209,10 @@ class TestParseMarkdownFile:
 
     def test_does_not_download_images(self, tmp_path, make_gs, monkeypatch):
         # Image validation lives in validate_images(); parsing must stay offline.
-        class Boom:
-            def get(self, *args, **kwargs):
-                raise AssertionError("parse_markdown_file must not download images")
+        def boom(*args, **kwargs):
+            raise AssertionError("parse_markdown_file must not download images")
 
-        monkeypatch.setattr(galaxy_social_module, "requests", Boom())
+        monkeypatch.setattr(galaxy_social_module, "download_image", boom)
         gs, _ = make_gs()
         path = write_post(tmp_path, body="Body ![alt](https://example.test/i.png)")
         content, metadata, errors = gs.parse_markdown_file(str(path))
@@ -370,12 +369,60 @@ class TestPreparedImages:
         assert "Could not use image https://example.test/new.png: not prepared" in message
         assert processed == {str(path): {}} and fakes["markdown"].post_calls == []
 
+    def test_nothing_is_posted_when_the_prepare_job_failed(self, tmp_path, make_gs, fake_requests, monkeypatch):
+        monkeypatch.delenv("PREPARED_IMAGES", raising=False)
+        monkeypatch.setenv("GITHUB_ACTIONS", "true")
+        gs, fakes = make_gs(preview=False, names=("markdown", "mastodon"))
+        path = write_post(tmp_path, media=("markdown", "mastodon"), body="Body ![x](https://example.test/a.png)")
+        processed, message = gs.process_markdown_file(str(path), {})
+        assert "Could not prepare the images" in message
+        assert processed == {str(path): {"markdown": False, "mastodon": False}}
+        assert fakes["markdown"].post_calls == fakes["mastodon"].post_calls == []
+
     def test_images_are_never_opened_in_github_actions_without_prepare_job(self, monkeypatch):
         monkeypatch.delenv("PREPARED_IMAGES", raising=False)
         monkeypatch.setenv("GITHUB_ACTIONS", "true")
         monkeypatch.setattr(base_module, "download_image", lambda url: pytest.fail("downloaded"))
         with pytest.raises(ValueError, match="must be prepared"):
             load_image("https://example.test/a.png")
+
+
+class TestImageDownloads:
+    class Response:
+        def __init__(self, chunks=(), text="", status_code=200):
+            self.chunks, self.text, self.status_code = chunks, text, status_code
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def raise_for_status(self):
+            pass
+
+        def iter_content(self, chunk_size):
+            return iter(self.chunks)
+
+    def test_download_stops_at_the_size_limit(self, monkeypatch):
+        monkeypatch.setattr(base_module, "MAX_IMAGE_BYTES", 10)
+        monkeypatch.setattr(base_module.requests, "get", lambda *a, **k: self.Response(chunks=[b"123456", b"789012"]))
+        with pytest.raises(ValueError, match="larger"):
+            base_module.download_image("https://example.test/huge.png")
+
+    def test_link_image_url_reads_og_image(self, monkeypatch):
+        page = '<html><head><meta property="og:image" content="https://example.test/card.webp"></head></html>'
+        monkeypatch.setattr(base_module.requests, "get", lambda *a, **k: self.Response(text=page))
+        assert base_module.link_image_url("https://example.test/page") == "https://example.test/card.webp"
+        monkeypatch.setattr(base_module.requests, "get", lambda *a, **k: self.Response(text="<html></html>"))
+        assert base_module.link_image_url("https://example.test/page") is None
+
+    def test_urls_to_prepare(self, tmp_path):
+        body = "See https://example.test/page.\n\n![alt](https://example.test/i.png)"
+        path = write_post(tmp_path, body=body)
+        assert galaxy_social.urls_to_prepare(str(path)) == (["https://example.test/i.png"], ["https://example.test/page"])
+        later = write_post(tmp_path, name="later.md", schedule="2099-01-01 00:00 UTC", body=body)
+        assert galaxy_social.urls_to_prepare(str(later)) == ([], [])
 
 
 class TestProcessMarkdownFilePublish:

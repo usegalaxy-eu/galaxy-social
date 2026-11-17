@@ -23,15 +23,8 @@ def png_bytes():
     return buffer.getvalue()
 
 
-class FakeResponse:
-    def __init__(self, status_code, content_type, content):
-        self.status_code = status_code
-        self.headers = {"Content-Type": content_type}
-        self.content = content
-
-
 class FakeRequests:
-    """Stand-in for the `requests` module as used by galaxy_social."""
+    """Stand-in for image downloads (download_image) as used by galaxy_social."""
 
     def __init__(self, status_code=200, content_type="image/png"):
         self.status_code = status_code
@@ -39,9 +32,11 @@ class FakeRequests:
         self.content = png_bytes()
         self.calls = []
 
-    def get(self, url):
+    def download_image(self, url):
         self.calls.append(url)
-        return FakeResponse(self.status_code, self.content_type, self.content)
+        if self.status_code != 200:
+            raise RuntimeError(f"HTTP {self.status_code}")
+        return self.content
 
 
 class FakePlugin:
@@ -115,11 +110,11 @@ def make_gs():
 
 @pytest.fixture
 def fake_requests(monkeypatch):
-    """Install a FakeRequests instance as galaxy_social's `requests` module.
+    """Install a FakeRequests instance for galaxy_social's image downloads.
 
     Mutate `fake_requests.status_code` / `fake_requests.content` before
     exercising the code to simulate broken downloads or wrong file types.
     """
     fake = FakeRequests()
-    monkeypatch.setattr(galaxy_social_module, "requests", fake)
+    monkeypatch.setattr(galaxy_social_module, "download_image", fake.download_image)
     return fake
