@@ -269,13 +269,13 @@ class TestValidateImages:
 
 class TestToSupportedImage:
     def test_jpeg_png_and_gif_are_kept_as_they_are(self):
-        for image_format in ["JPEG", "PNG", "GIF"]:
-            content = image_bytes(image_format)
+        for name in ["JPEG", "PNG", "GIF"]:
+            content = image_bytes(name)
             assert to_supported_image(content) == content
 
     def test_avif_and_webp_are_converted_to_jpeg(self):
-        for image_format in ["AVIF", "WEBP"]:
-            converted = to_supported_image(image_bytes(image_format))
+        for name in ["AVIF", "WEBP"]:
+            converted = to_supported_image(image_bytes(name))
             assert Image.open(BytesIO(converted)).format == "JPEG"
 
     def test_transparent_webp_is_converted_to_png(self):
