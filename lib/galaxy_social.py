@@ -16,9 +16,9 @@ from jsonschema import validate
 from yaml import safe_load as yaml
 
 try:
-    from lib.plugins.base import download_image, image_format, load_image, prepared_manifest
+    from lib.plugins.base import download_image, image_format, load_image, read_manifest
 except ImportError:  # run as lib/galaxy_social.py
-    from plugins.base import download_image, image_format, load_image, prepared_manifest
+    from plugins.base import download_image, image_format, load_image, read_manifest
 
 
 def parse_schedule(value):
@@ -74,8 +74,11 @@ class ImgSyntaxConverter(HTMLParser):
 
 
 class galaxy_social:
-    def __init__(self, preview: bool, plugins_path: str|None = None):
+    def __init__(self, preview: bool, plugins_path: str|None = None, prepared_images: str|None = None):
         self.preview = preview
+        # folder of images already downloaded and converted by prepare_images (lib/plugins/base.py),
+        # or None to let the plugins download and convert them
+        self.prepared_images = prepared_images
         # files where a platform crashed while posting, so the run can still fail visibly
         self.crashed_files = []
         if plugins_path is None:
@@ -240,10 +243,9 @@ class galaxy_social:
         """Download all images of a post and check that they are reachable and supported."""
         errors = ""
         for image in metadata["images"]:
-            if prepared_manifest() is not None:
-                # publishing: the job without tokens already downloaded and converted the image
+            if self.prepared_images:
                 try:
-                    load_image(image["url"])
+                    load_image(image["url"], self.prepared_images)
                 except Exception as e:
                     errors += f"- Could not use image {image['url']}: {e}\n"
                 continue
@@ -334,9 +336,9 @@ class galaxy_social:
                 f"⏰ This post is scheduled for {describe_schedule(schedule)}:\n`{file_path}`",
             )
 
-        manifest = prepared_manifest()
-        if manifest is None and os.environ.get("GITHUB_ACTIONS") and metadata["images"]:
-            # the prepare_images job failed: post nothing, the retry PR tries again
+        manifest = read_manifest(self.prepared_images) if self.prepared_images else None
+        if self.prepared_images and manifest is None and metadata["images"]:
+            # preparing the images failed: post nothing, the retry PR tries again
             stats.update({media: False for media in remaining_media})
             processed_files[file_path] = stats
             return processed_files, f"⚠️ Could not prepare the images of `{file_path}`, so nothing was posted."
@@ -359,7 +361,7 @@ class galaxy_social:
             # One platform failing must not stop the others or lose what was already posted
             try:
                 stats[media], url[media] = self.plugins[media].create_post(
-                    formatted_content, file_path=file_path
+                    formatted_content, file_path=file_path, prepared_images=self.prepared_images
                 )
             except Exception:
                 print(f"Error posting {file_path} to {media}:")
@@ -436,12 +438,16 @@ if __name__ == "__main__":
     )
     parser.add_argument("--preview", action="store_true", help="Preview the post")
     parser.add_argument(
+        "--prepared-images",
+        help="Folder with images already downloaded and converted (see prepare_images in lib/plugins/base.py)",
+    )
+    parser.add_argument(
         "--json-out",
         help="Output json file for processed files",
         default="processed_files.json",
     )
     args = parser.parse_args()
-    gs = galaxy_social(args.preview)
+    gs = galaxy_social(args.preview, prepared_images=args.prepared_images)
 
     if args.files:
         files_to_process = args.files

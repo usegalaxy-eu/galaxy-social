@@ -10,13 +10,13 @@ from bs4 import BeautifulSoup
 from .base import BLUESKY_IMAGE_LIMIT, load_image, strip_markdown_formatting
 
 
-def card_thumbnail(image_url):
+def card_thumbnail(image_url, prepared_images=None):
     """Image of a link card: prepared like the post images (the prepare job also looks up the
     og:image of linked pages), or no image if it was not prepared."""
     if not image_url:
         return None
     try:
-        content = load_image(image_url, small=True)["content"]
+        content = load_image(image_url, prepared_images, small=True)["content"]
     except Exception:
         return None
     return content if len(content) <= BLUESKY_IMAGE_LIMIT else None
@@ -126,7 +126,7 @@ class bluesky_client:
         return facets, last_url
 
     def handle_url_card(
-        self, url: str
+        self, url: str, prepared_images: Optional[str] = None
     ) -> Optional[atproto.models.AppBskyEmbedExternal.Main]:
         try:
             response = requests.get(url)
@@ -161,7 +161,7 @@ class bluesky_client:
             if image_tag and hasattr(image_tag, "attrs")
             else None
         )
-        image_content = card_thumbnail(image_url)
+        image_content = card_thumbnail(image_url, prepared_images)
         thumb = (
             self.blueskysocial.upload_blob(image_content).blob
             if image_content
@@ -247,7 +247,7 @@ class bluesky_client:
         try:
             embed_images = []
             for image in content["images"]:
-                img_data = load_image(image["url"], small=True)["content"]
+                img_data = load_image(image["url"], kwargs.get("prepared_images"), small=True)["content"]
                 if len(img_data) > BLUESKY_IMAGE_LIMIT:
                     img_data = None  # too large for Bluesky even as a smaller JPEG
                 upload = (
@@ -284,7 +284,7 @@ class bluesky_client:
                 else None
             )
             if not content["images"] or reply_to:
-                embed = self.handle_url_card(cast(str, last_url))
+                embed = self.handle_url_card(cast(str, last_url), kwargs.get("prepared_images"))
 
             try:
                 post = self.blueskysocial.send_post(

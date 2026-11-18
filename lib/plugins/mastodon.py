@@ -87,7 +87,7 @@ class mastodon_client:
         media_ids = []
         for image in content["images"]:
             try:
-                image_data = load_image(image["url"])
+                image_data = load_image(image["url"], kwargs.get("prepared_images"))
                 # bytes with a mime type, so Mastodon.py does not inspect the file itself
                 media_uploaded = self.mastodon_handle.media_post(
                     media_file=image_data["content"],

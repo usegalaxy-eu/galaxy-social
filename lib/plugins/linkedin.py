@@ -125,7 +125,7 @@ class linkedin_client:
         preview += "\n\n" + images_preview
         return formatted_content, preview, warnings
 
-    def linkedin_post(self, content, images):
+    def linkedin_post(self, content, images, prepared_images=None):
         try:
             content, protected_mentions = self.protect_mentions(content)
             # This is needed to escape special characters in the content
@@ -146,7 +146,7 @@ class linkedin_client:
                 "isReshareDisabledByAuthor": False,
             }
             if images:
-                data["content"] = self.linkedin_upload_images(images)
+                data["content"] = self.linkedin_upload_images(images, prepared_images)
             headers = self.headers
             headers["Content-Type"] = "application/json"
             response = requests.post(
@@ -159,7 +159,7 @@ class linkedin_client:
             traceback.print_exc()
             return None
 
-    def linkedin_upload_images(self, images):
+    def linkedin_upload_images(self, images, prepared_images=None):
         try:
             image_upload = []
             for image in images:
@@ -175,7 +175,7 @@ class linkedin_client:
                 response = requests.put(
                     upload_url,
                     headers={"Authorization": f"Bearer {self.access_token}"},
-                    data=load_image(image["url"])["content"],
+                    data=load_image(image["url"], prepared_images)["content"],
                 )
                 response.raise_for_status()
                 image_id = value["image"]
@@ -232,7 +232,7 @@ class linkedin_client:
         post_id = None
         for text in content["chunks"]:
             if not post_id:
-                post_id = self.linkedin_post(text, content.get("images"))
+                post_id = self.linkedin_post(text, content.get("images"), kwargs.get("prepared_images"))
                 if not post_id:
                     return False, None
             else:

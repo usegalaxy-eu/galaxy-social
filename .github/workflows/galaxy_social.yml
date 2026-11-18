@@ -48,10 +48,10 @@ jobs:
       - name: List images and linked pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python -u github_run.py --prepare-images prepared_images
+        run: python -u github_run.py --list-images prepared_images
 
       - name: Download and convert images
-        run: python -u github_run.py --convert-images prepared_images
+        run: python -u github_run.py --prepare-images prepared_images
 
       - name: Upload prepared images
         uses: actions/upload-artifact@v7
@@ -104,7 +104,8 @@ jobs:
       - name: Run script to create preview or publish contents
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PREPARED_IMAGES: ${{ needs.prepare_images.result == 'success' && format('{0}/prepared_images', runner.temp) || '' }}
+          # set whenever publishing; if preparing failed the folder is missing and nothing with images is posted
+          PREPARED_IMAGES: ${{ needs.prepare_images.result != 'skipped' && format('{0}/prepared_images', runner.temp) || '' }}
           MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
           MATRIX_ACCESS_TOKEN: ${{ secrets.MATRIX_ACCESS_TOKEN }}

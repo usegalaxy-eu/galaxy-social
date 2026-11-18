@@ -61,12 +61,12 @@ class slack_client:
         preview += "\n\n" + images_preview
         return formatted_content, preview, warnings
 
-    def upload_images(self, images):
+    def upload_images(self, images, prepared_images=None):
         uploaded_files = []
         for image in images:
             filename = image["url"].split("/")[-1]
             try:
-                image_content = load_image(image["url"])["content"]
+                image_content = load_image(image["url"], prepared_images)["content"]
             except Exception as e:
                 print(f"Slack error: {e}")
                 continue
@@ -104,7 +104,7 @@ class slack_client:
                     channel=self.channel_id, message_ts=posts[0]["ts"]
                 )["permalink"]
         if content["images"]:
-            response = self.upload_images(content["images"])
+            response = self.upload_images(content["images"], kwargs.get("prepared_images"))
             posts.append(response)
 
         if not all(post["ok"] for post in posts):

@@ -178,7 +178,7 @@ def shrink_to_limit(content, limit):
 
 
 def prepare_images(urls, folder):
-    """Download and convert images in the job without tokens, for load_image in the job that posts.
+    """Download and convert images (in the workflow: in a job without tokens) for load_image.
 
     Writes one file per image (and a smaller copy for Bluesky when needed) and a manifest.json.
     """
@@ -205,33 +205,32 @@ def prepare_images(urls, folder):
         json.dump(manifest, f)
 
 
-def prepared_manifest():
-    """The manifest of the prepare job, or None when images are not prepared (previews, local runs)."""
-    folder = os.environ.get("PREPARED_IMAGES")
-    if not folder:
+def read_manifest(folder):
+    """The manifest of prepared images in folder, or None if preparing them failed (no manifest)."""
+    try:
+        with open(os.path.join(folder, "manifest.json")) as f:
+            return json.load(f)
+    except FileNotFoundError:
         return None
-    with open(os.path.join(folder, "manifest.json")) as f:
-        return json.load(f)
 
 
-def load_image(url, small=False):
+def load_image(url, folder=None, small=False):
     """Return the image to post as {"content", "mime", "width", "height"}.
 
-    In the workflow the files come from the prepare job. This runs with the tokens, so the files
-    are only checked (name, size, first bytes) and never opened. With small=True the smaller copy
-    for Bluesky is used when there is one.
+    Without folder the image is downloaded and converted here. With the folder of prepare_images
+    (as in the workflow, where this runs with the tokens) the files are only checked (name, size,
+    first bytes) and never opened. With small=True the smaller copy for Bluesky is used.
     """
-    manifest = prepared_manifest()
-    if manifest is None:
-        if os.environ.get("GITHUB_ACTIONS"):
-            raise ValueError("Images must be prepared by the prepare_images job")
-        # local run: download and convert here
+    if folder is None:
         content = to_supported_image(download_image(url))
         if small and len(content) > BLUESKY_IMAGE_LIMIT:
             content = shrink_to_limit(content, BLUESKY_IMAGE_LIMIT) or content
         width, height = Image.open(BytesIO(content), formats=[image_format(content)]).size
         return {"content": content, "mime": MIME_TYPES[image_format(content)], "width": width, "height": height}
 
+    manifest = read_manifest(folder)
+    if manifest is None:
+        raise ValueError("Images could not be prepared")
     entry = manifest.get(url)
     if not isinstance(entry, dict) or "file" not in entry:
         raise ValueError(entry.get("error", "not prepared") if isinstance(entry, dict) else "not prepared")
@@ -239,7 +238,7 @@ def load_image(url, small=False):
     # the prepare job handled untrusted files, so its output is not trusted either
     if not re.fullmatch(r"[0-9]+(-small)?", str(name)):
         raise ValueError(f"Unexpected prepared file name: {name!r}")
-    path = os.path.join(os.environ["PREPARED_IMAGES"], name)
+    path = os.path.join(folder, name)
     if os.path.getsize(path) > MAX_IMAGE_BYTES:
         raise ValueError("Prepared image is too large")
     with open(path, "rb") as f:

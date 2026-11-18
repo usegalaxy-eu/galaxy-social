@@ -72,12 +72,12 @@ class matrix_client:
             warnings,
         )
 
-    async def async_create_post(self, content):
+    async def async_create_post(self, content, prepared_images=None):
         posts = []
         for msg in content:
             try:
                 if msg["msgtype"] == "m.image":
-                    image = load_image(msg["url"])
+                    image = load_image(msg["url"], prepared_images)
                     mime_type = image["mime"]
                     temp = tempfile.NamedTemporaryFile()
                     temp.write(image["content"])
@@ -133,5 +133,5 @@ class matrix_client:
 
     def create_post(self, content, **kwargs):
         # hashtags and alt_texts are not used in this function
-        result = self.runner.run(self.async_create_post(content))
+        result = self.runner.run(self.async_create_post(content, kwargs.get("prepared_images")))
         return result

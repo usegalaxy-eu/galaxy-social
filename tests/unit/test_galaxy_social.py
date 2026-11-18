@@ -5,6 +5,7 @@ under valid media names, and image downloads go through a fake `requests`.
 """
 import json
 import random
+from pathlib import Path
 from datetime import datetime, timezone
 from io import BytesIO
 
@@ -329,42 +330,45 @@ class TestPreparedImages:
         monkeypatch.setattr(base_module, "download_image", lambda url: files[url])
         folder = tmp_path / "prepared"
         prepare_images(list(files) + ["https://example.test/b.png"], str(folder))
-        monkeypatch.setenv("PREPARED_IMAGES", str(folder))
-        return folder, files
+        return str(folder), files
 
     def test_prepared_images_are_loaded_without_opening_them(self, prepared, monkeypatch):
         folder, files = prepared
         monkeypatch.setattr(base_module.Image, "open", lambda *a, **k: pytest.fail("opened an image"))
-        avif = load_image("https://example.test/a.avif")
+        avif = load_image("https://example.test/a.avif", folder)
         assert (avif["mime"], avif["width"], avif["height"]) == ("image/jpeg", 8, 8)
-        assert load_image("https://example.test/b.png")["content"] == files["https://example.test/b.png"]
+        assert load_image("https://example.test/b.png", folder)["content"] == files["https://example.test/b.png"]
 
     def test_small_copy_for_bluesky(self, prepared):
-        big = load_image("https://example.test/big.png")["content"]
-        small = load_image("https://example.test/big.png", small=True)
+        folder, _ = prepared
+        big = load_image("https://example.test/big.png", folder)["content"]
+        small = load_image("https://example.test/big.png", folder, small=True)
         assert len(big) > base_module.BLUESKY_IMAGE_LIMIT >= len(small["content"])
         assert small["mime"] == "image/jpeg"
 
     def test_failed_image_is_reported(self, prepared):
+        folder, _ = prepared
         with pytest.raises(ValueError, match="Not a JPEG"):
-            load_image("https://example.test/page.jpg")
+            load_image("https://example.test/page.jpg", folder)
         with pytest.raises(ValueError, match="not prepared"):
-            load_image("https://example.test/other.png")
+            load_image("https://example.test/other.png", folder)
 
     def test_prepared_files_are_not_trusted(self, prepared):
         folder, _ = prepared
+        folder = Path(folder)
         manifest = json.loads((folder / "manifest.json").read_text())
         manifest["https://example.test/b.png"]["file"] = "../../etc/passwd"
         manifest["https://example.test/a.avif"]["file"] = "0-small"
         (folder / "manifest.json").write_text(json.dumps(manifest))
         (folder / "0-small").write_bytes(b"<html></html>")
         with pytest.raises(ValueError, match="Unexpected prepared file name"):
-            load_image("https://example.test/b.png")
+            load_image("https://example.test/b.png", str(folder))
         with pytest.raises(ValueError, match="not a JPEG, PNG or GIF"):
-            load_image("https://example.test/a.avif")
+            load_image("https://example.test/a.avif", str(folder))
 
     def test_validate_images_uses_prepared_images(self, prepared, tmp_path, make_gs, fake_requests):
         gs, _ = make_gs()
+        gs.prepared_images = prepared[0]
         metadata = {"images": [{"url": "https://example.test/a.avif"}, {"url": "https://example.test/page.jpg"}]}
         errors = gs.validate_images(metadata)
         assert fake_requests.calls == []
@@ -372,33 +376,32 @@ class TestPreparedImages:
 
     def test_scheduled_post_with_images_not_prepared_waits_for_next_run(self, prepared, tmp_path, make_gs, fake_requests):
         gs, fakes = make_gs(preview=False)
+        gs.prepared_images = prepared[0]
         path = write_post(tmp_path, schedule="2020-01-01 00:00 UTC", body="Body ![x](https://example.test/new.png)")
         processed, message = gs.process_markdown_file(str(path), {})
         assert message == "" and processed == {} and fakes["markdown"].post_calls == []
 
     def test_other_post_with_images_not_prepared_is_reported(self, prepared, tmp_path, make_gs, fake_requests):
         gs, fakes = make_gs(preview=False)
+        gs.prepared_images = prepared[0]
         path = write_post(tmp_path, body="Body ![x](https://example.test/new.png)")
         processed, message = gs.process_markdown_file(str(path), {})
         assert "Could not use image https://example.test/new.png: not prepared" in message
         assert processed == {str(path): {}} and fakes["markdown"].post_calls == []
 
-    def test_nothing_is_posted_when_the_prepare_job_failed(self, tmp_path, make_gs, fake_requests, monkeypatch):
-        monkeypatch.delenv("PREPARED_IMAGES", raising=False)
-        monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    def test_nothing_is_posted_when_preparing_failed(self, tmp_path, make_gs, fake_requests):
         gs, fakes = make_gs(preview=False, names=("markdown", "mastodon"))
+        gs.prepared_images = str(tmp_path / "missing")  # no manifest: the prepare job failed
         path = write_post(tmp_path, media=("markdown", "mastodon"), body="Body ![x](https://example.test/a.png)")
         processed, message = gs.process_markdown_file(str(path), {})
         assert "Could not prepare the images" in message
         assert processed == {str(path): {"markdown": False, "mastodon": False}}
         assert fakes["markdown"].post_calls == fakes["mastodon"].post_calls == []
 
-    def test_images_are_never_opened_in_github_actions_without_prepare_job(self, monkeypatch):
-        monkeypatch.delenv("PREPARED_IMAGES", raising=False)
-        monkeypatch.setenv("GITHUB_ACTIONS", "true")
-        monkeypatch.setattr(base_module, "download_image", lambda url: pytest.fail("downloaded"))
-        with pytest.raises(ValueError, match="must be prepared"):
-            load_image("https://example.test/a.png")
+    def test_without_folder_images_are_downloaded_and_converted(self, monkeypatch):
+        monkeypatch.setattr(base_module, "download_image", lambda url: image_bytes("AVIF"))
+        image = load_image("https://example.test/a.avif")
+        assert (image["mime"], image["width"]) == ("image/jpeg", 8)
 
 
 class TestImageDownloads:
