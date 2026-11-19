@@ -170,7 +170,11 @@ def update_readme(head_plugins={}):
                     for plugin, value in yaml_data.get(key, {}).items()
                     if plugin in head_plugins
                 }
-            yaml_data["media"] = list(head_plugins)
+            # keep the README's order, so the list only changes when media are added or removed
+            current = yaml_data.get("media") or []
+            yaml_data["media"] = [m for m in current if m in head_plugins] + [
+                m for m in head_plugins if m not in current
+            ]
             updated_yaml_content = yaml.dump(
                 yaml_data, sort_keys=False, default_flow_style=False, allow_unicode=True
             )
@@ -206,10 +210,10 @@ if __name__ == "__main__":
                 logging.error(f"Failed to load {plugins_file} from PR head branch.")
                 sys.exit(1)
             plugins_data = yaml.safe_load(plugins_contents.decoded_content.decode())
-            head_plugins = set()
+            head_plugins = []
             for plugin in plugins_data.get("plugins", []):
                 if plugin.get("enabled", False) and plugin.get("name") != "markdown":
-                    head_plugins.add(plugin.get("name"))
+                    head_plugins.append(plugin.get("name"))
             update_readme(head_plugins)
     elif readme_file in {f.filename for f in files_to_process} and merged:
         update_readme()
