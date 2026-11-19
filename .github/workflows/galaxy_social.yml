@@ -16,6 +16,8 @@ on:
         description: "The number of the pull request to create preview for (empty: publish due scheduled posts)"
         required: false
 
+permissions: {}
+
 jobs:
   # Downloads and converts the images of the posts to publish, so a broken or harmful image file
   # can never reach a token: this job has no platform tokens, and the step that opens files has
