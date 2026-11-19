@@ -1,4 +1,3 @@
-import os
 import re
 import textwrap
 import traceback
@@ -7,7 +6,7 @@ from urllib.parse import quote
 
 import requests
 
-from .base import strip_markdown_formatting
+from .base import load_image, strip_markdown_formatting
 
 
 class linkedin_client:
@@ -126,7 +125,7 @@ class linkedin_client:
         preview += "\n\n" + images_preview
         return formatted_content, preview, warnings
 
-    def linkedin_post(self, content, images):
+    def linkedin_post(self, content, images, prepared_images=None):
         try:
             content, protected_mentions = self.protect_mentions(content)
             # This is needed to escape special characters in the content
@@ -147,7 +146,7 @@ class linkedin_client:
                 "isReshareDisabledByAuthor": False,
             }
             if images:
-                data["content"] = self.linkedin_upload_images(images)
+                data["content"] = self.linkedin_upload_images(images, prepared_images)
             headers = self.headers
             headers["Content-Type"] = "application/json"
             response = requests.post(
@@ -160,7 +159,7 @@ class linkedin_client:
             traceback.print_exc()
             return None
 
-    def linkedin_upload_images(self, images):
+    def linkedin_upload_images(self, images, prepared_images=None):
         try:
             image_upload = []
             for image in images:
@@ -173,22 +172,12 @@ class linkedin_client:
                 response.raise_for_status()
                 value = response.json().get("value")
                 upload_url = value["uploadUrl"]
-                filename = os.path.basename(image["url"])
-                headers = {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                }
-                with requests.get(image["url"], stream=True, headers=headers) as r:
-                    r.raise_for_status()
-                    with open(filename, "wb") as f:
-                        for chunk in r.iter_content(chunk_size=8192):
-                            f.write(chunk)
-                with open(filename, "rb") as file:
-                    response = requests.put(
-                        upload_url,
-                        headers={"Authorization": f"Bearer {self.access_token}"},
-                        data=file,
-                    )
-                    response.raise_for_status()
+                response = requests.put(
+                    upload_url,
+                    headers={"Authorization": f"Bearer {self.access_token}"},
+                    data=load_image(image["url"], prepared_images)["content"],
+                )
+                response.raise_for_status()
                 image_id = value["image"]
                 image_upload.append(
                     {"id": image_id, "altText": image.get("alt_text", "")}
@@ -243,7 +232,7 @@ class linkedin_client:
         post_id = None
         for text in content["chunks"]:
             if not post_id:
-                post_id = self.linkedin_post(text, content.get("images"))
+                post_id = self.linkedin_post(text, content.get("images"), kwargs.get("prepared_images"))
                 if not post_id:
                     return False, None
             else:

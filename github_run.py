@@ -9,6 +9,7 @@ import github
 import yaml
 
 from lib.galaxy_social import galaxy_social
+from lib.plugins.base import link_image_url, prepare_images
 
 
 class GithubInteractor:
@@ -210,7 +211,11 @@ class GithubInteractor:
 
 
 def process(github_instance, files_to_process, preview):
-    gs = galaxy_social(preview)
+    # set by the workflow for every run that publishes (see the prepare_images job)
+    prepared_images = os.environ.get("PREPARED_IMAGES") or None
+    if not preview and not prepared_images:
+        raise RuntimeError("Publishing needs the images of the prepare_images job (PREPARED_IMAGES)")
+    gs = galaxy_social(preview, prepared_images=prepared_images)
     try:
         message = gs.process_files(
             files_to_process, github_instance.processed_files_path
@@ -231,6 +236,7 @@ def process(github_instance, files_to_process, preview):
                     not_posted[file_path] = media_list
 
         github_instance.new_pr(not_posted)
+        return gs.crashed_files
     except Exception as e:
         if preview:
             github_instance.comment_on_pr("Something went wrong, an Admin will take a look.")
@@ -252,6 +258,18 @@ def process(github_instance, files_to_process, preview):
 
 
 if __name__ == "__main__":
+    # The prepare_images job, in two steps (see lib/plugins/base.py load_image):
+    # --list-images FOLDER lists the images and linked pages of the posts this run will publish
+    # (needs the read-only GitHub token), --prepare-images FOLDER downloads and converts them
+    # (gets no token at all, as it opens files from anywhere)
+    if sys.argv[1:2] == ["--prepare-images"]:
+        with open(os.path.join(sys.argv[2], "urls.json")) as f:
+            urls = json.load(f)
+        link_images = [link_image_url(link) for link in dict.fromkeys(urls["links"])]
+        prepare_images(urls["images"] + [url for url in link_images if url], sys.argv[2])
+        sys.exit(0)
+    list_folder = sys.argv[2] if sys.argv[1:2] == ["--list-images"] else None
+
     with open(os.getenv("GITHUB_EVENT_PATH", ""), "r") as f:
         event_data = json.load(f)
     pr_number = event_data.get("number") or event_data.get("inputs", {}).get(
@@ -270,13 +288,16 @@ if __name__ == "__main__":
     try:
         gh_interactor.load_processed_files()
     except Exception:
-        # Some issue with getting the processed_files info.
-        # Failing the workflow run is our only option,
-        # but if we have a PR we can at least the contributor there
-        # with a rather generic comment.
-        if pr_number is not None:
-            gh_interactor.comment_on_pr("Something went wrong, an Admin will take a look.")
-        raise
+        if not list_folder:
+            # Some issue with getting the processed_files info.
+            # Failing the workflow run is our only option,
+            # but if we have a PR we can at least inform the contributor there
+            # with a rather generic comment.
+            if pr_number is not None:
+                gh_interactor.comment_on_pr("Something went wrong, an Admin will take a look.")
+            raise
+        # the token is read-only here; the job that posts creates processed_files if it is missing
+        print("Could not load processed_files, preparing the images of all candidate posts.")
 
     errors = []
     if pr_number is None:
@@ -287,11 +308,24 @@ if __name__ == "__main__":
         preview = not merged and not closed
         files_to_process = gh_interactor.get_pr_files()
 
+    if list_folder:
+        urls = {"images": [], "links": []}
+        for files in files_to_process.values():
+            for file in files:
+                images, links = galaxy_social.urls_to_prepare(file)
+                urls["images"] += images
+                urls["links"] += links
+        os.makedirs(list_folder, exist_ok=True)
+        with open(os.path.join(list_folder, "urls.json"), "w") as f:
+            json.dump(urls, f)
+        sys.exit(0)
+
     if files_to_process:
         for number, files in files_to_process.items():
             gh_interactor.attach_pr(number)
             try:
-                process(gh_interactor, files, preview)
+                # a crashed platform is retried in the new PR, but should still fail the run
+                errors.extend(process(gh_interactor, files, preview) or [])
             except Exception as e:
                 print(f"Error processing {', '.join(files)} for PR #{number} - {type(e).__name__}: {e}")
                 traceback.print_exc()

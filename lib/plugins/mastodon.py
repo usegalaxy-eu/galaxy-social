@@ -1,13 +1,11 @@
 import re
-import tempfile
 import textwrap
 import time
 import traceback
 
-import requests
 from mastodon import Mastodon  # type: ignore
 
-from .base import strip_markdown_formatting
+from .base import load_image, strip_markdown_formatting
 
 
 class mastodon_client:
@@ -88,39 +86,32 @@ class mastodon_client:
     def create_post(self, content, **kwargs):
         media_ids = []
         for image in content["images"]:
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-            }
-            response = requests.get(image["url"], headers=headers)
-            if response.status_code == 200 and response.headers.get(
-                "Content-Type", ""
-            ).startswith("image/"):
-                with tempfile.NamedTemporaryFile() as temp:
-                    temp.write(response.content)
-                    temp.flush()
-                    try:
-                        media_uploaded = self.mastodon_handle.media_post(
-                            media_file=temp.name,
-                            description=(
-                                image["alt_text"] if "alt_text" in image else None
-                            ),
+            try:
+                image_data = load_image(image["url"], kwargs.get("prepared_images"))
+                # bytes with a mime type, so Mastodon.py does not inspect the file itself
+                media_uploaded = self.mastodon_handle.media_post(
+                    media_file=image_data["content"],
+                    mime_type=image_data["mime"],
+                    description=(
+                        image["alt_text"] if "alt_text" in image else None
+                    ),
+                )
+                # GIFs/videos are processed in the background; wait until ready
+                deadline = time.time() + self.media_timeout
+                while not media_uploaded.get("url"):
+                    if time.time() > deadline:
+                        raise TimeoutError(
+                            f"Media not processed after {self.media_timeout}s"
                         )
-                        # GIFs/videos are processed in the background; wait until ready
-                        deadline = time.time() + self.media_timeout
-                        while not media_uploaded.get("url"):
-                            if time.time() > deadline:
-                                raise TimeoutError(
-                                    f"Media not processed after {self.media_timeout}s"
-                                )
-                            time.sleep(2)
-                            media_uploaded = self.mastodon_handle.media(
-                                media_uploaded["id"]
-                            )
-                        media_ids.append(media_uploaded["id"])
-                    except Exception as e:
-                        print(f"Mastodon error: {e}")
-                        traceback.print_exc()
-                        return False, None
+                    time.sleep(2)
+                    media_uploaded = self.mastodon_handle.media(
+                        media_uploaded["id"]
+                    )
+                media_ids.append(media_uploaded["id"])
+            except Exception as e:
+                print(f"Mastodon error: {e}")
+                traceback.print_exc()
+                return False, None
 
         posts = []
         for text in content["chunks"]:
