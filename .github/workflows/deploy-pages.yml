@@ -1,0 +1,67 @@
+name: Deploy Post Creator App
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "post-creator/**"
+      - ".github/workflows/deploy-pages.yml"
+      - ".github/scripts/build_suggestions.py"
+      - "posts/**"
+
+  # Refresh the suggestions and the posts page once a week
+  schedule:
+    - cron: "17 5 * * 1"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  # let a started deployment finish, like GitHub's Pages starter workflow
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Post Creator to GitHub Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          # full history to know when each post was added
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build suggestions and the posts list
+        run: |
+          # only what the script imports, at the versions in requirements.txt
+          python -m pip install -c requirements.txt PyYAML emoji jsonschema requests tzdata
+          python .github/scripts/build_suggestions.py posts post-creator/suggestions.json post-creator/posts.json
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: "./post-creator"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

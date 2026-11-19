@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Galaxy Social Posts</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>"
+    />
+    <style>
+      :root {
+        --bg: #f4f5f7;
+        --card: #ffffff;
+        --text: #1f2430;
+        --muted: #5d6475;
+        --border: #d9dce3;
+        --accent: #2c5bd6;
+        --accent-soft: #e8eefc;
+        --ok: #1a7f37;
+        --ok-soft: #e3f4e8;
+        --warn-bg: #fff6db;
+        --warn: #8a5a00;
+        --error: #c62828;
+        --error-soft: #fde7e7;
+        --radius: 12px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      a {
+        color: var(--accent);
+      }
+      header,
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 24px 16px 8px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+      }
+      header p {
+        margin: 4px 0 0;
+        color: var(--muted);
+      }
+      nav {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: none;
+      }
+      .button {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #fff;
+        padding: 8px 14px;
+      }
+      a:focus-visible,
+      button:focus-visible {
+        outline: 3px solid var(--accent-soft);
+        outline-offset: 1px;
+      }
+      main {
+        padding-bottom: 48px;
+      }
+      h2 {
+        font-size: 1.15rem;
+        margin: 24px 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .count {
+        background: var(--accent-soft);
+        color: var(--accent);
+        border-radius: 999px;
+        padding: 0 10px;
+        font-size: 0.85rem;
+      }
+      h3 {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin: 20px 0 8px;
+      }
+      .icon {
+        width: 16px;
+        height: 16px;
+        flex: none;
+        fill: currentColor;
+      }
+      .post {
+        display: flex;
+        gap: 16px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+      .when {
+        flex: none;
+        width: 64px;
+        text-align: center;
+        border-radius: 10px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        padding: 6px 0;
+        align-self: flex-start;
+        line-height: 1.2;
+      }
+      .when strong {
+        display: block;
+        font-size: 1.6rem;
+      }
+      .when span {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+      }
+      .posted .when {
+        background: var(--bg);
+        color: var(--muted);
+      }
+      .body {
+        min-width: 0;
+        flex: 1;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        align-items: center;
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+      .meta strong {
+        color: var(--text);
+      }
+      .tag {
+        border-radius: 999px;
+        padding: 0 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+      .tag.soon {
+        background: var(--warn-bg);
+        color: var(--warn);
+      }
+      .tag.failed {
+        background: var(--error-soft);
+        color: var(--error);
+      }
+      .text {
+        margin: 6px 0 10px;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .accounts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .account {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        border-radius: 999px;
+        padding: 2px 10px;
+        font-size: 0.85rem;
+        background: var(--bg);
+        color: var(--muted);
+        text-decoration: none;
+      }
+      a.account:hover {
+        text-decoration: underline;
+      }
+      .account.ok {
+        background: var(--ok-soft);
+        color: var(--ok);
+      }
+      .account.failed {
+        background: var(--error-soft);
+        color: var(--error);
+      }
+      .thumb {
+        flex: none;
+        width: 120px;
+        height: 90px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: var(--bg);
+      }
+      .empty {
+        background: var(--card);
+        border: 1px dashed var(--border);
+        border-radius: var(--radius);
+        color: var(--muted);
+        text-align: center;
+        padding: 24px 16px;
+      }
+      .note {
+        color: var(--warn);
+        background: var(--warn-bg);
+        border-radius: 8px;
+        padding: 8px 12px;
+      }
+      .more {
+        display: block;
+        margin: 16px auto 0;
+      }
+      @media (max-width: 640px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .thumb {
+          display: none;
+        }
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+    </style>
+  </head>
+
+  <body>
+    <svg class="visually-hidden" aria-hidden="true">
+      <symbol id="icon-mastodon" viewBox="0 0 24 24">
+        <path
+          d="M23.268 5.313c-.35-2.578-2.617-4.61-5.304-5.004C17.51.242 15.792 0 11.813 0h-.03c-3.98 0-4.835.242-5.288.309C3.882.692 1.496 2.518.917 5.127.64 6.412.61 7.837.661 9.143c.074 1.874.088 3.745.26 5.611.118 1.24.325 2.47.62 3.68.55 2.237 2.777 4.098 4.96 4.857 2.336.792 4.849.923 7.256.38.265-.061.527-.132.786-.213.585-.184 1.27-.39 1.774-.753a.057.057 0 0 0 .023-.043v-1.809a.052.052 0 0 0-.02-.041.053.053 0 0 0-.046-.01 20.282 20.282 0 0 1-4.709.545c-2.73 0-3.463-1.284-3.674-1.818a5.593 5.593 0 0 1-.319-1.433.053.053 0 0 1 .066-.054c1.517.363 3.072.546 4.632.546.376 0 .75 0 1.125-.01 1.57-.044 3.224-.124 4.768-.422.038-.008.077-.015.11-.024 2.435-.464 4.753-1.92 4.989-5.604.008-.145.03-1.52.03-1.67.002-.512.167-3.63-.024-5.545zm-3.748 9.195h-2.561V8.29c0-1.309-.55-1.976-1.67-1.976-1.23 0-1.846.79-1.846 2.35v3.403h-2.546V8.663c0-1.56-.617-2.35-1.848-2.35-1.112 0-1.668.668-1.67 1.977v6.218H4.822V8.102c0-1.31.337-2.35 1.011-3.12.696-.77 1.608-1.164 2.74-1.164 1.311 0 2.302.5 2.962 1.498l.638 1.06.638-1.06c.66-.999 1.65-1.498 2.96-1.498 1.13 0 2.043.395 2.74 1.164.675.77 1.012 1.81 1.012 3.12z"
+        />
+      </symbol>
+      <symbol id="icon-bluesky" viewBox="0 0 24 24">
+        <path
+          d="M5.202 2.857C7.954 4.922 10.913 9.11 12 11.358c1.087-2.247 4.046-6.436 6.798-8.501C20.783 1.366 24 .213 24 3.883c0 .732-.42 6.156-.667 7.037-.856 3.061-3.978 3.842-6.755 3.37 4.854.826 6.089 3.562 3.422 6.299-5.065 5.196-7.28-1.304-7.847-2.97-.104-.305-.152-.448-.153-.327 0-.121-.05.022-.153.327-.568 1.666-2.782 8.166-7.847 2.970-2.667-2.737-1.432-5.473 3.422-6.3-2.777.473-5.899-.308-6.755-3.369C.42 10.04 0 4.615 0 3.883c0-3.67 3.217-2.517 5.202-1.026"
+        />
+      </symbol>
+      <symbol id="icon-linkedin" viewBox="0 0 24 24">
+        <path
+          d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+        />
+      </symbol>
+      <symbol id="icon-matrix" viewBox="0 0 24 24">
+        <path
+          d="M.632.55v22.9H2.28V24H0V0h2.28v.55zm7.043 7.26v1.157h.033c.309-.443.683-.784 1.117-1.024.433-.245.936-.365 1.5-.365.54 0 1.033.107 1.481.314.448.208.785.582 1.02 1.108.254-.374.6-.706 1.034-.992.434-.287.95-.43 1.546-.43.453 0 .872.056 1.26.167.388.11.716.286.993.53.276.245.489.559.646.951.152.392.23.863.23 1.417v5.728h-2.349V11.52c0-.286-.01-.559-.032-.812a1.755 1.755 0 0 0-.18-.66 1.106 1.106 0 0 0-.438-.448c-.194-.11-.457-.166-.785-.166-.332 0-.6.064-.803.189a1.38 1.38 0 0 0-.48.499 1.946 1.946 0 0 0-.231.696 5.56 5.56 0 0 0-.06.785v4.768h-2.35v-4.8c0-.254-.004-.503-.018-.752a2.074 2.074 0 0 0-.143-.688 1.052 1.052 0 0 0-.415-.503c-.194-.125-.476-.19-.854-.19-.111 0-.259.024-.439.074-.18.051-.36.143-.53.282-.171.138-.319.337-.439.595-.12.259-.18.6-.18 1.02v4.966H5.46V7.81zm15.693 15.64V.55H21.72V0H24v24h-2.28v-.55z"
+        />
+      </symbol>
+      <symbol id="icon-github" viewBox="0 0 24 24">
+        <path
+          d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.72.08-.71.08-.71 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.75.41-1.27.74-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.41-5.25 5.7.42.36.79 1.09.79 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.68.8.56C20.71 21.39 24 17.08 24 12c0-6.27-5.23-11.5-12-11.5z"
+        />
+      </symbol>
+    </svg>
+
+    <header>
+      <div>
+        <h1>Galaxy Social Posts</h1>
+        <p>Posts waiting for their scheduled time, and the ones already sent out.</p>
+      </div>
+      <nav>
+        <a class="button" href="./">Create a post</a>
+        <a href="https://github.com/usegalaxy-eu/galaxy-social" target="_blank">
+          <svg class="icon" style="width: 24px; height: 24px"><use href="#icon-github" /></svg>
+          <span class="visually-hidden">GitHub repository</span>
+        </a>
+      </nav>
+    </header>
+
+    <main>
+      <p class="note" id="note" hidden></p>
+      <section aria-labelledby="upcoming-title">
+        <h2 id="upcoming-title">⏰ Scheduled <span class="count" id="upcoming-count"></span></h2>
+        <div id="upcoming"><p class="empty">Loading…</p></div>
+      </section>
+      <section aria-labelledby="posted-title">
+        <h2 id="posted-title">✅ Already posted <span class="count" id="posted-count"></span></h2>
+        <div id="posted"></div>
+        <button class="more" id="more" hidden>Show older posts</button>
+      </section>
+    </main>
+
+    <script>
+      const REPO = "usegalaxy-eu/galaxy-social";
+      const PAGE_SIZE = 30;
+      const OWNERS = {
+        galaxyproject: "Galaxy Project",
+        eu: "Galaxy Europe",
+        brc: "BRC Analytics",
+        vgp: "Vertebrate Genomes Project",
+      };
+      const $ = (id) => document.getElementById(id);
+      const dayFormat = new Intl.DateTimeFormat(undefined, { weekday: "short", hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
+      const monthFormat = new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" });
+      const relative = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+
+      function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      function icon(platform) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("class", "icon");
+        svg.setAttribute("aria-hidden", "true");
+        const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+        use.setAttribute("href", `#icon-${platform}`);
+        svg.appendChild(use);
+        return svg;
+      }
+
+      function fromNow(date) {
+        const minutes = (date - Date.now()) / 60000;
+        if (Math.abs(minutes) < 60) return relative.format(Math.round(minutes), "minute");
+        if (Math.abs(minutes) < 48 * 60) return relative.format(Math.round(minutes / 60), "hour");
+        return relative.format(Math.round(minutes / 1440), "day");
+      }
+
+      // Plain text of the markdown, good enough for a short excerpt
+      function excerpt(text) {
+        return text
+          .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+          .replace(/[*`]{1,3}/g, "")
+          .replace(/\n{3,}/g, "\n\n");
+      }
+
+      // The text with its web links clickable
+      function linkedText(text) {
+        const p = el("p", "text");
+        let last = 0;
+        for (const m of text.matchAll(/\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)|https?:\/\/[^\s<>()]*[^\s<>().,!?;:'"]/g)) {
+          p.append(excerpt(text.slice(last, m.index)));
+          const a = el("a", "", excerpt(m[1] || m[0]));
+          a.href = m[2] || m[0];
+          a.target = "_blank";
+          p.append(a);
+          last = m.index + m[0].length;
+        }
+        p.append(excerpt(text.slice(last)));
+        return p;
+      }
+
+      function card(post, status, upcoming) {
+        const date = new Date(post.schedule || post.added || 0);
+        const results = Object.values(status || {});
+        const item = el("article", upcoming ? "post" : "post posted");
+
+        const when = el("div", "when");
+        when.append(el("strong", "", date.getDate()), el("span", "", date.toLocaleString(undefined, { month: "short" })));
+        item.append(when);
+
+        const body = el("div", "body");
+        const meta = el("div", "meta");
+        meta.append(el("strong", "", dayFormat.format(date)));
+        meta.lastChild.title = date.toISOString().replace("T", " ").slice(0, 16) + " UTC";
+        if (upcoming && date <= Date.now()) {
+          meta.append(el("span", "tag soon", "Going out in the next few minutes"));
+        } else if (upcoming || date > Date.now() - 7 * 864e5) {
+          meta.append(el("span", "", fromNow(date)));
+        }
+        if (!upcoming && !results.some(Boolean)) meta.append(el("span", "tag failed", "Not posted"));
+        const file = el("a", "", "View file");
+        file.href = `https://github.com/${REPO}/blob/main/${post.path}`;
+        file.target = "_blank";
+        meta.append(file);
+        body.append(meta, linkedText(post.text));
+
+        const accounts = el("div", "accounts");
+        post.media.forEach((name) => {
+          const [platform, owner] = name.split("-");
+          // the bot records the link to the post, true when there is no link, or false when it failed
+          const result = status?.[name];
+          const link = typeof result === "string" && result.startsWith("https://") ? result : null;
+          const chip = el(link ? "a" : "span", result ? "account ok" : result === false ? "account failed" : "account");
+          chip.title = `${name}: ${result ? "posted" : result === false ? "failed" : upcoming ? "waiting" : "no record"}`;
+          if (link) {
+            chip.href = link;
+            chip.target = "_blank";
+            chip.title += ", open the post";
+          }
+          chip.append(icon(platform), OWNERS[owner] || name.split("-").slice(1).join(" "));
+          if (result !== undefined) chip.append(result ? " ✓" : " ✗");
+          accounts.append(chip);
+        });
+        body.append(accounts);
+        item.append(body);
+
+        if (post.image) {
+          const img = el("img", "thumb");
+          img.src = post.image;
+          img.alt = "";
+          img.loading = "lazy";
+          img.onerror = () => img.remove();
+          item.append(img);
+        }
+        return item;
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        let posts = [];
+        let processed = {};
+        try {
+          posts = await (await fetch("posts.json")).json();
+        } catch (e) {
+          console.error(e);
+          $("upcoming").replaceChildren(el("p", "empty", "Couldn't load the posts. Please reload the page."));
+          return;
+        }
+        try {
+          // Live record of what went out, kept by the posting workflow
+          const res = await fetch(`https://raw.githubusercontent.com/${REPO}/processed_files/processed_files.json`);
+          processed = await res.json();
+        } catch (e) {
+          console.error(e);
+          $("note").textContent = "Couldn't load which posts went out. The list below may be out of date.";
+          $("note").hidden = false;
+        }
+
+        // A retry PR adds a copy named retry-<PR>_<file> with only the failed accounts; count it as the same post
+        const original = (path) => path.replace(/[^/]*$/, (name) => name.replace(/^(retry-\d+_)+/, ""));
+        const status = {};
+        for (const [path, results] of Object.entries(processed)) {
+          const merged = (status[original(path)] ??= {});
+          for (const [name, ok] of Object.entries(results)) merged[name] = merged[name] || ok;
+        }
+        const byPath = Object.fromEntries(posts.map((p) => [p.path, p]));
+        posts = posts.filter((p) => {
+          const first = byPath[original(p.path)];
+          return !first || first === p;
+        });
+
+        const time = (p) => new Date(p.schedule || p.added || 0).getTime();
+        const upcoming = posts.filter((p) => p.schedule && !(original(p.path) in status)).sort((a, b) => time(a) - time(b));
+        const posted = posts.filter((p) => !upcoming.includes(p)).sort((a, b) => time(b) - time(a));
+
+        $("upcoming-count").textContent = upcoming.length;
+        $("upcoming").replaceChildren(
+          ...(upcoming.length
+            ? upcoming.map((p) => card(p, status[original(p.path)], true))
+            : [el("p", "empty", "Nothing is scheduled right now. Pick a time in the Post Creator to plan a post.")])
+        );
+
+        $("posted-count").textContent = posted.length;
+        let shown = 0;
+        let month = "";
+        function showMore() {
+          posted.slice(shown, shown + PAGE_SIZE).forEach((p) => {
+            const label = monthFormat.format(time(p));
+            if (label !== month) $("posted").append(el("h3", "", (month = label)));
+            $("posted").append(card(p, status[original(p.path)], false));
+          });
+          shown += PAGE_SIZE;
+          $("more").hidden = shown >= posted.length;
+        }
+        $("more").onclick = showMore;
+        showMore();
+        // Load the next posts while scrolling, before the button comes into view
+        const observer = new IntersectionObserver(
+          (entries) => {
+            if (!entries.at(-1).isIntersecting) return;
+            showMore();
+            // observe again so it checks once more if the button is still in view
+            observer.unobserve($("more"));
+            observer.observe($("more"));
+          },
+          { rootMargin: "800px" }
+        );
+        observer.observe($("more"));
+      });
+    </script>
+  </body>
+</html>
