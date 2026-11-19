@@ -23,6 +23,9 @@ def image_bytes(image_format, mode="RGB"):
     Image.new(mode, (8, 8)).save(buffer, image_format)
     return buffer.getvalue()
 
+# the link the FakePlugin returns for a post
+LINK = "https://example.test/1"
+
 
 def write_post(
     tmp_path,
@@ -449,8 +452,17 @@ class TestProcessMarkdownFilePublish:
         processed = {}
         processed, message = gs.process_markdown_file(str(path), processed)
         assert fakes["markdown"].post_calls and fakes["mastodon"].post_calls
-        assert processed[str(path)] == {"markdown": True, "mastodon": True}
+        # the link to each post is recorded
+        assert processed[str(path)] == {"markdown": LINK, "mastodon": LINK}
         assert "🎉" in message
+
+    def test_records_true_without_link_and_false_on_failure(self, tmp_path, make_gs, fake_requests):
+        gs, fakes = make_gs(preview=False, names=("markdown", "mastodon"))
+        fakes["markdown"].post_result = (True, None)
+        fakes["mastodon"].post_result = (False, None)
+        path = write_post(tmp_path, media=("markdown", "mastodon"), schedule="2020-01-01 00:00 UTC")
+        processed, _ = gs.process_markdown_file(str(path), {})
+        assert processed[str(path)] == {"markdown": True, "mastodon": False}
 
     def test_failing_platform_does_not_stop_the_others(self, tmp_path, make_gs, fake_requests):
         gs, fakes = make_gs(preview=False, names=("markdown", "mastodon"))
@@ -458,7 +470,7 @@ class TestProcessMarkdownFilePublish:
         path = write_post(tmp_path, media=("markdown", "mastodon"), schedule="2020-01-01 00:00 UTC")
         processed, _ = gs.process_markdown_file(str(path), {})
         assert len(fakes["mastodon"].post_calls) == 1
-        assert processed[str(path)] == {"markdown": False, "mastodon": True}
+        assert processed[str(path)] == {"markdown": False, "mastodon": LINK}
         assert gs.crashed_files == [str(path)]
 
     def test_skips_future_scheduled_post(self, tmp_path, make_gs, fake_requests):
@@ -480,14 +492,16 @@ class TestProcessMarkdownFilePublish:
         gs.process_markdown_file(str(path), {})
         assert fake_requests.calls == []
 
-    def test_skips_media_that_were_already_posted(self, tmp_path, make_gs, fake_requests):
+    # older records say True, newer ones keep the link; both mean already posted
+    @pytest.mark.parametrize("posted", [True, "https://old.test/1"])
+    def test_skips_media_that_were_already_posted(self, tmp_path, make_gs, fake_requests, posted):
         gs, fakes = make_gs(preview=False, names=("markdown", "mastodon"))
         path = write_post(tmp_path, media=("markdown", "mastodon"), schedule="2020-01-01 00:00 UTC")
-        processed = {str(path): {"markdown": True}}
+        processed = {str(path): {"markdown": posted}}
         processed, message = gs.process_markdown_file(str(path), processed)
         assert fakes["markdown"].post_calls == []
         assert len(fakes["mastodon"].post_calls) == 1
-        assert processed[str(path)] == {"markdown": True, "mastodon": True}
+        assert processed[str(path)] == {"markdown": posted, "mastodon": LINK}
 
     def test_fully_posted_file_is_skipped_cheaply(self, tmp_path, make_gs, fake_requests):
         gs, fakes = make_gs(preview=False)
@@ -579,8 +593,8 @@ class TestProcessFiles:
         message = gs.process_files([str(post1), str(post2)], str(state_path))
         assert "a.md" in message and "b.md" in message
         state = json.loads(state_path.read_text())
-        assert state[str(post1)] == {"markdown": True}
-        assert state[str(post2)] == {"markdown": True}
+        assert state[str(post1)] == {"markdown": LINK}
+        assert state[str(post2)] == {"markdown": LINK}
 
     def test_loads_existing_state(self, tmp_path, make_gs, fake_requests):
         gs, _ = make_gs(preview=False)
@@ -590,7 +604,7 @@ class TestProcessFiles:
         gs.process_files([str(post)], str(state_path))
         state = json.loads(state_path.read_text())
         assert state["some/other/post.md"] == {"markdown": True}
-        assert state[str(post)] == {"markdown": True}
+        assert state[str(post)] == {"markdown": LINK}
 
     def test_preview_does_not_write_state(self, tmp_path, make_gs, fake_requests):
         gs, _ = make_gs(preview=True)
