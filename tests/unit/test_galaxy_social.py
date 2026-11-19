@@ -4,12 +4,24 @@ Real plugins are never instantiated: the tests register FakePlugin instances
 under valid media names, and image downloads go through a fake `requests`.
 """
 import json
+import random
+from pathlib import Path
 from datetime import datetime, timezone
+from io import BytesIO
 
 import pytest
+from PIL import Image
 
 import lib.galaxy_social as galaxy_social_module
 from lib.galaxy_social import galaxy_social
+import lib.plugins.base as base_module
+from lib.plugins.base import image_format, load_image, prepare_images, to_supported_image
+
+
+def image_bytes(image_format, mode="RGB"):
+    buffer = BytesIO()
+    Image.new(mode, (8, 8)).save(buffer, image_format)
+    return buffer.getvalue()
 
 
 def write_post(
@@ -198,11 +210,10 @@ class TestParseMarkdownFile:
 
     def test_does_not_download_images(self, tmp_path, make_gs, monkeypatch):
         # Image validation lives in validate_images(); parsing must stay offline.
-        class Boom:
-            def get(self, *args, **kwargs):
-                raise AssertionError("parse_markdown_file must not download images")
+        def boom(*args, **kwargs):
+            raise AssertionError("parse_markdown_file must not download images")
 
-        monkeypatch.setattr(galaxy_social_module, "requests", Boom())
+        monkeypatch.setattr(galaxy_social_module, "download_image", boom)
         gs, _ = make_gs()
         path = write_post(tmp_path, body="Body ![alt](https://example.test/i.png)")
         content, metadata, errors = gs.parse_markdown_file(str(path))
@@ -233,11 +244,202 @@ class TestValidateImages:
         errors = gs.validate_images(metadata)
         assert "Failed to download image from URL: https://example.test/i.png" in errors
 
-    def test_unsupported_content_type_is_reported(self, tmp_path, make_gs, fake_requests):
+    def test_non_image_is_reported_even_with_image_header(self, tmp_path, make_gs, fake_requests):
         gs, metadata = self.parse_post_with_image(tmp_path, make_gs)
-        fake_requests.content_type = "text/html"
+        fake_requests.content_type = "image/jpeg"
+        fake_requests.content = b"<html></html>"
         errors = gs.validate_images(metadata)
         assert "does not point to a supported image file" in errors
+
+    def test_avif_sent_as_jpeg_is_accepted(self, tmp_path, make_gs, fake_requests):
+        gs, metadata = self.parse_post_with_image(tmp_path, make_gs)
+        fake_requests.content_type = "image/jpeg"
+        fake_requests.content = image_bytes("AVIF")
+        assert gs.validate_images(metadata) == ""
+
+    def test_image_is_not_opened(self, tmp_path, make_gs, fake_requests):
+        gs, metadata = self.parse_post_with_image(tmp_path, make_gs)
+        # starts like an AVIF but is broken: only the first bytes are checked
+        fake_requests.content = b"\x00\x00\x00\x14ftypavif\x00\x00\x00\x00broken"
+        assert gs.validate_images(metadata) == ""
+
+    def test_other_image_formats_are_reported(self, tmp_path, make_gs, fake_requests):
+        gs, metadata = self.parse_post_with_image(tmp_path, make_gs)
+        fake_requests.content = image_bytes("BMP")
+        assert "does not point to a supported image file" in gs.validate_images(metadata)
+
+
+class TestToSupportedImage:
+    def test_jpeg_png_and_gif_are_kept_as_they_are(self):
+        for name in ["JPEG", "PNG", "GIF"]:
+            content = image_bytes(name)
+            assert to_supported_image(content) == content
+
+    def test_avif_and_webp_are_converted_to_jpeg(self):
+        for name in ["AVIF", "WEBP"]:
+            converted = to_supported_image(image_bytes(name))
+            assert Image.open(BytesIO(converted)).format == "JPEG"
+
+    def test_transparent_webp_is_converted_to_png(self):
+        converted = to_supported_image(image_bytes("WEBP", mode="RGBA"))
+        assert Image.open(BytesIO(converted)).format == "PNG"
+
+    def test_svg_is_recognised_and_converted_to_png(self, monkeypatch):
+        svg = b'<?xml version="1.0"?>\n<!-- logo -->\n<!DOCTYPE svg>\n<svg xmlns="http://www.w3.org/2000/svg" width="40" height="20"><rect width="40" height="20"/></svg>'
+        assert image_format(svg) == "SVG"
+        assert image_format(b"<!DOCTYPE html><html><body><svg></svg></body></html>") is None
+        converted = Image.open(BytesIO(to_supported_image(svg)))
+        assert (converted.format, converted.size) == ("PNG", (1600, 800))
+
+    def test_svg_links_are_not_loaded(self, monkeypatch):
+        import cairosvg.url
+
+        monkeypatch.setattr(cairosvg.url, "urlopen", lambda *a, **k: pytest.fail("the SVG loaded a link"))
+        svg = b'<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><image href="https://example.test/x.png" width="10" height="10"/></svg>'
+        assert Image.open(BytesIO(to_supported_image(svg))).format == "PNG"
+
+    def test_other_formats_are_refused_without_decoding(self):
+        for other in ["BMP", "TIFF", "TGA"]:
+            with pytest.raises(ValueError):
+                to_supported_image(image_bytes(other))
+
+    def test_image_format_reads_only_the_first_bytes(self):
+        for name in ["JPEG", "PNG", "GIF", "WEBP", "AVIF"]:
+            assert image_format(image_bytes(name)) == name
+        # mif1 is used by AVIF and HEIC: only AVIF when "avif" is a compatible brand
+        assert image_format(b"\x00\x00\x00\x18ftypmif1\x00\x00\x00\x00mif1avif") == "AVIF"
+        assert image_format(b"\x00\x00\x00\x18ftypmif1\x00\x00\x00\x00mif1heic") is None
+        assert image_format(b"<html></html>") is None
+
+
+class TestPreparedImages:
+    """Images are downloaded and converted in a job without tokens; the job that posts only checks them."""
+
+    @pytest.fixture
+    def prepared(self, tmp_path, monkeypatch):
+        # random noise does not compress, so this PNG is larger than Bluesky's limit
+        noisy = Image.frombytes("RGB", (900, 900), random.Random(0).randbytes(900 * 900 * 3))
+        big = BytesIO()
+        noisy.save(big, "PNG")
+        files = {
+            "https://example.test/a.avif": image_bytes("AVIF"),
+            "https://example.test/b.png": image_bytes("PNG"),
+            "https://example.test/big.png": big.getvalue(),
+            "https://example.test/page.jpg": b"<html></html>",
+        }
+        monkeypatch.setattr(base_module, "download_image", lambda url: files[url])
+        folder = tmp_path / "prepared"
+        prepare_images(list(files) + ["https://example.test/b.png"], str(folder))
+        return str(folder), files
+
+    def test_prepared_images_are_loaded_without_opening_them(self, prepared, monkeypatch):
+        folder, files = prepared
+        monkeypatch.setattr(base_module.Image, "open", lambda *a, **k: pytest.fail("opened an image"))
+        avif = load_image("https://example.test/a.avif", folder)
+        assert (avif["mime"], avif["width"], avif["height"]) == ("image/jpeg", 8, 8)
+        assert load_image("https://example.test/b.png", folder)["content"] == files["https://example.test/b.png"]
+
+    def test_small_copy_for_bluesky(self, prepared):
+        folder, _ = prepared
+        big = load_image("https://example.test/big.png", folder)["content"]
+        small = load_image("https://example.test/big.png", folder, small=True)
+        assert len(big) > base_module.BLUESKY_IMAGE_LIMIT >= len(small["content"])
+        assert small["mime"] == "image/jpeg"
+
+    def test_failed_image_is_reported(self, prepared):
+        folder, _ = prepared
+        with pytest.raises(ValueError, match="Not a JPEG"):
+            load_image("https://example.test/page.jpg", folder)
+        with pytest.raises(ValueError, match="not prepared"):
+            load_image("https://example.test/other.png", folder)
+
+    def test_prepared_files_are_not_trusted(self, prepared):
+        folder, _ = prepared
+        folder = Path(folder)
+        manifest = json.loads((folder / "manifest.json").read_text())
+        manifest["https://example.test/b.png"]["file"] = "../../etc/passwd"
+        manifest["https://example.test/a.avif"]["file"] = "0-small"
+        (folder / "manifest.json").write_text(json.dumps(manifest))
+        (folder / "0-small").write_bytes(b"<html></html>")
+        with pytest.raises(ValueError, match="Unexpected prepared file name"):
+            load_image("https://example.test/b.png", str(folder))
+        with pytest.raises(ValueError, match="not a JPEG, PNG or GIF"):
+            load_image("https://example.test/a.avif", str(folder))
+
+    def test_validate_images_uses_prepared_images(self, prepared, tmp_path, make_gs, fake_requests):
+        gs, _ = make_gs()
+        gs.prepared_images = prepared[0]
+        metadata = {"images": [{"url": "https://example.test/a.avif"}, {"url": "https://example.test/page.jpg"}]}
+        errors = gs.validate_images(metadata)
+        assert fake_requests.calls == []
+        assert "page.jpg" in errors and "a.avif" not in errors
+
+    def test_scheduled_post_with_images_not_prepared_waits_for_next_run(self, prepared, tmp_path, make_gs, fake_requests):
+        gs, fakes = make_gs(preview=False)
+        gs.prepared_images = prepared[0]
+        path = write_post(tmp_path, schedule="2020-01-01 00:00 UTC", body="Body ![x](https://example.test/new.png)")
+        processed, message = gs.process_markdown_file(str(path), {})
+        assert message == "" and processed == {} and fakes["markdown"].post_calls == []
+
+    def test_other_post_with_images_not_prepared_is_reported(self, prepared, tmp_path, make_gs, fake_requests):
+        gs, fakes = make_gs(preview=False)
+        gs.prepared_images = prepared[0]
+        path = write_post(tmp_path, body="Body ![x](https://example.test/new.png)")
+        processed, message = gs.process_markdown_file(str(path), {})
+        assert "Could not use image https://example.test/new.png: not prepared" in message
+        assert processed == {str(path): {}} and fakes["markdown"].post_calls == []
+
+    def test_nothing_is_posted_when_preparing_failed(self, tmp_path, make_gs, fake_requests):
+        gs, fakes = make_gs(preview=False, names=("markdown", "mastodon"))
+        gs.prepared_images = str(tmp_path / "missing")  # no manifest: the prepare job failed
+        path = write_post(tmp_path, media=("markdown", "mastodon"), body="Body ![x](https://example.test/a.png)")
+        processed, message = gs.process_markdown_file(str(path), {})
+        assert "Could not prepare the images" in message
+        assert processed == {str(path): {"markdown": False, "mastodon": False}}
+        assert fakes["markdown"].post_calls == fakes["mastodon"].post_calls == []
+
+    def test_without_folder_images_are_downloaded_and_converted(self, monkeypatch):
+        monkeypatch.setattr(base_module, "download_image", lambda url: image_bytes("AVIF"))
+        image = load_image("https://example.test/a.avif")
+        assert (image["mime"], image["width"]) == ("image/jpeg", 8)
+
+
+class TestImageDownloads:
+    class Response:
+        def __init__(self, chunks=(), text="", status_code=200):
+            self.chunks, self.text, self.status_code = chunks, text, status_code
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def raise_for_status(self):
+            pass
+
+        def iter_content(self, chunk_size):
+            return iter(self.chunks)
+
+    def test_download_stops_at_the_size_limit(self, monkeypatch):
+        monkeypatch.setattr(base_module, "MAX_IMAGE_BYTES", 10)
+        monkeypatch.setattr(base_module.requests, "get", lambda *a, **k: self.Response(chunks=[b"123456", b"789012"]))
+        with pytest.raises(ValueError, match="larger"):
+            base_module.download_image("https://example.test/huge.png")
+
+    def test_link_image_url_reads_og_image(self, monkeypatch):
+        page = '<html><head><meta property="og:image" content="https://example.test/card.webp"></head></html>'
+        monkeypatch.setattr(base_module.requests, "get", lambda *a, **k: self.Response(text=page))
+        assert base_module.link_image_url("https://example.test/page") == "https://example.test/card.webp"
+        monkeypatch.setattr(base_module.requests, "get", lambda *a, **k: self.Response(text="<html></html>"))
+        assert base_module.link_image_url("https://example.test/page") is None
+
+    def test_urls_to_prepare(self, tmp_path):
+        body = "See https://example.test/page.\n\n![alt](https://example.test/i.png)"
+        path = write_post(tmp_path, body=body)
+        assert galaxy_social.urls_to_prepare(str(path)) == (["https://example.test/i.png"], ["https://example.test/page"])
+        later = write_post(tmp_path, name="later.md", schedule="2099-01-01 00:00 UTC", body=body)
+        assert galaxy_social.urls_to_prepare(str(later)) == ([], [])
 
 
 class TestProcessMarkdownFilePublish:
@@ -249,6 +451,15 @@ class TestProcessMarkdownFilePublish:
         assert fakes["markdown"].post_calls and fakes["mastodon"].post_calls
         assert processed[str(path)] == {"markdown": True, "mastodon": True}
         assert "🎉" in message
+
+    def test_failing_platform_does_not_stop_the_others(self, tmp_path, make_gs, fake_requests):
+        gs, fakes = make_gs(preview=False, names=("markdown", "mastodon"))
+        fakes["markdown"].post_error = RuntimeError("boom")
+        path = write_post(tmp_path, media=("markdown", "mastodon"), schedule="2020-01-01 00:00 UTC")
+        processed, _ = gs.process_markdown_file(str(path), {})
+        assert len(fakes["mastodon"].post_calls) == 1
+        assert processed[str(path)] == {"markdown": False, "mastodon": True}
+        assert gs.crashed_files == [str(path)]
 
     def test_skips_future_scheduled_post(self, tmp_path, make_gs, fake_requests):
         gs, fakes = make_gs(preview=False)

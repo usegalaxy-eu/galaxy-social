@@ -4,6 +4,8 @@ import textwrap
 import requests
 from slack_sdk import WebClient
 
+from .base import load_image
+
 
 class slack_client:
     def __init__(self, **kwargs):
@@ -59,19 +61,15 @@ class slack_client:
         preview += "\n\n" + images_preview
         return formatted_content, preview, warnings
 
-    def upload_images(self, images):
+    def upload_images(self, images, prepared_images=None):
         uploaded_files = []
         for image in images:
             filename = image["url"].split("/")[-1]
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-            }
-            with requests.get(image["url"], headers=headers) as response:
-                if response.status_code != 200 or not response.headers.get(
-                    "Content-Type", ""
-                ).startswith("image/"):
-                    continue
-                image_content = response.content
+            try:
+                image_content = load_image(image["url"], prepared_images)["content"]
+            except Exception as e:
+                print(f"Slack error: {e}")
+                continue
 
             response = self.client.files_getUploadURLExternal(
                 filename=filename,
@@ -106,7 +104,7 @@ class slack_client:
                     channel=self.channel_id, message_ts=posts[0]["ts"]
                 )["permalink"]
         if content["images"]:
-            response = self.upload_images(content["images"])
+            response = self.upload_images(content["images"], kwargs.get("prepared_images"))
             posts.append(response)
 
         if not all(post["ok"] for post in posts):

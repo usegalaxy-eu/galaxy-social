@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+import traceback
 from argparse import ArgumentParser
 from datetime import datetime, timezone
 from fnmatch import filter
@@ -11,9 +12,13 @@ from typing import Any, Dict, Iterable
 from zoneinfo import ZoneInfo
 
 import emoji
-import requests
 from jsonschema import validate
 from yaml import safe_load as yaml
+
+try:
+    from lib.plugins.base import download_image, image_format, load_image, read_manifest
+except ImportError:  # run as lib/galaxy_social.py
+    from plugins.base import download_image, image_format, load_image, read_manifest
 
 
 def parse_schedule(value):
@@ -69,8 +74,13 @@ class ImgSyntaxConverter(HTMLParser):
 
 
 class galaxy_social:
-    def __init__(self, preview: bool, plugins_path: str|None = None):
+    def __init__(self, preview: bool, plugins_path: str|None = None, prepared_images: str|None = None):
         self.preview = preview
+        # folder of images already downloaded and converted by prepare_images (lib/plugins/base.py),
+        # or None to let the plugins download and convert them
+        self.prepared_images = prepared_images
+        # files where a platform crashed while posting, so the run can still fail visibly
+        self.crashed_files = []
         if plugins_path is None:
             plugins_path = os.path.join(
                 os.path.dirname(os.path.abspath(__file__)), "..", "plugins.yml"
@@ -188,6 +198,16 @@ class galaxy_social:
         except ValueError as e:
             errors += f"- {e}\n"
 
+        plain_content, metadata["images"] = self.extract_images(text)
+
+        # convert github emoji to unicode
+        plain_content = emoji.emojize(plain_content, language="alias")
+
+        return plain_content, metadata, errors
+
+    @staticmethod
+    def extract_images(text: str):
+        """Return the text without images, and the images as [{"url", "alt_text"}]."""
         # convert html img tags to markdown image syntax
         converter = ImgSyntaxConverter()
         text = re.sub(r"<img [^>]+>", lambda x: converter.convert(x[0]), text)
@@ -196,30 +216,49 @@ class galaxy_social:
         image_pattern = re.compile(r"!\[(.*?)\]\((.*?)\)")
         images = image_pattern.findall(text)
         plain_content = image_pattern.sub("", text).strip()
+        return plain_content, [{"url": image[1], "alt_text": image[0]} for image in images]
 
-        # convert github emoji to unicode
-        plain_content = emoji.emojize(plain_content, language="alias")
+    @classmethod
+    def urls_to_prepare(cls, file_path: str):
+        """Image URLs and linked pages of a post, for the job that prepares images.
 
-        metadata["images"] = [
-            {"url": image[1], "alt_text": image[0]} for image in images
-        ]
-
-        return plain_content, metadata, errors
+        Linked pages are for Bluesky link cards, whose image is prepared too. Posts scheduled
+        for later are skipped: the run that publishes them prepares their images.
+        """
+        result, status = cls.lint_markdown_file(file_path)
+        if not status:
+            return [], []
+        metadata, text = result
+        try:
+            schedule = parse_schedule(metadata.get("schedule"))
+        except ValueError:
+            schedule = None
+        if schedule and schedule > datetime.now(timezone.utc):
+            return [], []
+        text, images = cls.extract_images(text)
+        links = [link.rstrip(".,;:!?") for link in re.findall(r"https?://[^\s<>()\[\]]+", text)]
+        return [image["url"] for image in images], links
 
     def validate_images(self, metadata: Dict[str, Any]):
         """Download all images of a post and check that they are reachable and supported."""
         errors = ""
         for image in metadata["images"]:
-            response = requests.get(image["url"])
-            if response.status_code != 200:
+            if self.prepared_images:
+                try:
+                    load_image(image["url"], self.prepared_images)
+                except Exception as e:
+                    errors += f"- Could not use image {image['url']}: {e}\n"
+                continue
+            try:
+                content = download_image(image["url"])
+            except Exception:
                 errors += f"- Failed to download image from URL: {image['url']}\n"
+                continue
 
-            if response.headers["Content-Type"] not in [
-                "image/jpeg",
-                "image/png",
-                "image/gif",
-            ]:
-                errors += f"- URL does not point to a supported image file: {image['url']}\n"
+            # Check the first bytes of the file, the header can be wrong (e.g. an AVIF file sent as
+            # image/jpeg). The image is not opened here: previews run on anyone's PR with tokens loaded.
+            if image_format(content) is None:
+                errors += f"- URL does not point to a supported image file (JPEG, PNG, GIF, AVIF, WebP or SVG): {image['url']}\n"
 
         return errors
 
@@ -297,6 +336,17 @@ class galaxy_social:
                 f"⏰ This post is scheduled for {describe_schedule(schedule)}:\n`{file_path}`",
             )
 
+        manifest = read_manifest(self.prepared_images) if self.prepared_images else None
+        if self.prepared_images and manifest is None and metadata["images"]:
+            # preparing the images failed: post nothing, the retry PR tries again
+            stats.update({media: False for media in remaining_media})
+            processed_files[file_path] = stats
+            return processed_files, f"⚠️ Could not prepare the images of `{file_path}`, so nothing was posted."
+        if schedule and manifest is not None and any(image["url"] not in manifest for image in metadata["images"]):
+            # became due after the images were prepared: the next scheduled run posts it
+            print(f"Images of {file_path} were not prepared in this run, leaving it for the next one.")
+            return processed_files, ""
+
         errors += self.validate_images(metadata)
         if errors:
             self._mark_handled(file_path, processed_files)
@@ -308,9 +358,17 @@ class galaxy_social:
         )
         for media in remaining_media:
             formatted_content, _, _ = formatting_results[media]
-            stats[media], url[media] = self.plugins[media].create_post(
-                formatted_content, file_path=file_path
-            )
+            # One platform failing must not stop the others or lose what was already posted
+            try:
+                stats[media], url[media] = self.plugins[media].create_post(
+                    formatted_content, file_path=file_path, prepared_images=self.prepared_images
+                )
+            except Exception:
+                print(f"Error posting {file_path} to {media}:")
+                traceback.print_exc()
+                stats[media], url[media] = False, None
+                if file_path not in self.crashed_files:
+                    self.crashed_files.append(file_path)
         url_text = "\n".join(
             [
                 f"- [{media}]({link})" if link else f"- {media}"
@@ -380,12 +438,16 @@ if __name__ == "__main__":
     )
     parser.add_argument("--preview", action="store_true", help="Preview the post")
     parser.add_argument(
+        "--prepared-images",
+        help="Folder with images already downloaded and converted (see prepare_images in lib/plugins/base.py)",
+    )
+    parser.add_argument(
         "--json-out",
         help="Output json file for processed files",
         default="processed_files.json",
     )
     args = parser.parse_args()
-    gs = galaxy_social(args.preview)
+    gs = galaxy_social(args.preview, prepared_images=args.prepared_images)
 
     if args.files:
         files_to_process = args.files
