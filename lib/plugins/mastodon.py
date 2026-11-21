@@ -7,6 +7,7 @@ from mastodon import Mastodon  # type: ignore
 
 from .base import load_image, strip_markdown_formatting
 
+IMAGE_SIZE_LIMIT = 16*10**6
 
 class mastodon_client:
     def __init__(self, **kwargs):
@@ -87,7 +88,11 @@ class mastodon_client:
         media_ids = []
         for image in content["images"]:
             try:
-                image_data = load_image(image["url"], kwargs.get("prepared_images"))
+                image_data = load_image(
+                    image["url"], kwargs.get("prepared_images"), max_size=IMAGE_SIZE_LIMIT
+                )["content"]
+                if len(image_data) > IMAGE_SIZE_LIMIT:
+                    continue  # too large for Mastodon even as a smaller JPEG
                 # bytes with a mime type, so Mastodon.py does not inspect the file itself
                 media_uploaded = self.mastodon_handle.media_post(
                     media_file=image_data["content"],

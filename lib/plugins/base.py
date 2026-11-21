@@ -11,8 +11,8 @@ from markdown import markdown
 from PIL import Image
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-BLUESKY_IMAGE_LIMIT = int(976.56 * 1024)
 MAX_IMAGE_BYTES = 50 * 1024 * 1024
+TARGET_IMAGE_SIZES = [16 * 10 ** 6, 10 ** 6]
 MIME_TYPES = {"JPEG": "image/jpeg", "PNG": "image/png", "GIF": "image/gif"}
 
 
@@ -166,21 +166,34 @@ def link_image_url(page_url):
         return None
 
 
-def shrink_to_limit(content, limit):
-    """Save the image as JPEG with lower quality until it fits the limit, or return None."""
+def shrink_to_limit(content, limits):
+    """Yields the image content as JPEG with progessively lower quality.
+
+    With an original content size > max(limits) it will try to generate for
+    each limit at least one image that is smaller than the limit, and a maximum
+    of len(limits) images in total."""
+
     image = Image.open(BytesIO(content), formats=[image_format(content)]).convert("RGB")
-    for quality in range(95, 5, -5):
+    limits = sorted(limits)
+    limit = limits.pop()
+    current_size = len(content)
+    for quality in range(95, 0, -5):
+        while limits and current_size <= limit:
+            limit = limits.pop()
+        if current_size <= limit:
+            return
         output = BytesIO()
         image.save(output, "JPEG", quality=quality)
-        if output.tell() <= limit:
-            return output.getvalue()
-    return None
+        current_size = output.tell()
+        if current_size <= limit:
+            yield output.getvalue()
 
 
 def prepare_images(urls, folder):
     """Download and convert images (in the workflow: in a job without tokens) for load_image.
 
-    Writes one file per image (and a smaller copy for Bluesky when needed) and a manifest.json.
+    Writes at least one file per image, possibly smaller variants of it to
+    satisfy size limits of different platforms, and a manifest.json.
     """
     os.makedirs(folder, exist_ok=True)
     manifest = {}
@@ -191,12 +204,12 @@ def prepare_images(urls, folder):
             entry = {"file": str(index), "width": width, "height": height}
             with open(os.path.join(folder, entry["file"]), "wb") as f:
                 f.write(content)
-            if len(content) > BLUESKY_IMAGE_LIMIT:
-                small = shrink_to_limit(content, BLUESKY_IMAGE_LIMIT)
-                if small:
-                    entry["small"] = f"{index}-small"
-                    with open(os.path.join(folder, entry["small"]), "wb") as f:
-                        f.write(small)
+            if len(content) > min(TARGET_IMAGE_SIZES):
+                entry["small"] = []
+                for n, lowq in enumerate(shrink_to_limit(content, TARGET_IMAGE_SIZES)):
+                    entry["small"].append(f"{index}-{n}")
+                    with open(os.path.join(folder, entry["small"][-1]), "wb") as f:
+                        f.write(lowq)
             manifest[url] = entry
         except Exception as e:
             print(f"Could not prepare image {url}: {type(e).__name__}: {e}")
@@ -214,17 +227,21 @@ def read_manifest(folder):
         return None
 
 
-def load_image(url, folder=None, small=False):
+def load_image(url, folder=None, max_size=MAX_IMAGE_BYTES):
     """Return the image to post as {"content", "mime", "width", "height"}.
 
     Without folder the image is downloaded and converted here. With the folder of prepare_images
     (as in the workflow, where this runs with the tokens) the files are only checked (name, size,
-    first bytes) and never opened. With small=True the smaller copy for Bluesky is used.
+    first bytes) and never opened.
     """
     if folder is None:
         content = to_supported_image(download_image(url))
-        if small and len(content) > BLUESKY_IMAGE_LIMIT:
-            content = shrink_to_limit(content, BLUESKY_IMAGE_LIMIT) or content
+        if len(content) > max_size:
+            # try to shrink the content; use unchanged if shrinking fails
+            try:
+                content = next(shrink_to_limit(content, [max_size]))
+            except StopIteration:
+                pass
         width, height = Image.open(BytesIO(content), formats=[image_format(content)]).size
         return {"content": content, "mime": MIME_TYPES[image_format(content)], "width": width, "height": height}
 
@@ -234,11 +251,14 @@ def load_image(url, folder=None, small=False):
     entry = manifest.get(url)
     if not isinstance(entry, dict) or "file" not in entry:
         raise ValueError(entry.get("error", "not prepared") if isinstance(entry, dict) else "not prepared")
-    name = entry.get("small") if small and entry.get("small") else entry["file"]
-    # the prepare job handled untrusted files, so its output is not trusted either
-    if not re.fullmatch(r"[0-9]+(-small)?", str(name)):
-        raise ValueError(f"Unexpected prepared file name: {name!r}")
-    path = os.path.join(folder, name)
+    names = [entry["file"]] + entry.get("small", [])
+    for name in names:
+        # the prepare job handled untrusted files, so its output is not trusted either
+        if not re.fullmatch(r"[0-9]+(-[0-9]+)?", str(name)):
+            raise ValueError(f"Unexpected prepared file name: {name!r}")
+        path = os.path.join(folder, name)
+        if os.path.getsize(path) <= max_size:
+            break
     if os.path.getsize(path) > MAX_IMAGE_BYTES:
         raise ValueError("Prepared image is too large")
     with open(path, "rb") as f:
@@ -250,4 +270,3 @@ def load_image(url, folder=None, small=False):
     if not all(isinstance(n, int) and 0 < n < 100000 for n in size):
         size = [None, None]
     return {"content": content, "mime": mime, "width": size[0], "height": size[1]}
-
