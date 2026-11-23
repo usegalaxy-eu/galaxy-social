@@ -252,7 +252,8 @@ class bluesky_client:
                     image["url"], kwargs.get("prepared_images"), max_size=IMAGE_SIZE_LIMIT
                 )["content"]
                 if len(img_data) > IMAGE_SIZE_LIMIT:
-                    img_data = None  # too large for Bluesky even as a smaller JPEG
+                    print(f"Bluesky: skipped {image['url']}, too large even as a smaller JPEG")
+                    img_data = None
                 upload = (
                     self.blueskysocial.com.atproto.repo.upload_blob(img_data).blob
                     if img_data
