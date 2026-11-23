@@ -166,7 +166,7 @@ def link_image_url(page_url):
         return None
 
 
-def shrink_to_limit(content, limits):
+def shrink_to_limits(content, limits):
     """Yields the image content as JPEG with progessively lower quality.
 
     With an original content size > max(limits) it will try to generate for
@@ -206,7 +206,7 @@ def prepare_images(urls, folder):
                 f.write(content)
             if len(content) > min(TARGET_IMAGE_SIZES):
                 entry["small"] = []
-                for n, lowq in enumerate(shrink_to_limit(content, TARGET_IMAGE_SIZES)):
+                for n, lowq in enumerate(shrink_to_limits(content, TARGET_IMAGE_SIZES)):
                     entry["small"].append(f"{index}-{n}")
                     with open(os.path.join(folder, entry["small"][-1]), "wb") as f:
                         f.write(lowq)
@@ -239,7 +239,7 @@ def load_image(url, folder=None, max_size=MAX_IMAGE_BYTES):
         if len(content) > max_size:
             # try to shrink the content; use unchanged if shrinking fails
             try:
-                content = next(shrink_to_limit(content, [max_size]))
+                content = next(shrink_to_limits(content, [max_size]))
             except StopIteration:
                 pass
         width, height = Image.open(BytesIO(content), formats=[image_format(content)]).size
