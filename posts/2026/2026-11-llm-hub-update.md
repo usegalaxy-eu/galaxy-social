@@ -21,6 +21,6 @@ hashtags:
   - AI
   - LLM
 ---
-LLM Hub in Galaxy can now turn speech into text or subtitles, and answer yes/no, choice and score questions about your texts, with probabilities. The models are hosted by the University of Freiburg and e-INFRA CZ.
+LLM Hub in Galaxy can now turn speech into text or subtitles, and answer yes/no, choice and score questions about your texts. Models are hosted by the University of Freiburg and e-INFRA CZ.
 
-Read the updated post: https://galaxyproject.org/news/2025-10-10-llm-hub/
+Read more: https://galaxyproject.org/news/2025-10-10-llm-hub/
