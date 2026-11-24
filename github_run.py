@@ -309,12 +309,16 @@ if __name__ == "__main__":
         files_to_process = gh_interactor.get_pr_files()
 
     if list_folder:
-        urls = {"images": [], "links": []}
+        urls = {}
+        image_urls = set()
+        link_urls = set()
         for files in files_to_process.values():
             for file in files:
                 images, links = galaxy_social.urls_to_prepare(file)
-                urls["images"] += images
-                urls["links"] += links
+                image_urls.update(images)
+                link_urls.update(links)
+        urls["images"] = list(image_urls)
+        urls["links"] = list(link_urls)
         os.makedirs(list_folder, exist_ok=True)
         with open(os.path.join(list_folder, "urls.json"), "w") as f:
             json.dump(urls, f)

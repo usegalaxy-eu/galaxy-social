@@ -7,8 +7,9 @@ import atproto  # type: ignore
 import requests
 from bs4 import BeautifulSoup
 
-from .base import BLUESKY_IMAGE_LIMIT, load_image, strip_markdown_formatting
+from .base import load_image, strip_markdown_formatting
 
+IMAGE_SIZE_LIMIT = 10**6
 
 def card_thumbnail(image_url, prepared_images=None):
     """Image of a link card: prepared like the post images (the prepare job also looks up the
@@ -16,10 +17,10 @@ def card_thumbnail(image_url, prepared_images=None):
     if not image_url:
         return None
     try:
-        content = load_image(image_url, prepared_images, small=True)["content"]
+        content = load_image(image_url, prepared_images, max_size=IMAGE_SIZE_LIMIT)["content"]
     except Exception:
         return None
-    return content if len(content) <= BLUESKY_IMAGE_LIMIT else None
+    return content if len(content) <= IMAGE_SIZE_LIMIT else None
 
 
 class bluesky_client:
@@ -247,9 +248,12 @@ class bluesky_client:
         try:
             embed_images = []
             for image in content["images"]:
-                img_data = load_image(image["url"], kwargs.get("prepared_images"), small=True)["content"]
-                if len(img_data) > BLUESKY_IMAGE_LIMIT:
-                    img_data = None  # too large for Bluesky even as a smaller JPEG
+                img_data = load_image(
+                    image["url"], kwargs.get("prepared_images"), max_size=IMAGE_SIZE_LIMIT
+                )["content"]
+                if len(img_data) > IMAGE_SIZE_LIMIT:
+                    print(f"Bluesky: skipped {image['url']}, too large even as a smaller JPEG")
+                    img_data = None
                 upload = (
                     self.blueskysocial.com.atproto.repo.upload_blob(img_data).blob
                     if img_data

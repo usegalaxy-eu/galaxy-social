@@ -5,6 +5,7 @@ plugins.yml: fake plugins are injected into a galaxy_social instance
 constructed from tests/data/plugins.yml, and the module-level `requests`
 object is replaced by a fake.
 """
+import random
 from io import BytesIO
 from pathlib import Path
 
@@ -12,15 +13,23 @@ import pytest
 from PIL import Image
 
 import lib.galaxy_social as galaxy_social_module
+import lib.plugins.base as base_module
 from lib.galaxy_social import galaxy_social
+from lib.plugins.base import prepare_images
 
 TEST_DATA = Path(__file__).parent / "data"
 
 
-def png_bytes():
+def _image_bytes(image_format, mode="RGB"):
     buffer = BytesIO()
-    Image.new("RGB", (1, 1)).save(buffer, "PNG")
+    Image.new(mode, (8, 8)).save(buffer, image_format)
     return buffer.getvalue()
+
+
+@pytest.fixture
+def image_bytes():
+    """Factory for a tiny (8x8) in-memory image in a given PIL format."""
+    return _image_bytes
 
 
 class FakeRequests:
@@ -29,7 +38,7 @@ class FakeRequests:
     def __init__(self, status_code=200, content_type="image/png"):
         self.status_code = status_code
         self.content_type = content_type
-        self.content = png_bytes()
+        self.content = _image_bytes("PNG")
         self.calls = []
 
     def download_image(self, url):
@@ -118,3 +127,26 @@ def fake_requests(monkeypatch):
     fake = FakeRequests()
     monkeypatch.setattr(galaxy_social_module, "download_image", fake.download_image)
     return fake
+
+
+@pytest.fixture
+def prepared(tmp_path, monkeypatch):
+    """Folder with images prepared by prepare_images, plus the served contents.
+
+    The files were made in a job without tokens (download_image serves them
+    from memory); big.png is random noise, which does not compress, so it is
+    larger than Bluesky's size limit and gets a small JPEG variant.
+    """
+    noisy = Image.frombytes("RGB", (900, 900), random.Random(0).randbytes(900 * 900 * 3))
+    big = BytesIO()
+    noisy.save(big, "PNG")
+    files = {
+        "https://example.test/a.avif": _image_bytes("AVIF"),
+        "https://example.test/b.png": _image_bytes("PNG"),
+        "https://example.test/big.png": big.getvalue(),
+        "https://example.test/page.jpg": b"<html></html>",
+    }
+    monkeypatch.setattr(base_module, "download_image", lambda url: files[url])
+    folder = tmp_path / "prepared"
+    prepare_images(list(files) + ["https://example.test/b.png"], str(folder))
+    return str(folder), files
