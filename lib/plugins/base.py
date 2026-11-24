@@ -12,7 +12,7 @@ from PIL import Image
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 MAX_IMAGE_BYTES = 50 * 1024 * 1024
-TARGET_IMAGE_SIZES = [16 * 10 ** 6, 10 ** 6]
+TARGET_IMAGE_SIZES = [8 * 10 ** 6, 10 ** 6]
 MIME_TYPES = {"JPEG": "image/jpeg", "PNG": "image/png", "GIF": "image/gif"}
 
 

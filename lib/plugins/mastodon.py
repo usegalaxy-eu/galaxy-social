@@ -7,7 +7,7 @@ from mastodon import Mastodon  # type: ignore
 
 from .base import load_image, strip_markdown_formatting
 
-IMAGE_SIZE_LIMIT = 16*10**6
+IMAGE_SIZE_LIMIT = 8*10**6
 
 class mastodon_client:
     def __init__(self, **kwargs):
