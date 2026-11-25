@@ -6,7 +6,7 @@ hashtags:
   bluesky-galaxyproject:
   - UseGalaxy
   - GalaxyProject
-  bluesy-brc:
+  bluesky-brc:
   - UseGalaxy
   - GalaxyProject
 ---
