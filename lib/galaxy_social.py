@@ -360,9 +360,11 @@ class galaxy_social:
             formatted_content, _, _ = formatting_results[media]
             # One platform failing must not stop the others or lose what was already posted
             try:
-                stats[media], url[media] = self.plugins[media].create_post(
+                posted, url[media] = self.plugins[media].create_post(
                     formatted_content, file_path=file_path, prepared_images=self.prepared_images
                 )
+                # Record the link to the post, or True when the platform gives none
+                stats[media] = (url[media] or True) if posted else False
             except Exception:
                 print(f"Error posting {file_path} to {media}:")
                 traceback.print_exc()
