@@ -6,9 +6,15 @@ hashtags:
   linkedin-galaxyproject:
   - UseGalaxy
   - GalaxyProject
+  - PathogenGenomics
+  - Bioinformatics
+  - OpenScience
   linkedin-brc:
   - UseGalaxy
   - GalaxyProject
+  - PathogenGenomics
+  - Bioinformatics
+  - OpenScience
 ---
 Several people at #ASTMH2026 asked us for the slides — so here they are.
 
@@ -21,5 +27,3 @@ Last week in National Harbor, the BRC Analytics and Galaxy teams ran a joint sym
 → Human-written, agent-readable: grounding AI agents in the Galaxy Training Network
 
 https://brc-analytics.org/learn/blog/astmh-2026-slides
-  
- #PathogenGenomics #Bioinformatics #Galaxy #OpenScience
