@@ -433,6 +433,38 @@ class TestProcessMarkdownFilePreview:
         assert "⚠️" in message
         assert "PREVIEW" not in message
 
+    def test_warns_when_hub_page_was_already_posted(self, tmp_path, make_gs, fake_requests):
+        gs, _ = make_gs(preview=True, names=("markdown", "mastodon"))
+        earlier = write_post(tmp_path, "earlier.md", media=("markdown", "mastodon"), body="See http://www.galaxyproject.org/news/2026-06-09-rnaseq.")
+        path = write_post(tmp_path, media=("markdown", "mastodon"), body="New https://galaxyproject.org/news/2026-06-09-rnaseq/")
+        processed = {str(earlier): {"markdown": True, "mastodon": "https://mstdn.science/@g/1"}}
+        _, message = gs.process_markdown_file(str(path), processed)
+        assert (
+            f"⚠️ This links to https://galaxyproject.org/news/2026-06-09-rnaseq/, which was already posted from `{earlier}` to: markdown, [mastodon](https://mstdn.science/@g/1)."
+            in message
+        )
+
+    def test_no_repost_warning_without_a_published_account_in_common(self, tmp_path, make_gs, fake_requests):
+        gs, _ = make_gs(preview=True, names=("markdown", "mastodon"))
+        body = "https://galaxyproject.org/events/gcc2026/"
+        other_account = write_post(tmp_path, "a.md", media=("mastodon",), body=body)
+        failed = write_post(tmp_path, "b.md", body=body)
+        path = write_post(tmp_path, body=body)
+        processed = {
+            str(other_account): {"mastodon": True},
+            str(failed): {"markdown": False},
+            "posts/deleted.md": {"markdown": True},
+        }
+        _, message = gs.process_markdown_file(str(path), processed)
+        assert "⚠️" not in message
+
+    def test_hub_links_are_only_news_and_event_pages(self):
+        assert galaxy_social.hub_links(
+            "https://galaxyproject.org/images/news/a.png https://training.galaxyproject.org/news/b/ "
+            "https://galaxyproject.org/news/ https://galaxyproject.org/projects/c/ "
+            "https://GalaxyProject.org/Events/D/#register"
+        ) == {"galaxyproject.org/events/d"}
+
 
 class TestProcessFiles:
     def test_aggregates_messages_and_writes_state(self, tmp_path, make_gs, fake_requests):

@@ -262,6 +262,40 @@ class galaxy_social:
 
         return errors
 
+    @staticmethod
+    def hub_links(text: str):
+        """Links to a Hub news or event page, as galaxyproject.org/news/<slug>, to find reposts."""
+        return {
+            f"galaxyproject.org/{kind}/{slug.rstrip('.')}".lower()
+            for kind, slug in re.findall(
+                r"(?<![\w.-])(?:www\.)?galaxyproject\.org/(news|events)/([\w.-]+)", text, re.I
+            )
+        }
+
+    def already_posted_warnings(self, content, media, processed_files):
+        """Warn when a Hub page this post links to already went out to one of its accounts.
+
+        Only accounts an earlier post was really published to count, so unposted files of the
+        same PR and retry copies (whose accounts are the ones that failed) give no warning, and
+        accounts this file itself already went out to are not in media (they are skipped).
+        """
+        links = self.hub_links(content)
+        warnings = ""
+        if not links:
+            return warnings
+        for other_path, stats in processed_files.items():
+            accounts = [m for m in stats if m in media and stats[m]]
+            if not accounts or not os.path.isfile(other_path):
+                continue
+            with open(other_path, "r") as file:
+                same_links = links & self.hub_links(file.read())
+            posted = ", ".join(
+                f"[{m}]({stats[m]})" if isinstance(stats[m], str) else m for m in accounts
+            )
+            for link in sorted(same_links):
+                warnings += f"\n\n⚠️ This links to https://{link}/, which was already posted from `{other_path}` to: {posted}."
+        return warnings
+
     def _mark_handled(self, file_path: str, processed_files: Dict[str, Any]):
         if not self.preview:
             # Mark as handled so scheduled runs don't retry a broken post every time
@@ -311,6 +345,7 @@ class galaxy_social:
                 )
             if skipped_media:
                 message += f"\n\nSkipping post to {', '.join(skipped_media)}. because it was already posted."
+            message += self.already_posted_warnings(content, remaining_media, processed_files)
 
             formatting_results = self._format_for_media(
                 file_path, remaining_media, content, metadata
