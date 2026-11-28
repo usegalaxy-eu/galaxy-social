@@ -1,0 +1,9 @@
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        '*': ref-pin
+  dangerous-triggers:
+    ignore:
+      - galaxy_social.yml
+      - validate_social_plugin.yml
